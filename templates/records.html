@@ -1,0 +1,733 @@
+{% extends "base.html" %}
+
+{% block title %}历史记录 - 时间追踪器{% endblock %}
+
+{% block content %}
+<h1>历史记录</h1>
+
+<div class="records-header">
+    <div class="navigation">
+        <a href="/" class="nav-link">返回首页</a>
+    </div>
+</div>
+
+<div class="records-controls">
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="dateFrom">开始日期:</label>
+                <input type="date" id="dateFrom">
+            </div>
+            <div class="filter-group">
+                <label for="dateTo">结束日期:</label>
+                <input type="date" id="dateTo">
+            </div>
+            <div class="filter-group">
+                <label for="activityFilter">活动类型:</label>
+                <select id="activityFilter">
+                    <option value="">全部活动</option>
+                    <!-- 活动选项将通过JavaScript动态填充 -->
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="emotionFilter">情绪:</label>
+                <select id="emotionFilter">
+                    <option value="">全部情绪</option>
+                    <option value="开心">开心</option>
+                    <option value="专注">专注</option>
+                    <option value="疲惫">疲惫</option>
+                    <option value="焦虑">焦虑</option>
+                    <option value="兴奋">兴奋</option>
+                    <option value="平静">平静</option>
+                    <option value="沮丧">沮丧</option>
+                    <option value="满足">满足</option>
+                    <option value="无聊">无聊</option>
+                </select>
+            </div>
+        </div>
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="searchInput">搜索:</label>
+                <input type="text" id="searchInput" placeholder="活动名称或备注信息">
+            </div>
+            <div class="filter-actions">
+                <button class="control-btn search-btn" onclick="applyFilters()">搜索</button>
+                <button class="control-btn reset-btn" onclick="resetFilters()">重置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 活动详情浮窗 -->
+<div id="recordDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeRecordDetailModal()">&times;</span>
+        <h2>活动详情</h2>
+        <div id="recordDetailContent"></div>
+    </div>
+</div>
+
+<div class="records-table-container">
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>活动</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>计时时长</th>
+                <th>时间跨度</th>
+                <th>备注信息</th>
+                <th>记录情绪</th>
+                <th>暂停次数</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="recordsBody">
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination" id="pagination">
+    <!-- 分页控件将通过JavaScript动态生成 -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
+    let allActivities = new Set();
+    let currentDetailRecordId = null; // 用于跟踪当前详情浮窗的记录ID
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecords();
+        
+        // 点击表格外区域关闭浮窗
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('recordDetailModal');
+            if (event.target === modal) {
+                closeRecordDetailModal();
+            }
+        });
+    });
+
+    // 加载记录
+    function loadRecords(page = 1) {
+        currentPage = page;
+        
+        // 获取筛选参数
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const activity = document.getElementById('activityFilter').value;
+        const emotion = document.getElementById('emotionFilter').value;
+        const search = document.getElementById('searchInput').value;
+        
+        // 构建查询参数
+        const params = new URLSearchParams();
+        params.append('page', page);
+        params.append('per_page', 20);
+        if (dateFrom) params.append('date_from', dateFrom);
+        if (dateTo) params.append('date_to', dateTo);
+        if (activity) params.append('activity', activity);
+        if (emotion) params.append('emotion', emotion);
+        if (search) params.append('search', search);
+        
+        fetch(`/api/all-records?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateRecordsTable(data.records);
+                    updatePagination(data.pagination);
+                    updateActivityFilter(data.records);
+                }
+            })
+            .catch(error => {
+                console.error('加载记录失败:', error);
+            });
+    }
+
+    // 更新记录表格
+    function updateRecordsTable(records) {
+        const tbody = document.getElementById('recordsBody');
+        tbody.innerHTML = '';
+        
+        records.forEach((record, index) => {
+            const activityClass = getActivityClass(record.activity, record.activityCategory);
+            
+            // 处理情绪显示，添加颜色
+            const emotionDisplay = record.emotion ? 
+                record.emotion.split(', ').map(e => 
+                    `<span class="emotion-tag" style="background-color: ${getEmotionColor(e)};">${e}</span>`
+                ).join(' ') : '';
+            
+            const row = tbody.insertRow();
+            // 删除编辑按钮，只保留继续和删除按钮
+            row.innerHTML = `
+                <td>${record.date}</td>
+                <td><span class="activity-label ${activityClass}" onclick="showRecordDetail('${record.id}')">${record.activity}</span></td>
+                <td>${formatTime(new Date(record.startTime))}</td>
+                <td>${formatTime(new Date(record.endTime))}</td>
+                <td>${formatDuration(record.duration)}</td>
+                <td>${formatDuration(record.timeSpan)}</td>
+                <td>${record.remark || ''}</td>
+                <td>${emotionDisplay}</td>
+                <td>${record.pauseCount || 0}</td>
+                <td>
+                    <button class="continue-btn" onclick="continueActivity('${record.id}')">继续</button>
+                    <button class="delete-btn" onclick="deleteRecord('${record.id}')">删除</button>
+                </td>
+            `;
+        });
+    }
+
+    // 继续选中的活动
+    function continueActivity(recordId) {
+        // 通过API获取指定记录的详细信息
+        fetch(`/api/records/${recordId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const record = data.record;
+                    
+                    // 重定向到首页并传递活动信息
+                    // 使用localStorage传递数据
+                    localStorage.setItem('continueActivity', JSON.stringify({
+                        activity: record.activity,
+                        activityCategory: record.activityCategory,
+                        remark: record.remark || '',
+                        emotion: record.emotion || ''
+                    }));
+                    
+                    // 跳转到首页
+                    window.location.href = '/';
+                } else {
+                    console.error('获取记录详情失败:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('获取记录详情失败:', error);
+            });
+    }
+
+    // 显示记录详情浮窗
+    function showRecordDetail(recordId) {
+        // 通过API获取指定记录的详细信息
+        fetch(`/api/records/${recordId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const record = data.record;
+                    
+                    currentDetailRecordId = recordId;
+                    const activityClass = getActivityClass(record.activity, record.activityCategory);
+                    
+                    // 处理情绪显示，添加颜色
+                    const emotionDisplay = record.emotion ? 
+                        record.emotion.split(', ').map(e => 
+                            `<span class="emotion-tag" style="background-color: ${getEmotionColor(e)};">${e}</span>`
+                        ).join(' ') : '';
+                    
+                    // 处理段落信息显示
+                    let segmentsDisplay = '';
+                    if (record.segments && record.segments.length > 0) {
+                        segmentsDisplay = record.segments.map((segment, index) => {
+                            return `
+                                <div class="segment-row">
+                                    <span>段落 ${index + 1}:</span>
+                                    <span>${formatTime(new Date(segment.start))} - ${formatTime(new Date(segment.end))}</span>
+                                    <span>(${formatDuration(new Date(segment.end) - new Date(segment.start))})</span>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        segmentsDisplay = '<div class="segment-row">暂无段落记录</div>';
+                    }
+                    
+                    // 构建详情内容
+                    const detailContent = `
+                        <form id="recordDetailForm" class="detail-form">
+                            <label>活动:</label>
+                            <input type="text" value="${record.activity}" id="detail-activity" class="${activityClass}">
+                            
+                            <label>活动类别:</label>
+                            <select id="detail-activity-category" class="${activityClass}">
+                                <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
+                                <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
+                                <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
+                                <option value="身体改善" ${record.activityCategory === '身体改善' ? 'selected' : ''}>身体改善</option>
+                                <option value="沟通交流" ${record.activityCategory === '沟通交流' ? 'selected' : ''}>沟通交流</option>
+                                <option value="探索新方法" ${record.activityCategory === '探索新方法' ? 'selected' : ''}>探索新方法</option>
+                                <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
+                                <option value="保持学习" ${record.activityCategory === '保持学习' ? 'selected' : ''}>保持学习</option>
+                                <option value="生活计划" ${record.activityCategory === '生活计划' ? 'selected' : ''}>生活计划</option>
+                                <option value="规律作息" ${record.activityCategory === '规律作息' ? 'selected' : ''}>规律作息</option>
+                            </select>
+                            
+                            <label>开始时间:</label>
+                            <input type="datetime-local" value="${formatDateTimeForInput(new Date(record.startTime))}" id="detail-start-time">
+                            
+                            <label>结束时间:</label>
+                            <input type="datetime-local" value="${formatDateTimeForInput(new Date(record.endTime))}" id="detail-end-time">
+                            
+                            <label>计时时长:</label>
+                            <div class="duration-edit">
+                                <input type="text" value="${formatDuration(record.duration)}" id="detail-duration">
+                                <button type="button" class="save-btn small" onclick="saveDuration('${record.id}')">保存</button>
+                            </div>
+                            
+                            <label>时间跨度:</label>
+                            <input type="text" value="${formatDuration(record.timeSpan)}" id="detail-time-span" readonly>
+                            
+                            <label>备注信息:</label>
+                            <textarea id="detail-remark">${record.remark || ''}</textarea>
+                            
+                            <label>记录情绪:</label>
+                            <div class="emotion-checkboxes" id="detail-emotion">
+                                ${getEmotionOptions().map(emotion => `
+                                    <div class="emotion-checkbox">
+                                        <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
+                                            ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
+                                        <label for="emotion-${emotion}" style="color: ${getEmotionColor(emotion)};">${emotion}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <label>暂停次数:</label>
+                            <input type="number" value="${record.pauseCount || 0}" id="detail-pause-count" min="0">
+                            
+                            <label>段落记录:</label>
+                            <div class="segments-display">
+                                ${segmentsDisplay}
+                            </div>
+                            
+                            <div class="detail-actions">
+                                <button type="button" class="save-btn" onclick="saveRecordDetail('${record.id}')">保存</button>
+                                <button type="button" class="cancel-btn" onclick="closeRecordDetailModal()">关闭</button>
+                            </div>
+                        </form>
+                    `;
+                    
+                    document.getElementById('recordDetailContent').innerHTML = detailContent;
+                    document.getElementById('recordDetailModal').style.display = 'block';
+                    
+                    // 绑定开始时间和结束时间的更改事件
+                    document.getElementById('detail-start-time').addEventListener('change', function() {
+                        updateTimeSpan(recordId);
+                    });
+                    
+                    document.getElementById('detail-end-time').addEventListener('change', function() {
+                        updateTimeSpan(recordId);
+                    });
+                    
+                    // 绑定活动类别更改事件，更新活动输入框的样式
+                    document.getElementById('detail-activity-category').addEventListener('change', function() {
+                        const selectedCategory = this.value;
+                        const activityClass = getActivityCategoryClass(selectedCategory);
+                        const activityInput = document.getElementById('detail-activity');
+                        // 移除所有可能的类别类
+                        Object.values(getActivityCategoryClassMap()).forEach(cls => {
+                            activityInput.classList.remove(cls);
+                        });
+                        // 添加新的类别类
+                        activityInput.classList.add(activityClass);
+                    });
+                } else {
+                    console.error('加载记录详情失败:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('加载记录详情失败:', error);
+            });
+    }
+
+    // 关闭记录详情浮窗
+    function closeRecordDetailModal() {
+        document.getElementById('recordDetailModal').style.display = 'none';
+        currentDetailRecordId = null;
+    }
+
+    // 更新时间跨度
+    function updateTimeSpan(recordId) {
+        const startTimeStr = document.getElementById('detail-start-time').value;
+        const endTimeStr = document.getElementById('detail-end-time').value;
+        
+        if (startTimeStr && endTimeStr) {
+            const startDate = new Date(startTimeStr);
+            const endDate = new Date(endTimeStr);
+            const timeSpan = endDate - startDate;
+            
+            document.getElementById('detail-time-span').value = formatDuration(timeSpan);
+        }
+    }
+
+    // 保存计时时长
+    function saveDuration(recordId) {
+        const durationStr = document.getElementById('detail-duration').value;
+        const durationMs = parseDurationString(durationStr);
+        
+        if (durationMs === null) {
+            alert('请输入有效的时间格式（如：1小时30分钟 或 90分钟）');
+            return;
+        }
+        
+        // 构造更新数据
+        const updateData = {
+            duration: durationMs
+        };
+        
+        // 发送到后端更新
+        fetch(`/api/records/${recordId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 重新加载记录
+                loadRecords(currentPage);
+                alert('计时时长保存成功');
+            } else {
+                alert('更新记录失败: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('更新记录失败:', error);
+            alert('更新记录失败，请查看控制台了解详情');
+        });
+    }
+
+    // 保存记录详情
+    function saveRecordDetail(recordId) {
+        const activity = document.getElementById('detail-activity').value;
+        const activityCategory = document.getElementById('detail-activity-category').value;
+        const startTimeStr = document.getElementById('detail-start-time').value;
+        const endTimeStr = document.getElementById('detail-end-time').value;
+        const durationStr = document.getElementById('detail-duration').value;
+        const remark = document.getElementById('detail-remark').value;
+        
+        // 获取选中的情绪
+        const emotionCheckboxes = document.querySelectorAll('#detail-emotion input[type="checkbox"]:checked');
+        const emotions = Array.from(emotionCheckboxes).map(cb => cb.value).join(', ');
+        
+        const pauseCount = document.getElementById('detail-pause-count').value;
+        
+        // 构造更新数据
+        const updateData = {
+            activity: activity,
+            activityCategory: activityCategory,
+            remark: remark,
+            emotion: emotions,
+            pauseCount: parseInt(pauseCount) || 0
+        };
+        
+        // 更新时间
+        if (startTimeStr && endTimeStr) {
+            const startDate = new Date(startTimeStr);
+            const endDate = new Date(endTimeStr);
+            
+            updateData.startTime = startDate.toISOString();
+            updateData.endTime = endDate.toISOString();
+            
+            // 重新计算时间跨度
+            const timeSpan = endDate - startDate;
+            updateData.timeSpan = timeSpan;
+            
+            // 如果计时时长也被修改，则使用修改后的值
+            const durationMs = parseDurationString(durationStr);
+            if (durationMs !== null) {
+                updateData.duration = durationMs;
+            } else {
+                // 否则使用时间跨度作为计时时长
+                updateData.duration = timeSpan;
+            }
+        }
+        
+        // 发送到后端更新
+        fetch(`/api/records/${recordId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeRecordDetailModal();
+                loadRecords(currentPage);
+            } else {
+                alert('更新记录失败: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('更新记录失败:', error);
+            alert('更新记录失败，请查看控制台了解详情');
+        });
+    }
+
+    // 更新分页控件
+    function updatePagination(pagination) {
+        totalPages = pagination.pages;
+        const paginationEl = document.getElementById('pagination');
+        
+        let paginationHTML = '';
+        
+        // 上一页按钮
+        if (currentPage > 1) {
+            paginationHTML += `<button onclick="loadRecords(${currentPage - 1})">上一页</button>`;
+        }
+        
+        // 页码按钮
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                paginationHTML += `<button class="active">${i}</button>`;
+            } else {
+                paginationHTML += `<button onclick="loadRecords(${i})">${i}</button>`;
+            }
+        }
+        
+        // 下一页按钮
+        if (currentPage < totalPages) {
+            paginationHTML += `<button onclick="loadRecords(${currentPage + 1})">下一页</button>`;
+        }
+        
+        paginationEl.innerHTML = paginationHTML;
+    }
+
+    // 更新活动筛选下拉框
+    function updateActivityFilter(records) {
+        records.forEach(record => {
+            allActivities.add(record.activity);
+        });
+        
+        const activityFilter = document.getElementById('activityFilter');
+        const currentSelection = activityFilter.value;
+        
+        // 清空现有选项（保留第一个"全部活动"选项）
+        while (activityFilter.options.length > 1) {
+            activityFilter.remove(1);
+        }
+        
+        // 添加所有活动选项
+        allActivities.forEach(activity => {
+            const option = document.createElement('option');
+            option.value = activity;
+            option.text = activity;
+            activityFilter.add(option);
+        });
+        
+        // 恢复之前的选中项
+        activityFilter.value = currentSelection;
+    }
+
+    // 应用筛选条件
+    function applyFilters() {
+        loadRecords(1);
+    }
+
+    // 重置筛选条件
+    function resetFilters() {
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        document.getElementById('activityFilter').value = '';
+        document.getElementById('emotionFilter').value = '';
+        document.getElementById('searchInput').value = '';
+        loadRecords(1);
+    }
+
+    // 编辑记录
+    function editRecord(recordId) {
+        showRecordDetail(recordId);
+    }
+
+    // 删除记录
+    function deleteRecord(recordId) {
+        if (!confirm('确定要删除这条记录吗？')) {
+            return;
+        }
+        
+        fetch(`/api/records/${recordId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadRecords(currentPage);
+            } else {
+                alert('删除记录失败: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('删除记录失败:', error);
+            alert('删除记录失败，请查看控制台了解详情');
+        });
+    }
+
+    // 格式化时间
+    function formatTime(date) {
+        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // 格式化日期时间用于输入框
+    function formatDateTimeForInput(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    // 格式化时长
+    function formatDuration(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        if (hours > 0) {
+            return `${hours}小时${minutes}分钟`;
+        } else {
+            return `${minutes}分钟${seconds}秒`;
+        }
+    }
+
+    // 解析时间字符串为毫秒数
+    function parseDurationString(durationStr) {
+        // 支持格式：1小时30分钟、90分钟、1.5小时等
+        const hourMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*小时/);
+        const minuteMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*分钟/);
+        const secondMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*秒/);
+        
+        let totalMs = 0;
+        
+        if (hourMatch) {
+            totalMs += parseFloat(hourMatch[1]) * 3600000;
+        }
+        
+        if (minuteMatch) {
+            totalMs += parseFloat(minuteMatch[1]) * 60000;
+        }
+        
+        if (secondMatch) {
+            totalMs += parseFloat(secondMatch[1]) * 1000;
+        }
+        
+        // 如果没有匹配到任何单位，尝试直接解析数字作为分钟
+        if (totalMs === 0 && !isNaN(parseFloat(durationStr))) {
+            totalMs = parseFloat(durationStr) * 60000;
+        }
+        
+        return totalMs > 0 ? Math.round(totalMs) : null;
+    }
+
+    // 获取情绪选项
+    function getEmotionOptions() {
+        return ['开心', '专注', '疲惫', '焦虑', '兴奋', '平静', '沮丧', '满足', '无聊'];
+    }
+
+    // 获取情绪颜色
+    function getEmotionColor(emotion) {
+        const emotionColorMap = {
+            '开心': '#4CAF50',    // 绿色
+            '专注': '#2196F3',    // 蓝色
+            '疲惫': '#9E9E9E',    // 灰色
+            '焦虑': '#FF9800',    // 橙色
+            '兴奋': '#E91E63',    // 粉色
+            '平静': '#00BCD4',    // 青色
+            '沮丧': '#F44336',    // 红色
+            '满足': '#8BC34A',    // 黄绿色
+            '无聊': '#795548'     // 棕色
+        };
+        return emotionColorMap[emotion] || '#607D8B'; // 默认灰色
+    }
+
+    // 活动类别到CSS类的映射
+    function getActivityCategoryClassMap() {
+        return {
+            // 工作输出类 - 蓝色系
+            '工作输出': 'btn-work-output',
+            
+            // 大脑充电类 - 绿色系
+            '大脑充电': 'btn-brain-charge',
+            
+            // 修养生息类 - 紫色系
+            '修养生息': 'btn-rest',
+            
+            // 身体改善类 - 橙色系
+            '身体改善': 'btn-body',
+            
+            // 沟通交流类 - 青色系
+            '沟通交流': 'btn-communication',
+            
+            // 探索新方法类 - 深紫系
+            '探索新方法': 'btn-explore',
+            
+            // 纯属娱乐类 - 粉色系
+            '纯属娱乐': 'btn-entertainment',
+            
+            // 保持学习类 - 蓝绿系
+            '保持学习': 'btn-learning',
+            
+            // 生活计划类 - 黄绿系
+            '生活计划': 'btn-planning',
+            
+            // 规律作息类 - 灰色系
+            '规律作息': 'btn-routine'
+        };
+    }
+
+    // 获取活动类别对应的CSS类
+    function getActivityCategoryClass(activityCategory) {
+        const categoryClassMap = getActivityCategoryClassMap();
+        return categoryClassMap[activityCategory] || 'btn-work-output'; // 默认使用工作输出类颜色
+    }
+
+    // 获取活动对应的CSS类（基于活动类别）
+    function getActivityClass(activity, activityCategory) {
+        if (activityCategory) {
+            return getActivityCategoryClass(activityCategory);
+        }
+        // 如果没有活动类别，使用原来的映射
+        const activityClassMap = {
+            // 工作输出类 - 蓝色系
+            '进入工作状态': 'btn-work-output',
+            '梳理方案': 'btn-work-output',
+            '执行工作': 'btn-work-output',
+            '开会': 'btn-work-output',
+            '复盘': 'btn-work-output',
+            '探索新方法': 'btn-work-output',
+            
+            // 大脑充电类 - 绿色系
+            '和智者对话': 'btn-brain-charge',
+            '做调研': 'btn-learning',
+            
+            // 修养生息类 - 紫色系
+            '睡觉仪式': 'btn-rest',
+            '处理日常': 'btn-rest',
+            
+            // 身体改善类 - 橙色系
+            '健身': 'btn-body',
+            '创作/写作': 'btn-body',
+            
+            // 沟通交流类 - 青色系
+            '交流心得': 'btn-communication',
+            '散步': 'btn-communication',
+            '记录|反思|计划': 'btn-communication',
+            
+            // 玩玩具属于纯属娱乐类 - 粉色系
+            '玩玩具': 'btn-entertainment'
+        };
+        
+        return activityClassMap[activity] || 'btn-work-output'; // 默认使用工作输出类颜色
+    }
+</script>
+{% endblock %}

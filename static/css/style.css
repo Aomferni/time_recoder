@@ -1,0 +1,657 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.section h2 {
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.activity-btn {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.activity-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.activity-btn.active {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 0 5px currentColor;
+}
+
+/* 分类颜色 - 按照您给出的分类调整 */
+/* 工作输出类 - 蓝色系 */
+.btn-work-output { background-color: #2196F3; }
+.btn-work-output:hover { background-color: #1976D2; }
+
+/* 大脑充电类 - 绿色系 */
+.btn-brain-charge { background-color: #4CAF50; }
+.btn-brain-charge:hover { background-color: #388E3C; }
+
+/* 修养生息类 - 紫色系 */
+.btn-rest { background-color: #9C27B0; }
+.btn-rest:hover { background-color: #7B1FA2; }
+
+/* 身体改善类 - 橙色系 */
+.btn-body { background-color: #FF9800; }
+.btn-body:hover { background-color: #F57C00; }
+
+/* 沟通交流类 - 青色系 */
+.btn-communication { background-color: #00BCD4; }
+.btn-communication:hover { background-color: #0097A7; }
+
+/* 探索新方法类 - 深紫系 */
+.btn-explore { background-color: #673AB7; }
+.btn-explore:hover { background-color: #512DA8; }
+
+/* 纯属娱乐类 - 粉色系 */
+.btn-entertainment { background-color: #E91E63; }
+.btn-entertainment:hover { background-color: #C2185B; }
+
+/* 保持学习类 - 蓝绿系 */
+.btn-learning { background-color: #009688; }
+.btn-learning:hover { background-color: #00796B; }
+
+/* 生活计划类 - 黄绿系 */
+.btn-planning { background-color: #8BC34A; }
+.btn-planning:hover { background-color: #689F38; }
+
+/* 规律作息类 - 灰色系 */
+.btn-routine { background-color: #607D8B; }
+.btn-routine:hover { background-color: #455A64; }
+
+.timer-display {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: #333;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.current-activity {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.control-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.toggle-btn.pause {
+    background-color: #ff9800;
+}
+
+.stop-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.records-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.records-table th,
+.records-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.records-table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+    color: #555;
+}
+
+.records-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.cancel-btn {
+    background-color: #9E9E9E;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.edit-cell {
+    padding: 5px !important;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.stat-card p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 分类标签样式 */
+.category-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* 活动标签样式 */
+.activity-label {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.activity-label:hover {
+    opacity: 0.8;
+}
+
+/* 分类颜色 - 与按钮颜色保持一致 */
+/* 工作输出类 - 蓝色系 */
+.activity-label.btn-work-output { background-color: #2196F3; }
+
+/* 大脑充电类 - 绿色系 */
+.activity-label.btn-brain-charge { background-color: #4CAF50; }
+
+/* 修养生息类 - 紫色系 */
+.activity-label.btn-rest { background-color: #9C27B0; }
+
+/* 身体改善类 - 橙色系 */
+.activity-label.btn-body { background-color: #FF9800; }
+
+/* 沟通交流类 - 青色系 */
+.activity-label.btn-communication { background-color: #00BCD4; }
+
+/* 探索新方法类 - 深紫系 */
+.activity-label.btn-explore { background-color: #673AB7; }
+
+/* 纯属娱乐类 - 粉色系 */
+.activity-label.btn-entertainment { background-color: #E91E63; }
+
+/* 保持学习类 - 蓝绿系 */
+.activity-label.btn-learning { background-color: #009688; }
+
+/* 生活计划类 - 黄绿系 */
+.activity-label.btn-planning { background-color: #8BC34A; }
+
+/* 规律作息类 - 灰色系 */
+.activity-label.btn-routine { background-color: #607D8B; }
+
+/* 记录详情样式 */
+.record-detail {
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+.record-detail-content {
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #ffffff;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.detail-label {
+    font-weight: bold;
+    width: 100px;
+    margin-right: 10px;
+    color: #555;
+}
+
+.detail-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.collapse-btn {
+    background-color: #9E9E9E;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+/* 浮窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: none;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+.detail-form {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    align-items: center;
+}
+
+.detail-form label {
+    font-weight: bold;
+    color: #555;
+}
+
+.detail-form input, 
+.detail-form select, 
+.detail-form textarea {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.detail-form .full-width {
+    grid-column: span 2;
+}
+
+.detail-form .emotion-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.detail-form .emotion-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.detail-form .emotion-checkbox input {
+    margin-right: 5px;
+}
+
+.detail-actions {
+    margin-top: 20px;
+    text-align: right;
+    grid-column: span 2;
+}
+
+.save-btn, .cancel-btn {
+    margin-left: 10px;
+}
+
+/* 导航链接样式 */
+.records-header {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.navigation {
+    margin-bottom: 20px;
+}
+
+.nav-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border: 1px solid #2196F3;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #2196F3;
+    color: white;
+}
+
+/* 记录控制区域 */
+.records-controls {
+    margin-bottom: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filter-section {
+    margin-bottom: 15px;
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-self: end;
+}
+
+.search-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.reset-btn {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.control-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.control-btn:hover {
+    opacity: 0.9;
+}
+
+/* 记录表格容器 */
+.records-table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+/* 分页样式 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.pagination button:hover {
+    background-color: #f5f5f5;
+}
+
+.pagination button.active {
+    background-color: #2196F3;
+    color: white;
+    border-color: #2196F3;
+}
+
+.pagination button:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.continue-btn {
+    background-color: #FF9800;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.duration-edit {
+    display: flex;
+    gap: 5px;
+}
+
+.duration-edit .small {
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.emotion-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+}
+
+.segments-display {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.segment-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.segment-row:last-child {
+    border-bottom: none;
+}
+
+.segment-row span {
+    flex: 1;
+    text-align: left;
+}
+
+.segment-row span:first-child {
+    flex: 0 0 80px;
+}
+
+.segment-row span:last-child {
+    text-align: right;
+    color: #666;
+}

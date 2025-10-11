@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>时间追踪器</h1>
+
+<div class="main-layout">
+    <div class="section">
+        <h2>选择活动</h2>
+        
+        <div class="category-label">工作输出</div>
+        <div class="button-grid">
+            
+            <button class="activity-btn btn-work-output" data-activity="梳理方案">梳理方案</button>
+            <button class="activity-btn btn-learning" data-activity="做调研">做调研</button>
+            <button class="activity-btn btn-work-output" data-activity="执行工作">执行工作</button>
+            <button class="activity-btn btn-work-output" data-activity="开会">开会</button>
+            <button class="activity-btn btn-work-output" data-activity="复盘">复盘</button>
+            <button class="activity-btn btn-work-output" data-activity="探索新方法">探索新方法</button>
+        </div>
+
+        <div class="category-label">大脑充电</div>
+        <div class="button-grid">
+            <button class="activity-btn btn-brain-charge" data-activity="和智者对话">和智者对话</button>
+            <button class="activity-btn btn-brain-charge" data-activity="玩玩具">玩玩具</button>
+        </div>
+
+        <div class="category-label">修养生息</div>
+        <div class="button-grid">
+            <button class="activity-btn btn-rest" data-activity="处理日常">处理日常</button>
+            <button class="activity-btn btn-rest" data-activity="进入工作状态">进入工作状态</button>
+            <button class="activity-btn btn-rest" data-activity="睡觉仪式">睡觉仪式</button>
+            <button class="activity-btn btn-body" data-activity="健身">健身</button>
+        </div>
+
+        <div class="category-label">暂停一下 & 输出</div>
+        <div class="button-grid">
+            <button class="activity-btn btn-communication" data-activity="散步">散步</button>
+            <button class="activity-btn btn-communication" data-activity="交流心得">交流心得</button>
+            <button class="activity-btn btn-body" data-activity="创作/写作">创作/写作</button>
+            <button class="activity-btn btn-communication" data-activity="记录|反思|计划">记录|反思|计划</button>
+        </div>
+        
+        <div class="navigation">
+            <a href="/records" class="nav-link">查看历史记录</a>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="current-activity" id="currentActivity" contenteditable="false">请选择活动</div>
+        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        
+        <div class="control-buttons">
+            <button class="control-btn toggle-btn" id="toggleBtn">开始</button>
+            <button class="control-btn stop-btn" id="stopBtn">停止</button>
+        </div>
+        <h2>今日记录</h2>
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>活动</th>
+                    <th>开始时间</th>
+                    <th>计时时长</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="recordsBody">
+            </tbody>
+        </table>
+        
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <h3>今日总计</h3>
+                <p id="totalTime">0小时0分</p>
+            </div>
+            <div class="stat-card">
+                <h3>活动次数</h3>
+                <p id="activityCount">0次</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 活动详情浮窗 -->
+<div id="recordDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeRecordDetailModal()">&times;</span>
+        <h2>活动详情</h2>
+        <div id="recordDetailContent"></div>
+    </div>
+</div>
+{% endblock %}
