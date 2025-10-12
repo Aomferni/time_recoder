@@ -7,6 +7,7 @@ let currentRecordId = null; // 用于跟踪当前记录的ID
 let records = [];
 let expandedRecordId = null; // 用于跟踪当前展开的记录ID
 let currentDetailRecordId = null; // 用于跟踪当前详情浮窗的记录ID
+let currentUsername = 'default'; // 当前用户名
 
 // 活动类别到CSS类的映射
 const activityCategoryClassMap = {
@@ -54,7 +55,7 @@ function getActivityClass(activity, activityCategory) {
     // 如果没有活动类别，使用原来的映射
     const activityClassMap = {
         // 工作输出类 - 蓝色系
-        '进入工作状态': 'btn-work-output',
+        '做调研': 'btn-work-output',
         '梳理方案': 'btn-work-output',
         '执行工作': 'btn-work-output',
         '开会': 'btn-work-output',
@@ -63,11 +64,9 @@ function getActivityClass(activity, activityCategory) {
         
         // 大脑充电类 - 绿色系
         '和智者对话': 'btn-brain-charge',
-        '做调研': 'btn-learning',
+        '玩玩具': 'btn-entertainment',
         
-        // 修养生息类 - 紫色系
-        '睡觉仪式': 'btn-rest',
-        '处理日常': 'btn-rest',
+        
         
         // 身体改善类 - 橙色系
         '健身': 'btn-body',
@@ -77,9 +76,10 @@ function getActivityClass(activity, activityCategory) {
         '交流心得': 'btn-communication',
         '散步': 'btn-communication',
         '记录|反思|计划': 'btn-communication',
-        
-        // 玩玩具属于纯属娱乐类 - 粉色系
-        '玩玩具': 'btn-entertainment'
+        // 修养生息类 - 紫色系
+        '睡觉仪式': 'btn-rest',
+        '处理日常': 'btn-rest',
+        '进入工作状态': 'btn-rest',
     };
     
     return activityClassMap[activity] || 'btn-work-output'; // 默认使用工作输出类颜色
@@ -106,6 +106,113 @@ function getEmotionColor(emotion) {
     return emotionColorMap[emotion] || '#607D8B'; // 默认灰色
 }
 
+// 解析时间字符串为毫秒数
+function parseDurationString(durationStr) {
+    // 支持格式：1小时30分钟、90分钟、1.5小时等
+    const hourMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*小时/);
+    const minuteMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*分钟/);
+    const secondMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*秒/);
+    
+    let totalMs = 0;
+    
+    if (hourMatch) {
+        totalMs += parseFloat(hourMatch[1]) * 3600000;
+    }
+    
+    if (minuteMatch) {
+        totalMs += parseFloat(minuteMatch[1]) * 60000;
+    }
+    
+    if (secondMatch) {
+        totalMs += parseFloat(secondMatch[1]) * 1000;
+    }
+    
+    // 如果没有匹配到任何单位，尝试直接解析数字作为分钟
+    if (totalMs === 0 && !isNaN(parseFloat(durationStr))) {
+        totalMs = parseFloat(durationStr) * 60000;
+    }
+    
+    return totalMs > 0 ? Math.round(totalMs) : null;
+}
+
+// 检查用户名，没有设置用户名前不能记录活动
+function checkUsernameBeforeActivity() {
+    if (!currentUsername || currentUsername === 'default') {
+        alert('请先设置用户名后再记录活动');
+        return false;
+    }
+    return true;
+}
+
+// 更新活动按钮的可用状态
+function updateActivityButtonsState() {
+    const activityButtons = document.querySelectorAll('.activity-btn');
+    if (!currentUsername || currentUsername === 'default') {
+        // 未设置用户名，禁用所有活动按钮
+        activityButtons.forEach(btn => {
+            btn.disabled = true;
+            btn.title = '请先设置用户名';
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        });
+    } else {
+        // 已设置用户名，启用所有活动按钮
+        activityButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.title = '';
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        });
+    }
+}
+
+// 设置用户名
+function setUsername() {
+    const usernameInput = document.getElementById('usernameInput');
+    const username = usernameInput.value.trim();
+    
+    if (!username) {
+        alert('请输入用户名');
+        return;
+    }
+    
+    // 保存旧用户名
+    const oldUsername = currentUsername;
+    
+    // 调用后端API设置用户名并迁移记录
+    fetch('/api/set-username', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            oldUsername: oldUsername
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentUsername = username;
+            localStorage.setItem('timeRecorderUsername', username);
+            
+            // 重新加载记录
+            loadRecords();
+            
+            // 更新活动按钮状态
+            updateActivityButtonsState();
+            
+            alert(`用户名已设置为: ${username}`);
+        } else {
+            alert('设置用户名失败: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('设置用户名失败:', error);
+        alert('设置用户名失败，请查看控制台了解详情');
+    });
+}
+
 // 计算时间跨度（结束时间 - 开始时间）
 function calculateTimeSpan(startTime, endTime) {
     const start = new Date(startTime);
@@ -116,6 +223,28 @@ function calculateTimeSpan(startTime, endTime) {
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 设置当前日期显示
+    const today = new Date();
+    const dateString = today.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    document.getElementById('currentDate').textContent = dateString;
+    
+    // 初始化用户名
+    const savedUsername = localStorage.getItem('timeRecorderUsername');
+    if (savedUsername) {
+        currentUsername = savedUsername;
+        document.getElementById('usernameInput').value = savedUsername;
+    }
+    
+    // 根据用户名状态设置活动按钮的可用性
+    updateActivityButtonsState();
+    
+    // 绑定设置用户名按钮事件
+    document.getElementById('setUsernameBtn').addEventListener('click', function() {
+        setUsername();
+        // 用户名设置后更新活动按钮状态
+        setTimeout(updateActivityButtonsState, 100);
+    });
+    
     // 加载今日记录
     loadRecords();
     
@@ -125,6 +254,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // 绑定活动按钮事件
     document.querySelectorAll('.activity-btn').forEach(btn => {
         btn.addEventListener('click', function() {
+            // 检查用户名
+            if (!checkUsernameBeforeActivity()) {
+                return;
+            }
+            
             document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentActivity = this.dataset.activity;
@@ -181,6 +315,11 @@ function checkContinueActivity() {
         currentActivityElement.textContent = `当前活动：${currentActivity}`;
         currentActivityElement.contentEditable = "true";
         
+        // 如果有记录ID，保存它
+        if (data.recordId) {
+            currentRecordId = data.recordId;
+        }
+        
         // 清除localStorage中的数据
         localStorage.removeItem('continueActivity');
         
@@ -224,20 +363,23 @@ function toggleTimer() {
             // 继续计时后禁用编辑
             currentActivityElement.contentEditable = "false";
         } else {
-            // 首次开始计时
+            // 首次开始计时或继续计时
             startTime = Date.now();
-            elapsedTime = 0;
+            // 如果没有elapsedTime（即首次开始计时），则设置为0
+            if (elapsedTime === 0 && !currentRecordId) {
+                elapsedTime = 0;
+            }
             toggleBtn.textContent = '暂停';
             // 开始计时后禁用编辑
             currentActivityElement.contentEditable = "false";
             
-            // 创建新记录并发送到后端
+            // 创建新记录或更新现有记录
             const record = {
                 activity: currentActivity,
                 startTime: new Date(startTime).toISOString(),
                 endTime: new Date(startTime).toISOString(), // 初始结束时间与开始时间相同
-                duration: 0,
-                timeSpan: 0,
+                duration: elapsedTime,
+                timeSpan: elapsedTime,
                 remark: '',
                 emotion: '',
                 pauseCount: 0
@@ -255,7 +397,10 @@ function updateRecordsTable() {
     const tbody = document.getElementById('recordsBody');
     tbody.innerHTML = '';
     
-    records.forEach((record, index) => {
+    // 按开始时间倒序排列
+    const sortedRecords = [...records].sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+    
+    sortedRecords.forEach((record, index) => {
         const activityClass = getActivityClass(record.activity, record.activityCategory);
         const row = tbody.insertRow();
         
@@ -283,36 +428,66 @@ function continueActivity(recordId) {
     currentActivityElement.textContent = `当前活动：${currentActivity}`;
     currentActivityElement.contentEditable = "true";
     
+    // 保存当前记录ID，以便继续更新这个记录
+    currentRecordId = recordId;
+    
     // 重置计时器状态
     resetTimer();
     
     // 设置开始时间为当前时间
     startTime = Date.now();
-    elapsedTime = 0;
+    // 如果记录中有segments，则计算累计时间
+    let accumulatedTime = 0;
+    if (record.segments && record.segments.length > 0) {
+        record.segments.forEach(segment => {
+            const segmentStart = new Date(segment.start).getTime();
+            const segmentEnd = new Date(segment.end).getTime();
+            accumulatedTime += (segmentEnd - segmentStart);
+        });
+    }
+    elapsedTime = accumulatedTime;
+    
+    // 更新计时器显示
+    updateTimer();
     
     // 更新按钮状态
     const toggleBtn = document.getElementById('toggleBtn');
     toggleBtn.textContent = '暂停';
     
-    // 开始计时
-    timerInterval = setInterval(updateTimer, 1000);
-    document.getElementById('toggleBtn').disabled = false;
-    
-    // 创建新记录并发送到后端
-    const newRecord = {
-        activity: currentActivity,
-        activityCategory: record.activityCategory || '', // 继承活动类别
+    // 不再创建新记录，而是继续更新现有记录
+    // 更新记录的开始时间
+    const updateData = {
         startTime: new Date(startTime).toISOString(),
         endTime: new Date(startTime).toISOString(), // 初始结束时间与开始时间相同
-        duration: 0,
-        timeSpan: 0,
-        remark: record.remark || '', // 继承备注
-        emotion: record.emotion || '', // 继承情绪
-        pauseCount: 0,
-        segments: [] // 初始化段落记录数组
+        duration: accumulatedTime,
+        timeSpan: accumulatedTime
     };
     
-    addRecord(newRecord);
+    // 发送到后端更新
+    fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 更新本地记录
+            const index = records.findIndex(r => r.id === recordId);
+            if (index !== -1) {
+                records[index] = {...records[index], ...data.record};
+            }
+            updateRecordsTable();
+        } else {
+            alert('更新记录失败: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('更新记录失败:', error);
+        alert('更新记录失败，请查看控制台了解详情');
+    });
 }
 
 // 更新计时器显示
@@ -325,6 +500,29 @@ function updateTimer() {
     
     document.getElementById('timerDisplay').textContent = 
         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// 重置计时器
+function resetTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    startTime = null;
+    elapsedTime = 0;
+    isPaused = false;
+    // 不清除currentRecordId，因为我们可能需要继续更新这个记录
+    // currentRecordId = null;
+    
+    // 重置显示
+    document.getElementById('timerDisplay').textContent = '00:00:00';
+    const toggleBtn = document.getElementById('toggleBtn');
+    toggleBtn.textContent = '开始';
+    toggleBtn.disabled = false;
+    
+    // 启用编辑
+    const currentActivityElement = document.getElementById('currentActivity');
+    currentActivityElement.contentEditable = "true";
 }
 
 // 停止计时
@@ -368,7 +566,7 @@ function addSegmentToRecord(recordId, segmentStart, segmentEnd) {
     };
     
     // 发送到后端更新
-    fetch(`/api/records/${recordId}`, {
+    fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -543,7 +741,7 @@ function saveDuration(recordId) {
     };
     
     // 发送到后端更新
-    fetch(`/api/records/${recordId}`, {
+    fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -616,7 +814,7 @@ function saveRecordDetail(recordId) {
     }
     
     // 发送到后端更新
-    fetch(`/api/records/${recordId}`, {
+    fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -652,7 +850,7 @@ function closeRecordDetailModal() {
 
 // 从后端加载记录
 function loadRecords() {
-    fetch('/api/records')
+    fetch(`/api/records?username=${encodeURIComponent(currentUsername)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -670,28 +868,67 @@ function loadRecords() {
 
 // 添加记录到后端
 function addRecord(record) {
-    fetch('/api/records', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(record)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            records.push(data.record);
-            currentRecordId = data.record.id; // 保存当前记录ID
-            updateRecordsTable();
-            updateStats();
-        } else {
-            alert('保存记录失败: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('添加记录失败:', error);
-        alert('添加记录失败，请查看控制台了解详情');
-    });
+    // 如果已经有currentRecordId，说明是在继续一个现有记录，不需要创建新记录
+    if (currentRecordId) {
+        // 更新现有记录
+        const updateData = {
+            ...record,
+            username: currentUsername
+        };
+        
+        // 发送到后端更新
+        fetch(`/api/records/${currentRecordId}?username=${encodeURIComponent(currentUsername)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 更新本地记录
+                const index = records.findIndex(r => r.id === currentRecordId);
+                if (index !== -1) {
+                    records[index] = {...records[index], ...data.record};
+                }
+                updateRecordsTable();
+                updateStats();
+            } else {
+                alert('更新记录失败: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('更新记录失败:', error);
+            alert('更新记录失败，请查看控制台了解详情');
+        });
+    } else {
+        // 添加用户名到记录中
+        const recordWithUsername = {...record, username: currentUsername};
+        
+        fetch('/api/records', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(recordWithUsername)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                records.push(data.record);
+                currentRecordId = data.record.id; // 保存当前记录ID
+                updateRecordsTable();
+                updateStats();
+            } else {
+                alert('保存记录失败: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('添加记录失败:', error);
+            alert('添加记录失败，请查看控制台了解详情');
+        });
+    }
 }
 
 // 更新记录的结束时间
@@ -705,7 +942,7 @@ function updateRecordEndTime(recordId, endTime) {
     };
     
     // 发送到后端更新
-    fetch(`/api/records/${recordId}`, {
+    fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -738,7 +975,7 @@ function deleteRecord(recordId) {
         return;
     }
     
-    fetch(`/api/records/${recordId}`, {
+    fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
         method: 'DELETE'
     })
     .then(response => response.json())
@@ -776,7 +1013,7 @@ function cancelEdit(recordId, originalContent) {
 
 // 更新统计信息
 function updateStats() {
-    fetch('/api/stats')
+    fetch(`/api/stats?username=${encodeURIComponent(currentUsername)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {

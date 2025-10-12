@@ -1,0 +1,49 @@
+[
+  {
+    "id": "ce15c026-507c-474a-b775-b8dbb687df84",
+    "activity": "梳理（Qoder）方案",
+    "startTime": "2025-10-11T09:00:00.000Z",
+    "endTime": "2025-10-11T09:30:00.000Z",
+    "duration": 1800000,
+    "remark": "",
+    "emotion": "",
+    "pauseCount": 0,
+    "timeSpan": 1800000
+  },
+  {
+    "id": "93f4c369-a55d-43b8-be1d-2dcf45d2c551",
+    "activity": "梳理（Qoder）方案",
+    "startTime": "2025-10-11T10:01:00.000Z",
+    "endTime": "2025-10-11T11:30:00.000Z",
+    "duration": 1740000,
+    "remark": "中间去吃了个饭，所以实际只投入了26分钟",
+    "emotion": "平静",
+    "pauseCount": 1,
+    "timeSpan": 5340000
+  },
+  {
+    "id": "9d880229-464c-456d-8545-2f2e6c6baed5",
+    "activity": "玩玩具（时间追踪器）",
+    "startTime": "2025-10-11T11:42:00.000Z",
+    "endTime": "2025-10-11T12:12:00.000Z",
+    "duration": 1820000,
+    "remark": "",
+    "emotion": "开心, 专注, 兴奋",
+    "pauseCount": 0,
+    "timeSpan": 1800000,
+    "activityCategory": "大脑充电"
+  },
+  {
+    "id": "6ee1fb84-6204-46ca-91ee-78e71c92b80e",
+    "activity": "玩玩具（时间追踪器）",
+    "activityCategory": "玩玩具（时间追踪器）",
+    "startTime": "2025-10-12T02:11:19.893Z",
+    "endTime": "2025-10-12T02:11:19.893Z",
+    "duration": 0,
+    "remark": "",
+    "emotion": "",
+    "pauseCount": 0,
+    "timeSpan": 0,
+    "segments": []
+  }
+]

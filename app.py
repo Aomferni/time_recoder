@@ -14,15 +14,17 @@ app.config['DATA_FOLDER'] = DATA_FOLDER
 # 确保目录存在
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
-def get_data_file_path(date_str=None):
-    """获取指定日期的数据文件路径"""
-    if date_str is None:
-        date_str = date.today().strftime("%Y-%m-%d")
-    return os.path.join(app.config['DATA_FOLDER'], f"records_{date_str}.json")
+def get_data_file_path(username=None):
+    """获取指定用户的數據文件路径"""
+    if username is None:
+        username = 'default'
+    user_folder = os.path.join(app.config['DATA_FOLDER'], username)
+    os.makedirs(user_folder, exist_ok=True)
+    return os.path.join(user_folder, f"records_{username}.json")
 
-def load_records_by_date(date_str):
-    """加载指定日期的记录"""
-    data_file = get_data_file_path(date_str)
+def load_records_by_username(username):
+    """加载指定用户的所有记录"""
+    data_file = get_data_file_path(username)
     if os.path.exists(data_file):
         try:
             with open(data_file, 'r', encoding='utf-8') as f:
@@ -32,35 +34,55 @@ def load_records_by_date(date_str):
             return []
     return []
 
-def load_all_records():
-    """加载所有记录"""
+def load_all_records(username=None):
+    """加载指定用户的所有记录，如果不指定用户则加载所有用户的记录"""
     all_records = []
-    # 查找所有记录文件
-    pattern = os.path.join(app.config['DATA_FOLDER'], "records_*.json")
-    files = glob.glob(pattern)
     
-    for file_path in files:
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                records = json.load(f)
-                # 为每条记录添加日期字段
-                filename = os.path.basename(file_path)
-                date_str = filename.replace("records_", "").replace(".json", "")
-                for record in records:
-                    record['date'] = date_str
-                all_records.extend(records)
-        except Exception as e:
-            print(f"读取记录文件出错 {file_path}: {e}")
+    if username:
+        # 查找指定用户的记录文件
+        user_folder = os.path.join(app.config['DATA_FOLDER'], username)
+        if os.path.exists(user_folder):
+            data_file = os.path.join(user_folder, f"records_{username}.json")
+            if os.path.exists(data_file):
+                try:
+                    with open(data_file, 'r', encoding='utf-8') as f:
+                        records = json.load(f)
+                        for record in records:
+                            record['username'] = username
+                            # 确保记录包含date字段
+                            if 'date' not in record and 'startTime' in record:
+                                record['date'] = record['startTime'][:10].replace('-', '/')
+                        all_records.extend(records)
+                except Exception as e:
+                    print(f"读取记录文件出错 {data_file}: {e}")
+    else:
+        # 查找所有用户的记录文件
+        user_folders = [f.path for f in os.scandir(app.config['DATA_FOLDER']) if f.is_dir()]
+        for user_folder in user_folders:
+            username = os.path.basename(user_folder)
+            data_file = os.path.join(user_folder, f"records_{username}.json")
+            if os.path.exists(data_file):
+                try:
+                    with open(data_file, 'r', encoding='utf-8') as f:
+                        records = json.load(f)
+                        for record in records:
+                            record['username'] = username
+                            # 确保记录包含date字段
+                            if 'date' not in record and 'startTime' in record:
+                                record['date'] = record['startTime'][:10].replace('-', '/')
+                        all_records.extend(records)
+                except Exception as e:
+                    print(f"读取记录文件出错 {data_file}: {e}")
     
     # 按开始时间倒序排列
     all_records.sort(key=lambda x: x['startTime'], reverse=True)
     return all_records
 
-def save_records(records, date_str=None):
-    """保存记录到指定日期的文件"""
-    if date_str is None:
-        date_str = date.today().strftime("%Y-%m-%d")
-    data_file = get_data_file_path(date_str)
+def save_records(records, username=None):
+    """保存记录到指定用户的文件"""
+    if username is None:
+        username = 'default'
+    data_file = get_data_file_path(username)
     try:
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(records, f, ensure_ascii=False, indent=2)
@@ -77,33 +99,66 @@ def index():
 def records_page():
     return render_template('records.html')
 
+@app.route('/api/set-username', methods=['POST'])
+def set_username():
+    """设置用户名并迁移记录"""
+    data = request.get_json()
+    new_username = data.get('username')
+    old_username = data.get('oldUsername', 'default')
+    
+    if not new_username:
+        return jsonify({
+            'success': False,
+            'error': '用户名不能为空'
+        }), 400
+    
+    # 迁移记录
+    if old_username != new_username:
+        if not migrate_user_records(old_username, new_username):
+            return jsonify({
+                'success': False,
+                'error': '迁移记录失败'
+            }), 500
+    
+    return jsonify({
+        'success': True,
+        'message': '用户名设置成功'
+    })
+
 @app.route('/api/records', methods=['GET'])
 def get_records():
     """获取今日记录"""
-    today = date.today().strftime("%Y-%m-%d")
-    records = load_records_by_date(today)
+    username = request.args.get('username', 'default')
+    all_records = load_records_by_username(username)
+    
+    # 获取今天的日期
+    today = datetime.now().strftime('%Y/%m/%d')
+    
+    # 筛选今天的记录
+    today_records = [record for record in all_records if record.get('date', '') == today]
+    
     # 按开始时间倒序排列
-    records.sort(key=lambda x: x['startTime'], reverse=True)
+    today_records.sort(key=lambda x: x['startTime'], reverse=True)
+    
     return jsonify({
         'success': True,
-        'records': records
+        'records': today_records
     })
 
 @app.route('/api/records/<record_id>', methods=['GET'])
 def get_record(record_id):
     """获取单个记录的详细信息"""
-    # 查找记录所属的日期文件
-    all_records = load_all_records()
-    record_date = None
+    # 查找记录
+    username = request.args.get('username', 'default')
+    all_records = load_all_records(username)
     target_record = None
     
     for record in all_records:
         if record['id'] == record_id:
-            record_date = record['date']
             target_record = record
             break
     
-    if not record_date or not target_record:
+    if not target_record:
         return jsonify({
             'success': False,
             'error': '记录不存在'
@@ -136,6 +191,7 @@ def add_record():
         'id': str(uuid.uuid4()),
         'activity': data['activity'],
         'activityCategory': activity_category,  # 添加活动类别字段
+        'date': data['startTime'][:10].replace('-', '/'),  # 添加日期字段
         'startTime': data['startTime'],
         'endTime': data['endTime'],
         'duration': data['duration'],
@@ -146,15 +202,16 @@ def add_record():
         'segments': data.get('segments', [])  # 段落记录
     }
     
-    # 获取记录日期
-    start_date = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00')).date().strftime("%Y-%m-%d")
+    username = data.get('username', 'default')
     
     # 加载现有记录
-    records = load_records_by_date(start_date)
+    records = load_records_by_username(username)
     records.append(record)
     
     # 保存记录
-    if save_records(records, start_date):
+    if save_records(records, username):
+        # 添加username字段到返回的记录中
+        record['username'] = username
         return jsonify({
             'success': True,
             'record': record
@@ -170,22 +227,24 @@ def update_record(record_id):
     """更新记录"""
     data = request.get_json()
     
-    # 查找记录所属的日期文件
-    all_records = load_all_records()
-    record_date = None
+    # 查找记录
+    username = request.args.get('username', 'default')
+    all_records = load_all_records(username)
+    target_record = None
+    
     for record in all_records:
         if record['id'] == record_id:
-            record_date = record['date']
+            target_record = record
             break
     
-    if not record_date:
+    if not target_record:
         return jsonify({
             'success': False,
             'error': '记录不存在'
         }), 404
     
-    # 加载该日期的记录
-    records = load_records_by_date(record_date)
+    # 加载该用户的记录
+    records = load_records_by_username(username)
     
     # 查找并更新记录
     updated = False
@@ -201,6 +260,9 @@ def update_record(record_id):
                 # 更新记录字段
                 for key, value in data.items():
                     if key != 'id':  # 不允许更新ID
+                        # 特殊处理date字段，确保格式正确
+                        if key == 'startTime' and 'date' not in data:
+                            record['date'] = value[:10].replace('-', '/')
                         record[key] = value
             updated = True
             break
@@ -212,13 +274,29 @@ def update_record(record_id):
         }), 404
     
     # 保存记录
-    if save_records(records, record_date):
-        # 返回更新后的记录，包含日期字段
-        record['date'] = record_date
-        return jsonify({
-            'success': True,
-            'record': record
-        })
+    if save_records(records, username):
+        # 查找更新后的记录并返回
+        updated_record = None
+        for record in records:
+            if record['id'] == record_id:
+                updated_record = record
+                # 确保返回的记录包含username和date字段
+                if 'username' not in updated_record:
+                    updated_record['username'] = username
+                if 'date' not in updated_record and 'startTime' in updated_record:
+                    updated_record['date'] = updated_record['startTime'][:10].replace('-', '/')
+                break
+        
+        if updated_record:
+            return jsonify({
+                'success': True,
+                'record': updated_record
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '无法找到更新后的记录'
+            }), 500
     else:
         return jsonify({
             'success': False,
@@ -228,22 +306,23 @@ def update_record(record_id):
 @app.route('/api/records/<record_id>', methods=['DELETE'])
 def delete_record(record_id):
     """删除记录"""
-    # 查找记录所属的日期文件
-    all_records = load_all_records()
-    record_date = None
+    # 查找记录
+    username = request.args.get('username', 'default')
+    all_records = load_all_records(username)
+    target_record = None
     for record in all_records:
         if record['id'] == record_id:
-            record_date = record['date']
+            target_record = record
             break
     
-    if not record_date:
+    if not target_record:
         return jsonify({
             'success': False,
             'error': '记录不存在'
         }), 404
     
-    # 加载该日期的记录
-    records = load_records_by_date(record_date)
+    # 加载该用户的记录
+    records = load_records_by_username(username)
     
     # 查找并删除记录
     original_length = len(records)
@@ -256,7 +335,7 @@ def delete_record(record_id):
         }), 404
     
     # 保存记录
-    if save_records(records, record_date):
+    if save_records(records, username):
         return jsonify({
             'success': True,
             'message': '记录删除成功'
@@ -280,7 +359,8 @@ def get_all_records():
     emotion = request.args.get('emotion', '')
     
     # 加载所有记录
-    all_records = load_all_records()
+    username = request.args.get('username', None)  # 如果没有指定用户，则加载所有用户的记录
+    all_records = load_all_records(username)
     
     # 应用筛选条件
     filtered_records = all_records
@@ -291,11 +371,11 @@ def get_all_records():
                            search.lower() in r['activity'].lower() or 
                            (r['remark'] and search.lower() in r['remark'].lower())]
     
-    # 日期范围筛选
+    # 日期范围筛选（从startTime提取日期）
     if date_from:
-        filtered_records = [r for r in filtered_records if r['date'] >= date_from]
+        filtered_records = [r for r in filtered_records if r['startTime'][:10] >= date_from]
     if date_to:
-        filtered_records = [r for r in filtered_records if r['date'] <= date_to]
+        filtered_records = [r for r in filtered_records if r['startTime'][:10] <= date_to]
     
     # 活动类型筛选
     if activity:
@@ -325,8 +405,8 @@ def get_all_records():
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     """获取统计信息"""
-    today = date.today().strftime("%Y-%m-%d")
-    records = load_records_by_date(today)
+    username = request.args.get('username', 'default')
+    records = load_records_by_username(username)
     
     # 计算总时长和活动次数
     total_duration = sum(record['duration'] for record in records)
@@ -345,6 +425,45 @@ def get_stats():
             'activityCount': activity_count
         }
     })
+
+
+def migrate_user_records(old_username, new_username):
+    """将旧用户名的记录迁移到新用户名"""
+    try:
+        # 加载旧用户的记录
+        old_records = load_records_by_username(old_username)
+        
+        # 如果旧用户没有记录，直接返回成功
+        if not old_records:
+            return True
+        
+        # 加载新用户的记录
+        new_records = load_records_by_username(new_username)
+        
+        # 合并记录
+        all_records = new_records + old_records
+        
+        # 保存到新用户
+        if save_records(all_records, new_username):
+            # 删除旧用户的记录文件
+            old_data_file = get_data_file_path(old_username)
+            if os.path.exists(old_data_file):
+                os.remove(old_data_file)
+                
+                # 如果旧用户文件夹为空，删除文件夹
+                old_user_folder = os.path.dirname(old_data_file)
+                try:
+                    os.rmdir(old_user_folder)
+                except OSError:
+                    # 文件夹不为空，忽略错误
+                    pass
+            
+            return True
+        
+        return False
+    except Exception as e:
+        print(f"迁移用户记录出错: {e}")
+        return False
 
 
 def get_activity_category(activity):

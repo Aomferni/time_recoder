@@ -3,6 +3,12 @@
 {% block content %}
 <h1>时间追踪器</h1>
 
+<div class="user-section">
+    <label for="usernameInput">用户名:</label>
+    <input type="text" id="usernameInput" placeholder="请输入用户名">
+    <button class="control-btn" id="setUsernameBtn">设置</button>
+</div>
+
 <div class="main-layout">
     <div class="section">
         <h2>选择活动</h2>
@@ -53,7 +59,8 @@
             <button class="control-btn toggle-btn" id="toggleBtn">开始</button>
             <button class="control-btn stop-btn" id="stopBtn">停止</button>
         </div>
-        <h2>今日记录</h2>
+        <h2></h2>
+        <h2>今日记录（<span id="currentDate"></span>）</h2>
         <table class="records-table">
             <thead>
                 <tr>

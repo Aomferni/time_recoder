@@ -1,0 +1,20 @@
+[
+  {
+    "id": "f16a0518-e12d-40c2-aa7e-69d226d7fffc",
+    "activity": "玩玩具（时间追踪器）",
+    "activityCategory": "玩玩具（时间追踪器）",
+    "startTime": "2025-10-12T02:01:43.072Z",
+    "endTime": "2025-10-12T02:01:43.072Z",
+    "duration": 16028,
+    "remark": "",
+    "emotion": "",
+    "pauseCount": 0,
+    "timeSpan": 16028,
+    "segments": [
+      {
+        "end": "2025-10-12T02:01:34.506Z",
+        "start": "2025-10-12T02:01:18.478Z"
+      }
+    ]
+  }
+]

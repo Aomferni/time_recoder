@@ -3,7 +3,7 @@
 {% block title %}历史记录 - 时间追踪器{% endblock %}
 
 {% block content %}
-<h1>历史记录</h1>
+<h1>历史记录（<span id="currentUsernameDisplay">default</span>）</h1>
 
 <div class="records-header">
     <div class="navigation">
@@ -99,9 +99,28 @@
     let totalPages = 1;
     let allActivities = new Set();
     let currentDetailRecordId = null; // 用于跟踪当前详情浮窗的记录ID
+    let currentUsername = 'default'; // 当前用户名
 
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
+        // 初始化用户名
+        const savedUsername = localStorage.getItem('timeRecorderUsername');
+        if (savedUsername) {
+            currentUsername = savedUsername;
+            // 更新标题中的用户名显示
+            document.getElementById('currentUsernameDisplay').textContent = savedUsername;
+        } else {
+            // 如果没有找到保存的用户名，尝试从URL参数获取
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlUsername = urlParams.get('username');
+            if (urlUsername) {
+                currentUsername = urlUsername;
+                document.getElementById('currentUsernameDisplay').textContent = urlUsername;
+                // 同时保存到localStorage
+                localStorage.setItem('timeRecorderUsername', urlUsername);
+            }
+        }
+        
         loadRecords();
         
         // 点击表格外区域关闭浮窗
@@ -128,6 +147,7 @@
         const params = new URLSearchParams();
         params.append('page', page);
         params.append('per_page', 20);
+        params.append('username', currentUsername);
         if (dateFrom) params.append('date_from', dateFrom);
         if (dateTo) params.append('date_to', dateTo);
         if (activity) params.append('activity', activity);
@@ -165,7 +185,7 @@
             const row = tbody.insertRow();
             // 删除编辑按钮，只保留继续和删除按钮
             row.innerHTML = `
-                <td>${record.date}</td>
+                <td>${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}</td>
                 <td><span class="activity-label ${activityClass}" onclick="showRecordDetail('${record.id}')">${record.activity}</span></td>
                 <td>${formatTime(new Date(record.startTime))}</td>
                 <td>${formatTime(new Date(record.endTime))}</td>
@@ -185,7 +205,7 @@
     // 继续选中的活动
     function continueActivity(recordId) {
         // 通过API获取指定记录的详细信息
-        fetch(`/api/records/${recordId}`)
+        fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -197,7 +217,8 @@
                         activity: record.activity,
                         activityCategory: record.activityCategory,
                         remark: record.remark || '',
-                        emotion: record.emotion || ''
+                        emotion: record.emotion || '',
+                        recordId: record.id // 传递记录ID
                     }));
                     
                     // 跳转到首页
@@ -214,7 +235,7 @@
     // 显示记录详情浮窗
     function showRecordDetail(recordId) {
         // 通过API获取指定记录的详细信息
-        fetch(`/api/records/${recordId}`)
+        fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -378,7 +399,7 @@
         };
         
         // 发送到后端更新
-        fetch(`/api/records/${recordId}`, {
+        fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -448,7 +469,7 @@
         }
         
         // 发送到后端更新
-        fetch(`/api/records/${recordId}`, {
+        fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -554,7 +575,7 @@
             return;
         }
         
-        fetch(`/api/records/${recordId}`, {
+        fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
