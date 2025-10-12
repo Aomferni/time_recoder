@@ -1,0 +1,116 @@
+/* 浮窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* 模态框内容样式 */
+.modal-content {
+    background: #ffffff;
+    margin: 5% auto;
+    padding: 20px;
+    border: none;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px; /* 增加最大宽度 */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    resize: both; /* 添加可调整大小功能 */
+    overflow: auto; /* 允许滚动 */
+    min-width: 350px; /* 设置最小宽度 */
+    min-height: 400px; /* 设置最小高度 */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    max-height: 85vh; /* 限制最大高度，确保不会超出视窗 */
+}
+
+/* 模态框内容悬停效果 */
+.modal-content:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    transform: translateY(-5px);
+}
+
+/* 浮窗标题样式 */
+.modal-content h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+    flex-shrink: 0; /* 防止标题被压缩 */
+}
+
+/* 关闭按钮样式 */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    cursor: pointer;
+    z-index: 1001; /* 确保关闭按钮在调整大小手柄之上 */
+    transition: all 0.3s ease;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+/* 详情内容区域样式 */
+#recordDetailContent {
+    flex: 1;
+    overflow-y: auto; /* 垂直滚动 */
+    overflow-x: auto; /* 允许水平滚动 */
+    padding-right: 10px;
+    margin-top: 20px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px; /* 确保最小高度 */
+}
+
+/* 调整大小手柄样式优化 */
+.modal-content::-webkit-resizer {
+    background-color: #2196F3;
+    border-radius: 4px;
+}
+
+/* 滚动条样式优化 */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}

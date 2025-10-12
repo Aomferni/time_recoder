@@ -8,6 +8,7 @@
 <div class="records-header">
     <div class="navigation">
         <a href="/" class="nav-link">返回首页</a>
+        <a href="/mood-wall" class="nav-link">情绪与活动墙</a>
         <a href="/project-description" class="nav-link">项目说明</a>
     </div>
 </div>
@@ -60,9 +61,9 @@
 </div>
 
 <!-- 活动详情浮窗 -->
-<div id="recordDetailModal" class="modal">
+<div id="recordDetailModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <span class="close" onclick="closeRecordDetailModal()">&times;</span>
+        <span class="close" onclick="TimeRecorderUI.closeRecordDetailModal()">&times;</span>
         <h2>活动详情</h2>
         <div id="recordDetailContent"></div>
     </div>
@@ -127,14 +128,35 @@
         
         loadRecords();
         
+        // 检查URL参数中是否有recordId，如果有则自动打开记录详情
+        const urlParams = new URLSearchParams(window.location.search);
+        const recordId = urlParams.get('recordId');
+        if (recordId) {
+            // 延迟一段时间确保页面加载完成后再打开详情
+            setTimeout(() => {
+                showRecordDetail(recordId);
+            }, 500);
+        }
+        
         // 点击表格外区域关闭浮窗
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('recordDetailModal');
             if (event.target === modal) {
-                closeRecordDetailModal();
+                TimeRecorderUI.closeRecordDetailModal();
             }
         });
+        
+        // 添加键盘事件监听器，支持ESC键关闭模态框
+        document.addEventListener('keydown', handleKeyDown);
     });
+
+    // 处理键盘事件
+    function handleKeyDown(event) {
+        // ESC键关闭模态框
+        if (event.key === 'Escape') {
+            TimeRecorderUI.closeRecordDetailModal();
+        }
+    }
 
     // 加载记录
     function loadRecords(page = 1) {
@@ -178,23 +200,26 @@
         tbody.innerHTML = '';
         
         records.forEach((record, index) => {
-            const activityClass = getActivityClass(record.activity, record.activityCategory);
+            const activityClass = TimeRecorderFrontendUtils.getActivityClass(record.activity, record.activityCategory);
             
             // 处理情绪显示，添加颜色
             const emotionDisplay = record.emotion ? 
                 record.emotion.split(', ').map(e => 
-                    `<span class="emotion-tag" style="background-color: ${getEmotionColor(e)};">${e}</span>`
+                    `<span class="emotion-tag" style="background-color: ${TimeRecorderFrontendUtils.getEmotionColor(e)};">${e}</span>`
                 ).join(' ') : '';
+            
+            // 根据规范，duration记录所有segments累计的时间
+            const totalDuration = record.duration || 0;
             
             const row = tbody.insertRow();
             // 删除编辑按钮，只保留继续和删除按钮
             row.innerHTML = `
                 <td>${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}</td>
                 <td><span class="activity-label ${activityClass}" onclick="showRecordDetail('${record.id}')">${record.activity}</span></td>
-                <td>${formatTime(new Date(record.startTime))}</td>
-                <td>${formatTime(new Date(record.endTime))}</td>
-                <td>${formatDuration(record.duration)}</td>
-                <td>${formatDuration(record.timeSpan)}</td>
+                <td>${TimeRecorderFrontendUtils.formatTime(new Date(record.startTime))}</td>
+                <td>${TimeRecorderFrontendUtils.formatTime(new Date(record.endTime))}</td>
+                <td>${TimeRecorderFrontendUtils.formatDuration(totalDuration)}</td>
+                <td>${TimeRecorderFrontendUtils.formatDuration(record.timeSpan)}</td>
                 <td>${record.remark || ''}</td>
                 <td>${emotionDisplay}</td>
                 <td>${record.pauseCount || 0}</td>
@@ -245,23 +270,58 @@
                 if (data.success) {
                     const record = data.record;
                     currentDetailRecordId = recordId;
-                    const activityClass = getActivityCategoryClass(record.activityCategory || getRecordCategory(record.activity));
+                    const activityClass = TimeRecorderFrontendUtils.getActivityCategoryClass(record.activityCategory || getRecordCategory(record.activity));
                     
                     // 处理段落信息显示
                     let segmentsDisplay = '';
+                    // 根据规范，duration记录所有segments累计的时间
+                    // 重新计算段落总时间以确保准确性
+                    let totalDuration = 0;
+                    if (record.segments && Array.isArray(record.segments)) {
+                        // 使用工具类计算所有段落的总时间
+                        totalDuration = TimeRecorderFrontendUtils.calculateSegmentsTotalTime(record.segments);
+                    }
+                    // 如果计算结果为0，使用record.duration作为后备值
+                    if (totalDuration === 0) {
+                        totalDuration = (record && record.duration) || 0;
+                    }
                     if (record.segments && record.segments.length > 0) {
-                        segmentsDisplay = record.segments.map((segment, index) => {
+                        // 计算每个段落的持续时间
+                        const segmentDetails = record.segments.map((segment, index) => {
+                            // 数据存储的是UTC时间，需要转换为北京时间显示
+                            const start = new Date(segment.start);
+                            const end = new Date(segment.end);
+                            const duration = end - start;
+                            return {
+                                index,
+                                start,
+                                end,
+                                duration
+                            };
+                        });
+                        
+                        // 生成段落显示内容
+                        segmentsDisplay = segmentDetails.map(segment => {
                             return `
-                                <div class="segment-row" data-segment-index="${index}">
-                                    <span>段落 ${index + 1}:</span>
-                                    <input type="datetime-local" class="segment-start" value="${formatDateTimeForInput(new Date(segment.start))}">
+                                <div class="segment-row" data-segment-index="${segment.index}">
+                                    <span>段落 ${segment.index + 1}:</span>
+                                    <input type="datetime-local" class="segment-start" value="${TimeRecorderFrontendUtils.formatDateTimeForInput(segment.start)}">
                                     <span> - </span>
-                                    <input type="datetime-local" class="segment-end" value="${formatDateTimeForInput(new Date(segment.end))}">
-                                    <span>(${formatDuration(new Date(segment.end) - new Date(segment.start))})</span>
-                                    <button type="button" class="delete-btn small" onclick="deleteSegment('${recordId}', ${index})">删除</button>
+                                    <input type="datetime-local" class="segment-end" value="${TimeRecorderFrontendUtils.formatDateTimeForInput(segment.end)}">
+                                    <span>(${TimeRecorderFrontendUtils.formatDuration(segment.duration)})</span>
+                                    <button type="button" class="delete-btn small" onclick="deleteSegment('${recordId}', ${segment.index})">删除</button>
                                 </div>
                             `;
                         }).join('');
+                        
+                        // 添加段落统计信息
+                        const totalSegmentDuration = segmentDetails.reduce((total, segment) => total + segment.duration, 0);
+                        segmentsDisplay += `
+                            <div class="segment-summary">
+                                <p>段落数量: ${segmentDetails.length}</p>
+                                <p>段落总时长: ${TimeRecorderFrontendUtils.formatDuration(totalSegmentDuration)}</p>
+                            </div>
+                        `;
                     } else {
                         segmentsDisplay = '<div class="segment-row">暂无段落记录</div>';
                     }
@@ -269,55 +329,78 @@
                     // 构建详情内容
                     const detailContent = `
                         <form id="recordDetailForm" class="detail-form">
-                            <label>活动:</label>
-                            <input type="text" value="${record.activity}" id="detail-activity" class="${activityClass}">
-                            
-                            <label>活动类别:</label>
-                            <select id="detail-activity-category" class="${activityClass}">
-                                <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
-                                <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
-                                <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
-                                <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
-                                <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
-                                <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
-                                <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
-                            </select>
-                            
-                            <label>开始时间:</label>
-                            <input type="datetime-local" value="${formatDateTimeForInput(new Date(record.startTime))}" id="detail-start-time">
-                            
-                            <label>结束时间:</label>
-                            <input type="datetime-local" value="${formatDateTimeForInput(new Date(record.endTime))}" id="detail-end-time">
-                            
-                            <label>时间跨度:</label>
-                            <input type="text" value="${formatDuration(record.timeSpan)}" id="detail-time-span" readonly>
-                            
-                            <label>备注信息:</label>
-                            <textarea id="detail-remark">${record.remark || ''}</textarea>
-                            
-                            <label>记录情绪:</label>
-                            <div class="emotion-checkboxes" id="detail-emotion">
-                                ${getEmotionOptions().map(emotion => `
-                                    <div class="emotion-checkbox">
-                                        <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
-                                            ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
-                                        <label for="emotion-${emotion}" style="color: ${getEmotionColor(emotion)};">${emotion}</label>
-                                    </div>
-                                `).join('')}
+                            <div class="detail-section">
+                                <h3>基本信息</h3>
+                                <label>活动:</label>
+                                <input type="text" value="${record.activity}" id="detail-activity" class="${activityClass}">
+                                
+                                <label>活动类别:</label>
+                                <select id="detail-activity-category" class="${activityClass}">
+                                    <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
+                                    <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
+                                    <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
+                                    <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
+                                    <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
+                                    <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
+                                    <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
+                                </select>
+                                
+                                <label>记录ID:</label>
+                                <input type="text" value="${record.id}" id="detail-id" readonly>
+                                
+                                <label>记录日期:</label>
+                                <input type="text" value="${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}" id="detail-date" readonly>
                             </div>
                             
-                            <label>暂停次数:</label>
-                            <input type="number" value="${record.pauseCount || 0}" id="detail-pause-count" min="0">
+                            <div class="detail-section">
+                                <h3>时间信息</h3>
+                                <label>开始时间:</label>
+                                <input type="datetime-local" value="${TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.startTime))}" id="detail-start-time">
+                                
+                                <label>结束时间:</label>
+                                <input type="datetime-local" value="${TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.endTime))}" id="detail-end-time">
+                                
+                                <label>时间跨度:</label>
+                                <input type="text" value="${TimeRecorderFrontendUtils.formatDuration(record.timeSpan)}" id="detail-time-span" readonly>
+                                
+                                <label>计时时长:</label>
+                                <input type="text" value="${TimeRecorderFrontendUtils.formatDuration(totalDuration)}" id="detail-duration" readonly>
+                            </div>
                             
-                            <label>段落记录:</label>
-                            <div class="segments-display">
-                                ${segmentsDisplay}
-                                <button type="button" class="control-btn" onclick="addSegment('${recordId}')">添加段落</button>
+                            <div class="detail-section">
+                                <h3>其他信息</h3>
+                                <label>暂停次数:</label>
+                                <input type="number" value="${record.pauseCount || 0}" id="detail-pause-count" min="0">
+                                
+                                <label>段落记录:</label>
+                                <div class="segments-display">
+                                    ${segmentsDisplay}
+                                    <button type="button" class="control-btn" onclick="addSegment('${recordId}')">添加段落</button>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section highlight-field" id="detail-remark-section">
+                                <h3>记录收获</h3>
+                                <label>备注信息:</label>
+                                <textarea id="detail-remark">${record.remark || ''}</textarea>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3>记录情绪</h3>
+                                <div class="emotion-checkboxes" id="detail-emotion">
+                                    ${getEmotionOptions().map(emotion => `
+                                        <div class="emotion-checkbox">
+                                            <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
+                                                ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
+                                            <label for="emotion-${emotion}" style="color: ${TimeRecorderFrontendUtils.getEmotionColor(emotion)};">${emotion}</label>
+                                        </div>
+                                    `).join('')}
+                                </div>
                             </div>
                             
                             <div class="detail-actions">
                                 <button type="button" class="save-btn" onclick="saveRecordDetail('${record.id}')">保存</button>
-                                <button type="button" class="cancel-btn" onclick="closeRecordDetailModal()">关闭</button>
+                                <button type="button" class="cancel-btn" onclick="TimeRecorderUI.closeRecordDetailModal()">关闭</button>
                             </div>
                         </form>
                     `;
@@ -356,10 +439,12 @@
     }
 
     // 关闭记录详情浮窗
+    /*
     function closeRecordDetailModal() {
         document.getElementById('recordDetailModal').style.display = 'none';
         currentDetailRecordId = null;
     }
+    */
 
     // 更新时间跨度
     function updateTimeSpan(recordId) {
@@ -367,11 +452,12 @@
         const endTimeStr = document.getElementById('detail-end-time').value;
         
         if (startTimeStr && endTimeStr) {
+            // 输入框中的时间已经是北京时间格式
             const startDate = new Date(startTimeStr);
             const endDate = new Date(endTimeStr);
             const timeSpan = endDate - startDate;
             
-            document.getElementById('detail-time-span').value = formatDuration(timeSpan);
+            document.getElementById('detail-time-span').value = TimeRecorderFrontendUtils.formatDuration(timeSpan);
         }
     }
 
@@ -380,9 +466,9 @@
         const segmentsContainer = document.querySelector('.segments-display');
         const segmentCount = document.querySelectorAll('.segment-row[data-segment-index]').length;
         
-        // 获取当前时间作为默认时间
+        // 获取当前时间作为默认时间（使用北京时间）
         const now = new Date();
-        const defaultTime = formatDateTimeForInput(now);
+        const defaultTime = TimeRecorderFrontendUtils.formatDateTimeForInput(now);
         
         const newSegment = `
             <div class="segment-row" data-segment-index="${segmentCount}">
@@ -446,10 +532,23 @@
             const endIndex = row.querySelector('.segment-end').value;
             
             if (startIndex && endIndex) {
-                segments.push({
-                    start: new Date(startIndex).toISOString(),
-                    end: new Date(endIndex).toISOString()
-                });
+                try {
+                    // 输入框中的时间已经是北京时间格式，需要转换为UTC时间存储
+                    const beijingStart = new Date(startIndex);
+                    const beijingEnd = new Date(endIndex);
+                    // 转换为UTC时间存储（减去8小时偏移）
+                    const utcStart = new Date(beijingStart.getTime() - 8 * 60 * 60 * 1000);
+                    const utcEnd = new Date(beijingEnd.getTime() - 8 * 60 * 60 * 1000);
+                    
+                    if (!isNaN(utcStart.getTime()) && !isNaN(utcEnd.getTime())) {
+                        segments.push({
+                            start: utcStart.toISOString(),
+                            end: utcEnd.toISOString()
+                        });
+                    }
+                } catch (e) {
+                    console.error('处理段落时间时出错:', e);
+                }
             }
         });
         
@@ -465,15 +564,25 @@
         
         // 更新时间
         if (startTimeStr && endTimeStr) {
-            const startDate = new Date(startTimeStr);
-            const endDate = new Date(endTimeStr);
-            
-            updateData.startTime = startDate.toISOString();
-            updateData.endTime = endDate.toISOString();
-            
-            // 重新计算时间跨度
-            const timeSpan = endDate - startDate;
-            updateData.timeSpan = timeSpan;
+            try {
+                // 输入框中的时间已经是北京时间格式，需要转换为UTC时间存储
+                const beijingStartDate = new Date(startTimeStr);
+                const beijingEndDate = new Date(endTimeStr);
+                // 转换为UTC时间存储（减去8小时偏移）
+                const utcStartDate = new Date(beijingStartDate.getTime() - 8 * 60 * 60 * 1000);
+                const utcEndDate = new Date(beijingEndDate.getTime() - 8 * 60 * 60 * 1000);
+                
+                if (!isNaN(utcStartDate.getTime()) && !isNaN(utcEndDate.getTime())) {
+                    updateData.startTime = utcStartDate.toISOString();
+                    updateData.endTime = utcEndDate.toISOString();
+                    
+                    // 重新计算时间跨度
+                    const timeSpan = utcEndDate - utcStartDate;
+                    updateData.timeSpan = timeSpan;
+                }
+            } catch (e) {
+                console.error('处理时间时出错:', e);
+            }
         }
         
         // 发送到后端更新
@@ -487,7 +596,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                closeRecordDetailModal();
+                TimeRecorderUI.closeRecordDetailModal();
                 loadRecords(currentPage);
             } else {
                 alert('更新记录失败: ' + data.error);
@@ -600,34 +709,7 @@
         });
     }
 
-    // 格式化时间
-    function formatTime(date) {
-        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    // 格式化日期时间用于输入框
-    function formatDateTimeForInput(date) {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-    }
-
-    // 格式化时长
-    function formatDuration(milliseconds) {
-        const totalSeconds = Math.floor(milliseconds / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        
-        if (hours > 0) {
-            return `${hours}小时${minutes}分钟`;
-        } else {
-            return `${minutes}分钟${seconds}秒`;
-        }
-    }
+    
 
     // 解析时间字符串为毫秒数
     function parseDurationString(durationStr) {
@@ -663,100 +745,166 @@
         return ['开心', '专注', '疲惫', '焦虑', '兴奋', '平静', '沮丧', '满足', '无聊'];
     }
 
-    // 获取情绪颜色
-    function getEmotionColor(emotion) {
-        const emotionColorMap = {
-            '开心': '#4CAF50',    // 绿色
-            '专注': '#2196F3',    // 蓝色
-            '疲惫': '#9E9E9E',    // 灰色
-            '焦虑': '#FF9800',    // 橙色
-            '兴奋': '#E91E63',    // 粉色
-            '平静': '#00BCD4',    // 青色
-            '沮丧': '#F44336',    // 红色
-            '满足': '#8BC34A',    // 黄绿色
-            '无聊': '#795548'     // 棕色
-        };
-        return emotionColorMap[emotion] || '#607D8B'; // 默认灰色
-    }
-
-    // 活动类别到CSS类的映射
-    function getActivityCategoryClassMap() {
-        return {
-            // 工作输出类 - 蓝色系
-            '工作输出': 'btn-work-output',
-            
-            // 大脑充电类 - 绿色系
-            '大脑充电': 'btn-brain-charge',
-            
-            // 修养生息类 - 紫色系
-            '修养生息': 'btn-rest',
-            
-            // 身体改善类 - 橙色系
-            '身体改善': 'btn-body',
-            
-            // 沟通交流类 - 青色系
-            '沟通交流': 'btn-communication',
-            
-            // 探索新方法类 - 深紫系
-            '探索新方法': 'btn-explore',
-            
-            // 纯属娱乐类 - 粉色系
-            '纯属娱乐': 'btn-entertainment',
-            
-            // 保持学习类 - 蓝绿系
-            '保持学习': 'btn-learning',
-            
-            // 生活计划类 - 黄绿系
-            '生活计划': 'btn-planning',
-            
-            // 规律作息类 - 灰色系
-            '规律作息': 'btn-routine'
-        };
-    }
-
-    // 获取活动类别对应的CSS类
-    function getActivityCategoryClass(activityCategory) {
-        const categoryClassMap = getActivityCategoryClassMap();
-        return categoryClassMap[activityCategory] || 'btn-work-output'; // 默认使用工作输出类颜色
-    }
-
-    // 获取活动对应的CSS类（基于活动类别）
-    function getActivityClass(activity, activityCategory) {
-        if (activityCategory) {
-            return getActivityCategoryClass(activityCategory);
-        }
-        // 如果没有活动类别，使用原来的映射
-        const activityClassMap = {
-            // 工作输出类 - 蓝色系
-            '进入工作状态': 'btn-work-output',
-            '梳理方案': 'btn-work-output',
-            '执行工作': 'btn-work-output',
-            '开会': 'btn-work-output',
-            '复盘': 'btn-work-output',
-            '探索新方法': 'btn-work-output',
-            
-            // 大脑充电类 - 绿色系
-            '和智者对话': 'btn-brain-charge',
-            '做调研': 'btn-learning',
-            
-            // 修养生息类 - 紫色系
-            '睡觉仪式': 'btn-rest',
-            '处理日常': 'btn-rest',
-            
-            // 身体改善类 - 橙色系
-            '健身': 'btn-body',
-            '创作/写作': 'btn-body',
-            
-            // 沟通交流类 - 青色系
-            '交流心得': 'btn-communication',
-            '散步': 'btn-communication',
-            '记录|反思|计划': 'btn-communication',
-            
-            // 玩玩具属于纯属娱乐类 - 粉色系
-            '玩玩具': 'btn-entertainment'
-        };
+    /**
+     * 时间记录器前端工具类
+     */
+    const TimeRecorderFrontendUtils = {
+        /**
+         * 获取情绪颜色
+         */
+        getEmotionColor: function(emotion) {
+            const emotionColorMap = {
+                '开心': '#4CAF50',    // 绿色
+                '专注': '#2196F3',    // 蓝色
+                '疲惫': '#9E9E9E',    // 灰色
+                '焦虑': '#FF9800',    // 橙色
+                '兴奋': '#E91E63',    // 粉色
+                '平静': '#00BCD4',    // 青色
+                '沮丧': '#F44336',    // 红色
+                '满足': '#8BC34A',    // 黄绿色
+                '无聊': '#795548'     // 棕色
+            };
+            return emotionColorMap[emotion] || '#607D8B'; // 默认灰色
+        },
         
-        return activityClassMap[activity] || 'btn-work-output'; // 默认使用工作输出类颜色
-    }
+        /**
+         * 活动类别到CSS类的映射
+         */
+        getActivityCategoryClassMap: function() {
+            return {
+                // 工作输出类 - 蓝色系
+                '工作输出': 'btn-work-output',
+                
+                // 大脑充电类 - 绿色系
+                '大脑充电': 'btn-brain-charge',
+                
+                // 修养生息类 - 紫色系
+                '修养生息': 'btn-rest',
+                
+                // 身体改善类 - 橙色系
+                '身体改善': 'btn-body',
+                
+                // 沟通交流类 - 青色系
+                '沟通交流': 'btn-communication',
+                
+                // 探索新方法类 - 深紫系
+                '探索新方法': 'btn-explore',
+                
+                // 纯属娱乐类 - 粉色系
+                '纯属娱乐': 'btn-entertainment',
+                
+                // 保持学习类 - 蓝绿系
+                '保持学习': 'btn-learning',
+                
+                // 生活计划类 - 黄绿系
+                '生活计划': 'btn-planning',
+                
+                // 规律作息类 - 灰色系
+                '规律作息': 'btn-routine'
+            };
+        },
+        
+        /**
+         * 获取活动类别对应的CSS类
+         */
+        getActivityCategoryClass: function(activityCategory) {
+            const categoryClassMap = this.getActivityCategoryClassMap();
+            return categoryClassMap[activityCategory] || 'btn-work-output'; // 默认使用工作输出类颜色
+        },
+        
+        /**
+         * 获取活动对应的CSS类（基于活动类别）
+         */
+        getActivityClass: function(activity, activityCategory) {
+            if (activityCategory) {
+                return this.getActivityCategoryClass(activityCategory);
+            }
+            // 如果没有活动类别，使用原来的映射
+            const activityClassMap = {
+                // 工作输出类 - 蓝色系
+                '进入工作状态': 'btn-work-output',
+                '梳理方案': 'btn-work-output',
+                '执行工作': 'btn-work-output',
+                '开会': 'btn-work-output',
+                '复盘': 'btn-work-output',
+                '探索新方法': 'btn-work-output',
+                
+                // 大脑充电类 - 绿色系
+                '和智者对话': 'btn-brain-charge',
+                '做调研': 'btn-learning',
+                
+                // 修养生息类 - 紫色系
+                '睡觉仪式': 'btn-rest',
+                '处理日常': 'btn-rest',
+                
+                // 身体改善类 - 橙色系
+                '健身': 'btn-body',
+                '创作/写作': 'btn-body',
+                
+                // 沟通交流类 - 青色系
+                '交流心得': 'btn-communication',
+                '散步': 'btn-communication',
+                '记录|反思|计划': 'btn-communication',
+                
+                // 玩玩具属于纯属娱乐类 - 粉色系
+                '玩玩具': 'btn-entertainment'
+            };
+            
+            return activityClassMap[activity] || 'btn-work-output'; // 默认使用工作输出类颜色
+        },
+        
+        /**
+         * 计算段落总时间
+         */
+        calculateSegmentsTotalTime: function(segments) {
+            let total = 0;
+            if (segments && Array.isArray(segments)) {
+                segments.forEach(segment => {
+                    if (segment.start && segment.end) {
+                        // 使用北京时间
+                        const start = new Date(segment.start).getTime();
+                        const end = new Date(segment.end).getTime();
+                        total += (end - start);
+                    }
+                });
+            }
+            return total;
+        },
+        
+        /**
+         * 格式化时间
+         */
+        formatTime: function(date) {
+            return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        },
+        
+        /**
+         * 格式化日期时间用于输入框
+         */
+        formatDateTimeForInput: function(date) {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        },
+        
+        /**
+         * 格式化时长
+         */
+        formatDuration: function(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}小时${minutes}分钟`;
+            } else {
+                return `${minutes}分钟${seconds}秒`;
+            }
+        }
+    };
 </script>
 {% endblock %}

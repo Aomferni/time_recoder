@@ -429,7 +429,7 @@
 {% block content %}
 <div class="project-description">
     <div class="page-header">
-        <h1>时间追踪器项目说明</h1>
+        <h1>时间追踪器项目说明 (V1.1)</h1>
         <p>一个基于Python Flask的时间追踪Web应用，帮助用户记录和管理日常活动时间</p>
     </div>
     
@@ -560,7 +560,7 @@
             <div class="tech-item database">JSON文件存储</div>
             <div class="tech-item frontend">HTML5</div>
             <div class="tech-item frontend">CSS3</div>
-            <div class="tech-item frontend">JavaScript (原生)</div>
+            <div class="tech-item frontend">JavaScript (ES6模块化)</div>
             <div class="tech-item">RESTful API设计</div>
             <div class="tech-item">MVC模式</div>
         </div>
@@ -603,12 +603,55 @@
             </div>
         </div>
         
-        <h4>前端核心函数 (static/js/script.js)</h4>
+        <h4>前端核心模块</h4>
         <div class="core-functions">
             <div class="function-card">
-                <h4>界面控制函数</h4>
+                <h4>配置模块 (config.js)</h4>
                 <ul>
-                    <li><code>toggleTimer()</code> - 切换计时器状态（开始/暂停）</li>
+                    <li>管理全局状态变量</li>
+                    <li>定义常量配置</li>
+                    <li>提供状态更新函数</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>工具模块 (utils.js)</h4>
+                <ul>
+                    <li><code>getActivityCategoryClass()</code> - 获取活动类别CSS类</li>
+                    <li><code>getActivityClass()</code> - 获取活动CSS类</li>
+                    <li><code>formatTime()</code> - 格式化时间显示</li>
+                    <li><code>formatDuration()</code> - 格式化时长显示</li>
+                    <li><code>getEmotionColor()</code> - 获取情绪颜色</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>API模块 (api.js)</h4>
+                <ul>
+                    <li><code>loadActivityCategories()</code> - 加载活动类别配置</li>
+                    <li><code>setUsername()</code> - 设置用户名</li>
+                    <li><code>loadRecords()</code> - 加载记录</li>
+                    <li><code>addRecord()</code> - 添加记录</li>
+                    <li><code>updateRecord()</code> - 更新记录</li>
+                    <li><code>deleteRecord()</code> - 删除记录</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>UI模块 (ui.js)</h4>
+                <ul>
+                    <li><code>updateActivityButtons()</code> - 更新活动按钮显示</li>
+                    <li><code>updateRecordsTable()</code> - 更新记录表格显示</li>
+                    <li><code>showRecordDetail()</code> - 显示记录详情</li>
+                    <li><code>saveRecordDetail()</code> - 保存记录详情</li>
+                    <li><code>continueActivity()</code> - 继续活动</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>计时器模块 (timer.js)</h4>
+                <ul>
+                    <li><code>toggleTimer()</code> - 切换计时器状态</li>
                     <li><code>updateTimer()</code> - 更新计时器显示</li>
                     <li><code>resetTimer()</code> - 重置计时器</li>
                     <li><code>stopTimer()</code> - 停止计时</li>
@@ -616,23 +659,11 @@
             </div>
             
             <div class="function-card">
-                <h4>数据处理函数</h4>
+                <h4>主模块 (main.js)</h4>
                 <ul>
-                    <li><code>loadRecords()</code> - 从后端加载记录</li>
-                    <li><code>updateRecordsTable()</code> - 更新记录表格显示</li>
-                    <li><code>addRecord(record)</code> - 添加记录到后端</li>
-                    <li><code>updateRecordEndTime(recordId, endTime)</code> - 更新记录结束时间</li>
-                    <li><code>deleteRecord(recordId)</code> - 删除记录</li>
-                </ul>
-            </div>
-            
-            <div class="function-card">
-                <h4>UI交互函数</h4>
-                <ul>
-                    <li><code>showRecordDetail(recordId)</code> - 显示记录详情</li>
-                    <li><code>saveRecordDetail(recordId)</code> - 保存记录详情</li>
-                    <li><code>closeRecordDetailModal()</code> - 关闭详情浮窗</li>
-                    <li><code>continueActivity(recordId)</code> - 继续活动</li>
+                    <li>应用初始化</li>
+                    <li>模块间协调</li>
+                    <li>事件监听器绑定</li>
                 </ul>
             </div>
         </div>
@@ -646,7 +677,8 @@ PUT  /api/records/&lt;record_id&gt;  # 更新记录<br>
 DELETE /api/records/&lt;record_id&gt; # 删除记录<br>
 GET  /api/all-records      # 获取所有记录（支持筛选和分页）<br>
 GET  /api/stats            # 获取统计信息<br>
-POST /api/set-username     # 设置用户名并迁移记录
+POST /api/set-username     # 设置用户名并迁移记录<br>
+GET  /api/activity-categories # 获取活动类别配置
         </div>
         
         <h3>项目结构</h3>
@@ -656,6 +688,8 @@ time_recoder/<br>
 ├── requirements.txt    # 项目依赖<br>
 ├── README.md           # 项目说明文档<br>
 ├── PROJECT_DESCRIPTION.md  # 详细项目说明<br>
+├── structure.md        # 架构设计文档<br>
+├── VERSION.md          # 版本更新记录 (当前版本: V1.1)<br>
 ├── data/               # 数据存储目录<br>
 │   └── {username}/     # 用户数据目录<br>
 │       └── records_{username}.json  # 用户记录文件<br>
@@ -668,7 +702,14 @@ time_recoder/<br>
     ├── css/<br>
     │   └── style.css   # 样式文件<br>
     └── js/<br>
-        └── script.js   # JavaScript文件
+        ├── script.js   # JavaScript主文件（模块入口）<br>
+        └── modules/    # JavaScript模块目录<br>
+            ├── config.js    # 配置模块<br>
+            ├── utils.js     # 工具模块<br>
+            ├── api.js       # API模块<br>
+            ├── ui.js        # UI模块<br>
+            ├── timer.js     # 计时器模块<br>
+            └── main.js      # 主模块
         </div>
     </div>
     
@@ -682,6 +723,7 @@ flowchart TD
     C --> B
     B --> A
     D[API接口] --> B
+    E[ES6模块化前端] --> A
             </pre>
         </div>
     </div>

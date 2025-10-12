@@ -3,14 +3,29 @@
 {% block content %}
 <h1>管理活动类别</h1>
 
+<!-- 添加导航区域 -->
+<div class="manage-categories-nav">
+    <a href="/" class="nav-btn">← 返回首页</a>
+</div>
+
 <div class="manage-categories-container">
     <div class="section">
         <h2>活动类别配置</h2>
         <div id="categories-container"></div>
-        <button class="control-btn" id="addCategoryBtn">添加类别</button>
+        <button class="control-btn add-category-btn" id="addCategoryBtn">添加类别</button>
         <div class="control-buttons">
             <button class="control-btn save-btn" id="saveCategoriesBtn">保存配置</button>
             <button class="control-btn cancel-btn" id="cancelBtn">取消</button>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>导入记录文件</h2>
+        <div class="import-section">
+            <p>选择要导入的record.json文件：</p>
+            <input type="file" id="recordFileInput" accept=".json" class="file-input">
+            <button class="control-btn import-btn" id="importRecordBtn">导入记录</button>
+            <div id="importStatus" class="import-status"></div>
         </div>
     </div>
 </div>
@@ -51,6 +66,9 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = '/';
         }
     });
+    
+    // 绑定导入事件
+    document.getElementById('importRecordBtn').addEventListener('click', importRecordFile);
 });
 
 // 加载活动类别配置
@@ -92,18 +110,19 @@ function createCategoryElement(category, index) {
                     `<option value="${option.value}" ${category.color === option.value ? 'selected' : ''}>${option.name}</option>`
                 ).join('')}
             </select>
-            <button class="control-btn delete-btn" onclick="deleteCategory(${index})">删除</button>
+            <button class="control-btn add-activity-btn" onclick="addActivity(${index})">添加活动</button>
+            <button class="control-btn delete-category-btn" onclick="deleteCategory(${index})">删除类别</button>
         </div>
         <div class="activities-container">
+            <h3>活动列表</h3>
             <div class="activities-list">
                 ${category.activities.map((activity, activityIndex) => `
                     <div class="activity-item">
                         <input type="text" class="activity-name" value="${activity}" placeholder="活动名称">
-                        <button class="control-btn delete-btn small" onclick="deleteActivity(${index}, ${activityIndex})">删除</button>
+                        <button class="control-btn delete-activity-btn" onclick="deleteActivity(${index}, ${activityIndex})">删除</button>
                     </div>
                 `).join('')}
             </div>
-            <button class="control-btn add-activity-btn" onclick="addActivity(${index})">添加活动</button>
         </div>
     `;
     
@@ -194,6 +213,50 @@ function saveActivityCategories() {
     .catch(error => {
         console.error('保存活动类别配置失败:', error);
         alert('保存活动类别配置失败，请查看控制台了解详情');
+    });
+}
+
+// 导入记录文件
+function importRecordFile() {
+    const fileInput = document.getElementById('recordFileInput');
+    const statusDiv = document.getElementById('importStatus');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.innerHTML = '<p style="color: red;">请选择要导入的文件</p>';
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const username = prompt('请输入要导入记录的用户名：', 'default');
+    
+    if (!username) {
+        statusDiv.innerHTML = '<p style="color: red;">用户名不能为空</p>';
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('username', username);
+    
+    statusDiv.innerHTML = '<p>正在导入...</p>';
+    
+    fetch('/api/import-records', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusDiv.innerHTML = `<p style="color: green;">导入成功！共导入 ${data.imported_count} 条记录</p>`;
+            // 清空文件选择
+            fileInput.value = '';
+        } else {
+            statusDiv.innerHTML = `<p style="color: red;">导入失败: ${data.error}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('导入记录失败:', error);
+        statusDiv.innerHTML = '<p style="color: red;">导入失败，请查看控制台了解详情</p>';
     });
 }
 </script>

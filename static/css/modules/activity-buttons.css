@@ -1,0 +1,90 @@
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* 活动按钮样式 */
+.activity-btn {
+    padding: 15px 10px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transform: scale(1);
+}
+
+.activity-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.activity-btn:hover::after {
+    left: 100%;
+}
+
+.activity-btn:hover {
+    transform: scale(1.05);
+}
+
+.activity-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.activity-btn:active {
+    transform: translateY(-1px);
+}
+
+.activity-btn.active {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 0 5px currentColor, 0 6px 15px rgba(0,0,0,0.3);
+    transform: translateY(-3px);
+    animation: pulse 2s infinite;
+    position: relative;
+}
+
+.activity-btn.active::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    animation: activePulse 2s infinite;
+}
+
+@keyframes activePulse {
+    0% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+}
+
+.activity-btn.active {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 0 5px currentColor, 0 6px 15px rgba(0,0,0,0.3);
+    transform: translateY(-3px);
+    animation: pulse 2s infinite;
+}

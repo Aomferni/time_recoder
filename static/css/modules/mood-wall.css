@@ -1,0 +1,715 @@
+/* 情绪墙与活动类型墙样式 */
+
+.mood-wall-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border-top: 4px solid #667eea;
+    position: relative;
+    overflow: hidden;
+}
+
+.mood-wall-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.mood-wall-header:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-btn {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+.nav-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+}
+
+.nav-btn:active {
+    transform: translateY(-1px);
+}
+
+.wall-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.wall-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    padding: 25px;
+    transition: all 0.3s ease;
+    border-top: 4px solid #667eea;
+    position: relative;
+    overflow: hidden;
+}
+
+.wall-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.wall-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.wall-section h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 12px;
+    font-size: 1.5rem;
+}
+
+.wall-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.wall-header-row {
+    display: flex;
+    margin-left: 120px; /* 为标签列留出空间 */
+}
+
+.wall-header-cell {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+}
+
+.wall-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.wall-label-cell {
+    width: 120px;
+    padding: 5px 10px;
+    font-weight: bold;
+    color: #333;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wall-cell {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: rgba(0, 0, 0, 0.7);
+    cursor: help;
+    transition: transform 0.2s;
+}
+
+.wall-cell:hover {
+    transform: scale(1.1);
+}
+
+.legend-section {
+    display: flex;
+    gap: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    padding: 25px;
+    transition: all 0.3s ease;
+    border-top: 4px solid #667eea;
+    position: relative;
+    overflow: hidden;
+}
+
+.legend-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.legend-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.legend-group {
+    flex: 1;
+}
+
+.legend-group h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.legend-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.legend-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.legend-color-box {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.legend-label {
+    font-size: 15px;
+    color: #555;
+    font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .mood-wall-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding: 20px 15px;
+    }
+    
+    .wall-header-row {
+        margin-left: 80px;
+    }
+    
+    .wall-label-cell {
+        width: 80px;
+        font-size: 12px;
+    }
+    
+    .legend-section {
+        flex-direction: column;
+        padding: 20px;
+    }
+    
+    .legend-container {
+        justify-content: center;
+    }
+    
+    .legend-item {
+        padding: 6px 10px;
+    }
+    
+    .legend-color-box {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .legend-label {
+        font-size: 14px;
+    }
+}
+
+/* 情绪墙方块样式 */
+.mood-wall-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 25px;
+}
+
+.mood-day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.mood-date-label {
+    width: 130px;
+    padding: 20px 15px;
+    font-weight: bold;
+    color: #333;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.mood-date-label:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.moods-container {
+    flex: 1;
+    min-height: 140px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.moods-container:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.mood-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    overflow: hidden;
+    position: relative;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.mood-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+}
+
+.mood-text {
+    font-size: 12px;
+    text-align: center;
+    padding: 0 6px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    font-weight: 500;
+}
+
+/* 活动类型墙样式 */
+.activity-wall-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 25px;
+}
+
+.activity-day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.activity-date-label {
+    width: 130px;
+    padding: 20px 15px;
+    font-weight: bold;
+    color: #333;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.activity-date-label:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.activities-container {
+    flex: 1;
+    min-height: 140px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.activities-container:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.activity-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    overflow: hidden;
+    position: relative;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.activity-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+}
+
+.activity-text {
+    font-size: 12px;
+    text-align: center;
+    padding: 0 6px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    font-weight: 500;
+}
+
+/* 活动详情浮窗样式 */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content .close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.modal-content .close:hover {
+    color: #000;
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 15px;
+    font-size: 1.8rem;
+}
+
+.detail-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.detail-section:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.detail-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.highlight-section {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-left: 4px solid #007bff;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1);
+}
+
+.highlight-section:hover {
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
+}
+
+.highlight-field {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.highlight-field:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.1);
+}
+
+.highlight-field label {
+    font-weight: bold;
+    display: inline-block;
+    width: 100px;
+    color: #555;
+    font-size: 15px;
+}
+
+.highlight-field span {
+    color: #333;
+    font-size: 15px;
+}
+
+.important-field {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left: 3px solid #2196F3;
+}
+
+.important-field label {
+    color: #0d47a1;
+}
+
+.important-field span {
+    color: #0d47a1;
+    font-weight: 500;
+}
+
+.segment-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #dee2e6;
+}
+
+.segment-row:last-child {
+    border-bottom: none;
+}
+
+.segment-summary {
+    margin-top: 15px;
+    padding: 15px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    border-left: 3px solid #2196F3;
+}
+
+.emotion-tag {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.detail-actions {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.cancel-btn {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cancel-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+.cancel-btn:active {
+    transform: translateY(-1px);
+}
+
+.cancel-btn::before {
+    content: '✕';
+    font-size: 20px;
+}
+
+/* 关键词词云样式 */
+.keyword-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 25px;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+}
+
+.keyword-item {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.keyword-item:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.keyword-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.keyword-item:hover::before {
+    left: 100%;
+}
+
+.keyword-count {
+    font-size: 0.85em;
+    opacity: 0.9;
+    margin-left: 8px;
+    font-weight: 600;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

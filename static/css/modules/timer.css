@@ -1,0 +1,92 @@
+.timer-display {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: #333;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+}
+
+/* 新增的专注计时器样式 */
+.focus-timer-section {
+    text-align: center;
+    padding: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    margin: 20px 0;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    transform: scale(1);
+    transition: all 0.3s ease;
+    /* 确保计时器区域不会遮盖其他元素 */
+    z-index: 1;
+}
+
+.focus-timer-section:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.focus-timer-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50, #2196F3, #9C27B0, #FF9800);
+    animation: progressAnimation 3s linear infinite;
+}
+
+@keyframes progressAnimation {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.focus-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.focus-timer-section .timer-display {
+    font-size: 60px;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin: 10px 0;
+    font-weight: 600;
+    font-family: 'Roboto Mono', 'Courier New', monospace;
+    letter-spacing: 2px;
+    animation: timerPulse 2s infinite;
+}
+
+@keyframes timerPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.9; }
+    100% { opacity: 1; }
+}
+
+.current-activity {
+    text-align: center;
+    font-size: 20px;
+    color: #444;
+    margin-bottom: 20px;
+    font-weight: 500;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    /* 确保当前活动区域不会遮盖其他元素 */
+    z-index: 1;
+    position: relative;
+}
+
+.current-activity:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}

@@ -1,0 +1,16 @@
+/* 选中记录的样式 */
+.selected-record {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196F3;
+}
+
+.selected-record:hover {
+    background-color: #bbdefb;
+}
+
+/* 当前活动标签的特殊样式 */
+.activity-label.current {
+    font-weight: bold;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px #2196F3;
+    animation: pulse 2s infinite;
+}

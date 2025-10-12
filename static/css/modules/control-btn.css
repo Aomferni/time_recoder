@@ -1,0 +1,99 @@
+/* 控制按钮特殊样式 */
+.control-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: 500;
+    margin-top: 10px;
+    animation: buttonGlow 3s infinite;
+}
+
+@keyframes buttonGlow {
+    0% { 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    50% { 
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    100% { 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+}
+
+.control-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6);
+}
+
+.control-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* 特殊重要字段悬停效果 */
+.highlight-field.important-field {
+    position: relative;
+    overflow: hidden;
+    border-left: 4px solid #2196F3;
+}
+
+.highlight-field.important-field::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: 0.5s;
+}
+
+.highlight-field.important-field:hover::after {
+    left: 100%;
+}
+
+/* 重要字段悬停效果增强 */
+.highlight-field.important-field:hover {
+    background-color: #e3f2fd;
+}
+
+/* 活动名称字段特殊样式 */
+#detail-activity {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #333;
+    text-align: center;
+    background: #e3f2fd;
+    border: 1px solid #2196F3;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+/* 计时时长字段特殊样式 */
+#detail-duration {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2E7D32;
+    text-align: center;
+    background: #E8F5E9;
+    border: 1px solid #4CAF50;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+/* 暂停次数字段特殊样式 */
+#detail-pause-count {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #FF9800;
+    text-align: center;
+    background: #FFF3E0;
+    border: 1px solid #FF9800;
+    border-radius: 4px;
+    padding: 8px;
+}

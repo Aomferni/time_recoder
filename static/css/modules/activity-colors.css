@@ -1,0 +1,48 @@
+/* 分类颜色 - 按照您给出的分类调整 */
+/* 工作输出类 - 蓝色系 */
+.btn-work-output { 
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); 
+}
+.btn-work-output:hover { 
+    background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%); 
+}
+
+/* 大脑&身体充电类 - 绿色系 */
+.btn-charge { 
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); 
+}
+.btn-charge:hover { 
+    background: linear-gradient(135deg, #388E3C 0%, #1B5E20 100%); 
+}
+
+/* 修养生息类 - 紫色系 */
+.btn-rest { 
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); 
+}
+.btn-rest:hover { 
+    background: linear-gradient(135deg, #7B1FA2 0%, #4A148C 100%); 
+}
+
+/* 输出创作类 - 橙色系 */
+.btn-create { 
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); 
+}
+.btn-create:hover { 
+    background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); 
+}
+
+/* 暂停一下类 - 青色系 */
+.btn-gap { 
+    background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%); 
+}
+.btn-gap:hover { 
+    background: linear-gradient(135deg, #0097A7 0%, #006064 100%); 
+}
+
+/* 纯属娱乐类 - 灰色系 */
+.btn-entertainment { 
+    background: linear-gradient(135deg, #607D8B 0%, #455A64 100%); 
+}
+.btn-entertainment:hover { 
+    background: linear-gradient(135deg, #455A64 0%, #212529 100%); 
+}

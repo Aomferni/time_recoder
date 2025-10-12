@@ -1,0 +1,43 @@
+/* 收获记录区域特殊样式 */
+#detail-remark {
+    min-height: 200px;
+    padding: 25px;
+    font-size: 1.2rem;
+    line-height: 1.7;
+    background: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%);
+    border: 3px solid #8BC34A;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(139, 195, 74, 0.3);
+    transition: all 0.3s ease;
+    animation: remarkGlow 4s infinite;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    flex-shrink: 0; /* 防止内容被压缩 */
+}
+
+@keyframes remarkGlow {
+    0% { 
+        box-shadow: 0 4px 10px rgba(139, 195, 74, 0.2);
+        background: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%);
+    }
+    50% { 
+        box-shadow: 0 8px 30px rgba(139, 195, 74, 0.5);
+        background: linear-gradient(135deg, #DCEDC8 0%, #C8E6C9 100%);
+    }
+    100% { 
+        box-shadow: 0 4px 10px rgba(139, 195, 74, 0.2);
+        background: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%);
+    }
+}
+
+#detail-remark:focus {
+    outline: none;
+    border-color: #388E3C;
+    box-shadow: 0 8px 30px rgba(56, 142, 60, 0.5);
+    transform: translateY(-3px);
+}
+
+#detail-remark::placeholder {
+    color: #81C784;
+    font-style: italic;
+    font-size: 1.1rem;
+}
