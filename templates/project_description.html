@@ -1,0 +1,741 @@
+{% extends "base.html" %}
+
+{% block title %}项目说明 - 时间追踪器{% endblock %}
+
+{% block head %}
+<style>
+    .project-description {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .section {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 5px solid #2196F3;
+    }
+    
+    .section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    
+    .section.user-focused {
+        border-left-color: #4CAF50;
+    }
+    
+    .section.developer-focused {
+        border-left-color: #FF9800;
+    }
+    
+    .section.future-plans {
+        border-left-color: #9C27B0;
+    }
+    
+    .section h2 {
+        color: #333;
+        border-bottom: 3px solid #2196F3;
+        padding-bottom: 12px;
+        margin-bottom: 25px;
+        font-size: 1.8rem;
+    }
+    
+    .section.user-focused h2 {
+        border-bottom-color: #4CAF50;
+    }
+    
+    .section.developer-focused h2 {
+        border-bottom-color: #FF9800;
+    }
+    
+    .section.future-plans h2 {
+        border-bottom-color: #9C27B0;
+    }
+    
+    .section h3 {
+        color: #444;
+        margin: 25px 0 20px 0;
+        font-size: 1.4rem;
+    }
+    
+    .section h4 {
+        color: #555;
+        margin: 20px 0 15px 0;
+        font-size: 1.2rem;
+    }
+    
+    .section p {
+        line-height: 1.7;
+        color: #555;
+        margin-bottom: 15px;
+    }
+    
+    .section ul {
+        margin-bottom: 20px;
+        padding-left: 25px;
+    }
+    
+    .section li {
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+    
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 25px 0;
+        justify-content: center;
+    }
+    
+    .tech-item {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        min-width: 150px;
+        justify-content: center;
+    }
+    
+    .tech-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .tech-item.backend { 
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        border-left: 4px solid #2196F3;
+    }
+    
+    .tech-item.frontend { 
+        background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+        border-left: 4px solid #4CAF50;
+    }
+    
+    .tech-item.database { 
+        background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+        border-left: 4px solid #FF9800;
+    }
+    
+    .data-mapping-table, .function-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .data-mapping-table th,
+    .data-mapping-table td,
+    .function-table th,
+    .function-table td {
+        border: 1px solid #e0e0e0;
+        padding: 15px;
+        text-align: left;
+    }
+    
+    .data-mapping-table th,
+    .function-table th {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .data-mapping-table tr:nth-child(even),
+    .function-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .data-mapping-table tr:hover,
+    .function-table tr:hover {
+        background-color: #f0f7ff;
+    }
+    
+    .core-functions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        margin: 25px 0;
+    }
+    
+    .function-card {
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 20px;
+        background: #fafafa;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .function-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+    
+    .function-card h4 {
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .function-card ul {
+        padding-left: 20px;
+    }
+    
+    .function-card li {
+        margin-bottom: 12px;
+        line-height: 1.5;
+    }
+    
+    .api-endpoints {
+        background: #f8f8f8;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border: 1px solid #eee;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .roadmap {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 30px 0;
+    }
+    
+    .phase {
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 25px;
+        background: #fafafa;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .phase:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+    
+    .phase h4 {
+        color: #333;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+        font-size: 1.3rem;
+    }
+    
+    .phase.short-term h4 {
+        border-bottom-color: #4CAF50;
+        color: #2E7D32;
+    }
+    
+    .phase.medium-term h4 {
+        border-bottom-color: #FF9800;
+        color: #EF6C00;
+    }
+    
+    .phase.long-term h4 {
+        border-bottom-color: #9C27B0;
+        color: #7B1FA2;
+    }
+    
+    .phase ul {
+        padding-left: 25px;
+    }
+    
+    .phase li {
+        margin-bottom: 12px;
+        line-height: 1.5;
+        position: relative;
+    }
+    
+    .phase li:before {
+        content: "•";
+        color: #2196F3;
+        font-weight: bold;
+        position: absolute;
+        left: -20px;
+    }
+    
+    .navigation {
+        text-align: center;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .nav-link {
+        display: inline-block;
+        padding: 12px 25px;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        margin: 0 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    
+    .nav-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(33, 150, 243, 0.4);
+        background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
+    }
+    
+    .nav-link.secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+    }
+    
+    .nav-link.secondary:hover {
+        background: linear-gradient(135deg, #495057 0%, #212529 100%);
+        box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+    }
+    
+    .mermaid {
+        text-align: center;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .code-block {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        overflow-x: auto;
+        margin: 20px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        line-height: 1.5;
+        white-space: pre;
+    }
+    
+    .category-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 20px 0;
+        justify-content: center;
+    }
+    
+    .category-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .category-item.work-output { background-color: #E3F2FD; color: #0D47A1; }
+    .category-item.brain-charge { background-color: #E8F5E9; color: #1B5E20; }
+    .category-item.body-charge { background-color: #E8F5E9; color: #1B5E20; }
+    .category-item.rest { background-color: #F3E5F5; color: #4A148C; }
+    .category-item.create { background-color: #FFF3E0; color: #E65100; }
+    .category-item.gap { background-color: #E0F7FA; color: #006064; }
+    .category-item.entertainment { background-color: #EEEEEE; color: #212121; }
+    
+    @media (max-width: 768px) {
+        .project-description {
+            padding: 10px;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .section {
+            padding: 20px;
+        }
+        
+        .core-functions {
+            grid-template-columns: 1fr;
+        }
+        
+        .roadmap {
+            grid-template-columns: 1fr;
+        }
+        
+        .tech-stack {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .nav-link {
+            display: block;
+            margin: 10px auto;
+            max-width: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-description">
+    <div class="page-header">
+        <h1>时间追踪器项目说明</h1>
+        <p>一个基于Python Flask的时间追踪Web应用，帮助用户记录和管理日常活动时间</p>
+    </div>
+    
+    <div class="navigation">
+        <a href="/" class="nav-link">返回首页</a>
+        <a href="/records" class="nav-link secondary">查看记录</a>
+    </div>
+    
+    <div class="section user-focused">
+        <h2>项目概述</h2>
+        <p>时间追踪器是一个基于Python Flask的时间追踪Web应用，帮助用户记录和管理日常活动时间。该应用允许用户按类别记录活动，追踪时间消耗，并提供统计分析功能，帮助用户更好地了解和管理自己的时间分配。</p>
+        
+        <h3>主要功能</h3>
+        <ul>
+            <li><strong>活动时间追踪</strong> - 实时计时功能，精确到秒，支持活动暂停和继续</li>
+            <li><strong>活动分类管理</strong> - 提供多种预设活动类别，支持自定义活动类别</li>
+            <li><strong>记录管理</strong> - 添加、编辑和删除时间记录，查看历史记录</li>
+            <li><strong>数据统计</strong> - 今日时间统计，活动次数统计</li>
+            <li><strong>用户管理</strong> - 支持多用户使用，用户数据隔离</li>
+        </ul>
+    </div>
+    
+    <div class="section user-focused">
+        <h2>面向用户的功能说明</h2>
+        
+        <h3>具体的分类与数据映射关系</h3>
+        
+        <h4>活动分类体系</h4>
+        <div class="category-legend">
+            <div class="category-item work-output">工作输出</div>
+            <div class="category-item brain-charge">大脑充电</div>
+            <div class="category-item body-charge">身体充电</div>
+            <div class="category-item rest">修养生息</div>
+            <div class="category-item create">输出创作</div>
+            <div class="category-item gap">暂停一下</div>
+            <div class="category-item entertainment">纯属娱乐</div>
+        </div>
+        
+        <table class="data-mapping-table">
+            <thead>
+                <tr>
+                    <th>分类名称</th>
+                    <th>颜色标识</th>
+                    <th>包含活动示例</th>
+                    <th>用途说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>工作输出</td>
+                    <td><span class="category-item work-output">蓝色</span></td>
+                    <td>梳理方案、开会、执行工作、复盘</td>
+                    <td>记录核心工作时间</td>
+                </tr>
+                <tr>
+                    <td>大脑充电</td>
+                    <td><span class="category-item brain-charge">绿色</span></td>
+                    <td>和智者对话、做调研</td>
+                    <td>学习和思考时间</td>
+                </tr>
+                <tr>
+                    <td>身体充电</td>
+                    <td><span class="category-item body-charge">绿色</span></td>
+                    <td>健身、散步</td>
+                    <td>运动和身体锻炼</td>
+                </tr>
+                <tr>
+                    <td>修养生息</td>
+                    <td><span class="category-item rest">紫色</span></td>
+                    <td>处理日常、进入工作状态、睡觉仪式</td>
+                    <td>休息和准备时间</td>
+                </tr>
+                <tr>
+                    <td>输出创作</td>
+                    <td><span class="category-item create">橙色</span></td>
+                    <td>创作/写作、玩玩具</td>
+                    <td>创造性活动时间</td>
+                </tr>
+                <tr>
+                    <td>暂停一下</td>
+                    <td><span class="category-item gap">青色</span></td>
+                    <td>交流心得、记录|反思|计划</td>
+                    <td>短暂休息和反思</td>
+                </tr>
+                <tr>
+                    <td>纯属娱乐</td>
+                    <td><span class="category-item entertainment">灰色</span></td>
+                    <td>刷手机</td>
+                    <td>娱乐消遣时间</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>数据结构映射</h4>
+        <h5>记录数据结构</h5>
+        <div class="code-block">
+{
+  "id": "唯一标识符",
+  "activity": "活动名称",
+  "activityCategory": "活动类别",
+  "date": "日期",
+  "startTime": "开始时间",
+  "endTime": "结束时间",
+  "duration": "计时时长(毫秒)",
+  "timeSpan": "时间跨度(毫秒)",
+  "remark": "备注信息",
+  "emotion": "情绪标签",
+  "pauseCount": "暂停次数",
+  "segments": "段落记录"
+}
+        </div>
+        
+        <h5>用户数据存储</h5>
+        <ul>
+            <li>每个用户的数据存储在独立的JSON文件中</li>
+            <li>文件路径：<code>data/{username}/records_{username}.json</code></li>
+            <li>支持用户数据迁移</li>
+        </ul>
+    </div>
+    
+    <div class="section developer-focused">
+        <h2>面向开发者的技术说明</h2>
+        
+        <h3>核心技术路线</h3>
+        <div class="tech-stack">
+            <div class="tech-item backend">Python 3.x</div>
+            <div class="tech-item backend">Flask Web框架</div>
+            <div class="tech-item database">JSON文件存储</div>
+            <div class="tech-item frontend">HTML5</div>
+            <div class="tech-item frontend">CSS3</div>
+            <div class="tech-item frontend">JavaScript (原生)</div>
+            <div class="tech-item">RESTful API设计</div>
+            <div class="tech-item">MVC模式</div>
+        </div>
+        
+        <h3>核心函数说明</h3>
+        
+        <h4>后端核心函数 (app.py)</h4>
+        <div class="core-functions">
+            <div class="function-card">
+                <h4>数据管理函数</h4>
+                <ul>
+                    <li><code>get_data_file_path(username)</code> - 获取用户数据文件路径</li>
+                    <li><code>load_records_by_username(username)</code> - 加载指定用户记录</li>
+                    <li><code>load_all_records(username)</code> - 加载所有用户记录</li>
+                    <li><code>save_records(records, username)</code> - 保存记录到文件</li>
+                    <li><code>migrate_user_records(old_username, new_username)</code> - 迁移用户记录</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>API接口函数</h4>
+                <ul>
+                    <li><code>set_username()</code> - 设置用户名并迁移记录</li>
+                    <li><code>get_records()</code> - 获取今日记录</li>
+                    <li><code>get_record(record_id)</code> - 获取单个记录详情</li>
+                    <li><code>add_record()</code> - 添加新记录</li>
+                    <li><code>update_record(record_id)</code> - 更新记录</li>
+                    <li><code>delete_record(record_id)</code> - 删除记录</li>
+                    <li><code>get_all_records()</code> - 获取所有记录</li>
+                    <li><code>get_stats()</code> - 获取统计信息</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>辅助函数</h4>
+                <ul>
+                    <li><code>get_activity_category(activity)</code> - 根据活动名称获取类别</li>
+                    <li><code>calculate_time_span(startTime, endTime)</code> - 计算时间跨度</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h4>前端核心函数 (static/js/script.js)</h4>
+        <div class="core-functions">
+            <div class="function-card">
+                <h4>界面控制函数</h4>
+                <ul>
+                    <li><code>toggleTimer()</code> - 切换计时器状态（开始/暂停）</li>
+                    <li><code>updateTimer()</code> - 更新计时器显示</li>
+                    <li><code>resetTimer()</code> - 重置计时器</li>
+                    <li><code>stopTimer()</code> - 停止计时</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>数据处理函数</h4>
+                <ul>
+                    <li><code>loadRecords()</code> - 从后端加载记录</li>
+                    <li><code>updateRecordsTable()</code> - 更新记录表格显示</li>
+                    <li><code>addRecord(record)</code> - 添加记录到后端</li>
+                    <li><code>updateRecordEndTime(recordId, endTime)</code> - 更新记录结束时间</li>
+                    <li><code>deleteRecord(recordId)</code> - 删除记录</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>UI交互函数</h4>
+                <ul>
+                    <li><code>showRecordDetail(recordId)</code> - 显示记录详情</li>
+                    <li><code>saveRecordDetail(recordId)</code> - 保存记录详情</li>
+                    <li><code>closeRecordDetailModal()</code> - 关闭详情浮窗</li>
+                    <li><code>continueActivity(recordId)</code> - 继续活动</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>API接口</h3>
+        <div class="api-endpoints">
+GET  /api/records          # 获取今日记录<br>
+POST /api/records          # 添加新记录<br>
+GET  /api/records/&lt;record_id&gt;  # 获取单个记录详情<br>
+PUT  /api/records/&lt;record_id&gt;  # 更新记录<br>
+DELETE /api/records/&lt;record_id&gt; # 删除记录<br>
+GET  /api/all-records      # 获取所有记录（支持筛选和分页）<br>
+GET  /api/stats            # 获取统计信息<br>
+POST /api/set-username     # 设置用户名并迁移记录
+        </div>
+        
+        <h3>项目结构</h3>
+        <div class="code-block">
+time_recoder/<br>
+├── app.py              # Flask应用主文件<br>
+├── requirements.txt    # 项目依赖<br>
+├── README.md           # 项目说明文档<br>
+├── PROJECT_DESCRIPTION.md  # 详细项目说明<br>
+├── data/               # 数据存储目录<br>
+│   └── {username}/     # 用户数据目录<br>
+│       └── records_{username}.json  # 用户记录文件<br>
+├── templates/          # HTML模板目录<br>
+│   ├── base.html       # 基础模板<br>
+│   ├── index.html      # 主页面模板<br>
+│   ├── records.html    # 记录页面模板<br>
+│   └── project_description.html # 项目说明页面<br>
+└── static/             # 静态文件目录<br>
+    ├── css/<br>
+    │   └── style.css   # 样式文件<br>
+    └── js/<br>
+        └── script.js   # JavaScript文件
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>技术架构流程图</h2>
+        <div class="mermaid">
+            <pre class="mermaid">
+flowchart TD
+    A[用户界面] --> B[Flask后端]
+    B --> C[JSON文件存储]
+    C --> B
+    B --> A
+    D[API接口] --> B
+            </pre>
+        </div>
+    </div>
+    
+    <div class="section future-plans">
+        <h2>未来功能展望</h2>
+        
+        <div class="roadmap">
+            <div class="phase short-term">
+                <h4>短期计划（1-3个月）</h4>
+                <ul>
+                    <li>添加周/月/年统计视图</li>
+                    <li>实现活动时间趋势分析</li>
+                    <li>增加时间使用效率评估</li>
+                    <li>添加活动时间目标设定</li>
+                    <li>实现提醒功能</li>
+                    <li>增加数据导出功能</li>
+                </ul>
+            </div>
+            
+            <div class="phase medium-term">
+                <h4>中期计划（3-6个月）</h4>
+                <ul>
+                    <li>添加图表可视化</li>
+                    <li>实现暗色主题</li>
+                    <li>优化移动端体验</li>
+                    <li>添加好友系统</li>
+                    <li>实现时间使用排行榜</li>
+                    <li>增加活动分享功能</li>
+                </ul>
+            </div>
+            
+            <div class="phase long-term">
+                <h4>长期计划（6个月以上）</h4>
+                <ul>
+                    <li>集成AI助手提供时间管理建议</li>
+                    <li>实现自然语言记录</li>
+                    <li>添加智能情绪分析</li>
+                    <li>实现团队时间追踪</li>
+                    <li>开发插件系统</li>
+                    <li>创建开发者API</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="navigation">
+        <a href="/" class="nav-link">返回首页</a>
+        <a href="/records" class="nav-link secondary">查看记录</a>
+    </div>
+</div>
+
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+</script>
+{% endblock %}

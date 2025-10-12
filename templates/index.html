@@ -13,51 +13,26 @@
     <div class="section">
         <h2>选择活动</h2>
         
-        <div class="category-label">工作输出</div>
-        <div class="button-grid">
-            
-            <button class="activity-btn btn-work-output" data-activity="梳理方案">梳理方案</button>
-            <button class="activity-btn btn-learning" data-activity="做调研">做调研</button>
-            <button class="activity-btn btn-work-output" data-activity="执行工作">执行工作</button>
-            <button class="activity-btn btn-work-output" data-activity="开会">开会</button>
-            <button class="activity-btn btn-work-output" data-activity="复盘">复盘</button>
-            <button class="activity-btn btn-work-output" data-activity="探索新方法">探索新方法</button>
-        </div>
-
-        <div class="category-label">大脑充电</div>
-        <div class="button-grid">
-            <button class="activity-btn btn-brain-charge" data-activity="和智者对话">和智者对话</button>
-            <button class="activity-btn btn-brain-charge" data-activity="玩玩具">玩玩具</button>
-        </div>
-
-        <div class="category-label">修养生息</div>
-        <div class="button-grid">
-            <button class="activity-btn btn-rest" data-activity="处理日常">处理日常</button>
-            <button class="activity-btn btn-rest" data-activity="进入工作状态">进入工作状态</button>
-            <button class="activity-btn btn-rest" data-activity="睡觉仪式">睡觉仪式</button>
-            <button class="activity-btn btn-body" data-activity="健身">健身</button>
-        </div>
-
-        <div class="category-label">暂停一下 & 输出</div>
-        <div class="button-grid">
-            <button class="activity-btn btn-communication" data-activity="散步">散步</button>
-            <button class="activity-btn btn-communication" data-activity="交流心得">交流心得</button>
-            <button class="activity-btn btn-body" data-activity="创作/写作">创作/写作</button>
-            <button class="activity-btn btn-communication" data-activity="记录|反思|计划">记录|反思|计划</button>
-        </div>
+        <!-- 活动按钮将通过JavaScript动态生成 -->
         
         <div class="navigation">
             <a href="/records" class="nav-link">查看历史记录</a>
+            <a href="/project-description" class="nav-link">项目说明</a>
+            <a href="/manage-categories" class="nav-link">管理类别</a>
         </div>
     </div>
     
     <div class="section">
         <div class="current-activity" id="currentActivity" contenteditable="false">请选择活动</div>
-        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        
+        <!-- 突出显示的计时器区域 -->
+        <div class="focus-timer-section">
+            <div class="focus-label">当前持续专注时长</div>
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+        </div>
         
         <div class="control-buttons">
             <button class="control-btn toggle-btn" id="toggleBtn">开始</button>
-            <button class="control-btn stop-btn" id="stopBtn">停止</button>
         </div>
         <h2></h2>
         <h2>今日记录（<span id="currentDate"></span>）</h2>

@@ -8,6 +8,7 @@
 <div class="records-header">
     <div class="navigation">
         <a href="/" class="nav-link">返回首页</a>
+        <a href="/project-description" class="nav-link">项目说明</a>
     </div>
 </div>
 
@@ -121,6 +122,9 @@
             }
         }
         
+        // 确保标题显示正确的用户名
+        document.getElementById('currentUsernameDisplay').textContent = currentUsername;
+        
         loadRecords();
         
         // 点击表格外区域关闭浮窗
@@ -218,7 +222,8 @@
                         activityCategory: record.activityCategory,
                         remark: record.remark || '',
                         emotion: record.emotion || '',
-                        recordId: record.id // 传递记录ID
+                        recordId: record.id, // 传递记录ID
+                        autoStart: true // 标记需要自动开始计时
                     }));
                     
                     // 跳转到首页
@@ -234,31 +239,26 @@
 
     // 显示记录详情浮窗
     function showRecordDetail(recordId) {
-        // 通过API获取指定记录的详细信息
         fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     const record = data.record;
-                    
                     currentDetailRecordId = recordId;
-                    const activityClass = getActivityClass(record.activity, record.activityCategory);
-                    
-                    // 处理情绪显示，添加颜色
-                    const emotionDisplay = record.emotion ? 
-                        record.emotion.split(', ').map(e => 
-                            `<span class="emotion-tag" style="background-color: ${getEmotionColor(e)};">${e}</span>`
-                        ).join(' ') : '';
+                    const activityClass = getActivityCategoryClass(record.activityCategory || getRecordCategory(record.activity));
                     
                     // 处理段落信息显示
                     let segmentsDisplay = '';
                     if (record.segments && record.segments.length > 0) {
                         segmentsDisplay = record.segments.map((segment, index) => {
                             return `
-                                <div class="segment-row">
+                                <div class="segment-row" data-segment-index="${index}">
                                     <span>段落 ${index + 1}:</span>
-                                    <span>${formatTime(new Date(segment.start))} - ${formatTime(new Date(segment.end))}</span>
+                                    <input type="datetime-local" class="segment-start" value="${formatDateTimeForInput(new Date(segment.start))}">
+                                    <span> - </span>
+                                    <input type="datetime-local" class="segment-end" value="${formatDateTimeForInput(new Date(segment.end))}">
                                     <span>(${formatDuration(new Date(segment.end) - new Date(segment.start))})</span>
+                                    <button type="button" class="delete-btn small" onclick="deleteSegment('${recordId}', ${index})">删除</button>
                                 </div>
                             `;
                         }).join('');
@@ -276,14 +276,11 @@
                             <select id="detail-activity-category" class="${activityClass}">
                                 <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
                                 <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
+                                <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
                                 <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
-                                <option value="身体改善" ${record.activityCategory === '身体改善' ? 'selected' : ''}>身体改善</option>
-                                <option value="沟通交流" ${record.activityCategory === '沟通交流' ? 'selected' : ''}>沟通交流</option>
-                                <option value="探索新方法" ${record.activityCategory === '探索新方法' ? 'selected' : ''}>探索新方法</option>
+                                <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
+                                <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
                                 <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
-                                <option value="保持学习" ${record.activityCategory === '保持学习' ? 'selected' : ''}>保持学习</option>
-                                <option value="生活计划" ${record.activityCategory === '生活计划' ? 'selected' : ''}>生活计划</option>
-                                <option value="规律作息" ${record.activityCategory === '规律作息' ? 'selected' : ''}>规律作息</option>
                             </select>
                             
                             <label>开始时间:</label>
@@ -291,12 +288,6 @@
                             
                             <label>结束时间:</label>
                             <input type="datetime-local" value="${formatDateTimeForInput(new Date(record.endTime))}" id="detail-end-time">
-                            
-                            <label>计时时长:</label>
-                            <div class="duration-edit">
-                                <input type="text" value="${formatDuration(record.duration)}" id="detail-duration">
-                                <button type="button" class="save-btn small" onclick="saveDuration('${record.id}')">保存</button>
-                            </div>
                             
                             <label>时间跨度:</label>
                             <input type="text" value="${formatDuration(record.timeSpan)}" id="detail-time-span" readonly>
@@ -321,6 +312,7 @@
                             <label>段落记录:</label>
                             <div class="segments-display">
                                 ${segmentsDisplay}
+                                <button type="button" class="control-btn" onclick="addSegment('${recordId}')">添加段落</button>
                             </div>
                             
                             <div class="detail-actions">
@@ -383,42 +375,52 @@
         }
     }
 
-    // 保存计时时长
-    function saveDuration(recordId) {
-        const durationStr = document.getElementById('detail-duration').value;
-        const durationMs = parseDurationString(durationStr);
+    // 添加段落
+    function addSegment(recordId) {
+        const segmentsContainer = document.querySelector('.segments-display');
+        const segmentCount = document.querySelectorAll('.segment-row[data-segment-index]').length;
         
-        if (durationMs === null) {
-            alert('请输入有效的时间格式（如：1小时30分钟 或 90分钟）');
-            return;
+        // 获取当前时间作为默认时间
+        const now = new Date();
+        const defaultTime = formatDateTimeForInput(now);
+        
+        const newSegment = `
+            <div class="segment-row" data-segment-index="${segmentCount}">
+                <span>段落 ${segmentCount + 1}:</span>
+                <input type="datetime-local" class="segment-start" value="${defaultTime}">
+                <span> - </span>
+                <input type="datetime-local" class="segment-end" value="${defaultTime}">
+                <span>(0秒)</span>
+                <button type="button" class="delete-btn small" onclick="deleteSegment('${recordId}', ${segmentCount})">删除</button>
+            </div>
+        `;
+        
+        // 在添加按钮前插入新段落
+        const addButton = segmentsContainer.querySelector('button');
+        segmentsContainer.insertBefore(document.createRange().createContextualFragment(newSegment), addButton);
+    }
+
+    // 删除段落
+    function deleteSegment(recordId, segmentIndex) {
+        const segmentRow = document.querySelector(`.segment-row[data-segment-index="${segmentIndex}"]`);
+        if (segmentRow) {
+            segmentRow.remove();
+            // 重新编号剩余的段落
+            renumberSegments();
         }
-        
-        // 构造更新数据
-        const updateData = {
-            duration: durationMs
-        };
-        
-        // 发送到后端更新
-        fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updateData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // 重新加载记录
-                loadRecords(currentPage);
-                alert('计时时长保存成功');
-            } else {
-                alert('更新记录失败: ' + data.error);
+    }
+
+    // 重新编号段落
+    function renumberSegments() {
+        const segmentRows = document.querySelectorAll('.segment-row[data-segment-index]');
+        segmentRows.forEach((row, index) => {
+            row.setAttribute('data-segment-index', index);
+            row.querySelector('span').textContent = `段落 ${index + 1}:`;
+            const deleteButton = row.querySelector('.delete-btn');
+            if (deleteButton) {
+                // 更新删除按钮的onclick属性
+                deleteButton.setAttribute('onclick', deleteButton.getAttribute('onclick').replace(/\d+$/, index));
             }
-        })
-        .catch(error => {
-            console.error('更新记录失败:', error);
-            alert('更新记录失败，请查看控制台了解详情');
         });
     }
 
@@ -428,7 +430,6 @@
         const activityCategory = document.getElementById('detail-activity-category').value;
         const startTimeStr = document.getElementById('detail-start-time').value;
         const endTimeStr = document.getElementById('detail-end-time').value;
-        const durationStr = document.getElementById('detail-duration').value;
         const remark = document.getElementById('detail-remark').value;
         
         // 获取选中的情绪
@@ -437,13 +438,29 @@
         
         const pauseCount = document.getElementById('detail-pause-count').value;
         
+        // 获取段落信息
+        const segmentRows = document.querySelectorAll('.segment-row[data-segment-index]');
+        const segments = [];
+        segmentRows.forEach(row => {
+            const startIndex = row.querySelector('.segment-start').value;
+            const endIndex = row.querySelector('.segment-end').value;
+            
+            if (startIndex && endIndex) {
+                segments.push({
+                    start: new Date(startIndex).toISOString(),
+                    end: new Date(endIndex).toISOString()
+                });
+            }
+        });
+        
         // 构造更新数据
         const updateData = {
             activity: activity,
             activityCategory: activityCategory,
             remark: remark,
             emotion: emotions,
-            pauseCount: parseInt(pauseCount) || 0
+            pauseCount: parseInt(pauseCount) || 0,
+            segments: segments
         };
         
         // 更新时间
@@ -457,15 +474,6 @@
             // 重新计算时间跨度
             const timeSpan = endDate - startDate;
             updateData.timeSpan = timeSpan;
-            
-            // 如果计时时长也被修改，则使用修改后的值
-            const durationMs = parseDurationString(durationStr);
-            if (durationMs !== null) {
-                updateData.duration = durationMs;
-            } else {
-                // 否则使用时间跨度作为计时时长
-                updateData.duration = timeSpan;
-            }
         }
         
         // 发送到后端更新

@@ -1,0 +1,63 @@
+{
+  "categories": [
+    {
+      "name": "工作输出",
+      "color": "blue",
+      "activities": [
+        "梳理方案",
+        "开会",
+        "探索新方法",
+        "执行工作",
+        "复盘"
+      ]
+    },
+    {
+      "name": "大脑充电",
+      "color": "green",
+      "activities": [
+        "和智者对话",
+        "做调研"
+      ]
+    },
+    {
+      "name": "身体充电",
+      "color": "green",
+      "activities": [
+        "健身",
+        "散步"
+      ]
+    },
+    {
+      "name": "修养生息",
+      "color": "purple",
+      "activities": [
+        "处理日常",
+        "进入工作状态",
+        "睡觉仪式"
+      ]
+    },
+    {
+      "name": "输出创作",
+      "color": "orange",
+      "activities": [
+        "创作/写作",
+        "玩玩具"
+      ]
+    },
+    {
+      "name": "暂停一下",
+      "color": "cyan",
+      "activities": [
+        "交流心得",
+        "记录|反思|计划"
+      ]
+    },
+    {
+      "name": "纯属娱乐",
+      "color": "gray",
+      "activities": [
+        "刷手机"
+      ]
+    }
+  ]
+}

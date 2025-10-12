@@ -99,6 +99,14 @@ def index():
 def records_page():
     return render_template('records.html')
 
+@app.route('/project-description')
+def project_description():
+    return render_template('project_description.html')
+
+@app.route('/manage-categories')
+def manage_categories():
+    return render_template('manage_categories.html')
+
 @app.route('/api/set-username', methods=['POST'])
 def set_username():
     """设置用户名并迁移记录"""
@@ -250,20 +258,34 @@ def update_record(record_id):
     updated = False
     for record in records:
         if record['id'] == record_id:
-            # 特殊处理segments字段，支持追加
-            if 'segments' in data and isinstance(data['segments'], dict):
-                # 如果是字典，表示添加新的段落
-                if 'segments' not in record:
-                    record['segments'] = []
-                record['segments'].append(data['segments'])
-            else:
-                # 更新记录字段
-                for key, value in data.items():
-                    if key != 'id':  # 不允许更新ID
-                        # 特殊处理date字段，确保格式正确
-                        if key == 'startTime' and 'date' not in data:
-                            record['date'] = value[:10].replace('-', '/')
-                        record[key] = value
+            # 特殊处理segments字段
+            if 'segments' in data:
+                if isinstance(data['segments'], dict):
+                    # 如果是字典，表示添加新的段落
+                    if 'segments' not in record:
+                        record['segments'] = []
+                    # 检查是否提供了索引来更新特定段落
+                    if 'index' in data['segments']:
+                        index = data['segments']['index']
+                        if 0 <= index < len(record['segments']):
+                            # 更新特定段落
+                            for key, value in data['segments'].items():
+                                if key != 'index':
+                                    record['segments'][index][key] = value
+                    else:
+                        # 添加新段落
+                        record['segments'].append(data['segments'])
+                else:
+                    # 直接更新segments字段
+                    record['segments'] = data['segments']
+            
+            # 更新记录字段
+            for key, value in data.items():
+                if key != 'id' and key != 'segments':  # 不允许更新ID和segments（已特殊处理）
+                    # 特殊处理date字段，确保格式正确
+                    if key == 'startTime' and 'date' not in data:
+                        record['date'] = value[:10].replace('-', '/')
+                    record[key] = value
             updated = True
             break
     
@@ -409,7 +431,17 @@ def get_stats():
     records = load_records_by_username(username)
     
     # 计算总时长和活动次数
-    total_duration = sum(record['duration'] for record in records)
+    total_duration = 0
+    for record in records:
+        # 添加记录本身的时长
+        total_duration += record.get('duration', 0)
+        # 添加所有段落的时长
+        if 'segments' in record and record['segments']:
+            for segment in record['segments']:
+                segment_start = datetime.fromisoformat(segment['start'].replace('Z', '+00:00')).timestamp() * 1000
+                segment_end = datetime.fromisoformat(segment['end'].replace('Z', '+00:00')).timestamp() * 1000
+                total_duration += (segment_end - segment_start)
+    
     activity_count = len(records)
     
     # 转换为小时和分钟
@@ -468,48 +500,77 @@ def migrate_user_records(old_username, new_username):
 
 def get_activity_category(activity):
     """根据活动名称获取活动类别"""
-    # 活动类别映射
-    category_map = {
-        # 工作输出类
-        '梳理方案': '工作输出',
-        '执行工作': '工作输出',
-        '开会': '工作输出',
-        '复盘': '工作输出',
-        '探索新方法': '工作输出',
-        '进入工作状态': '工作输出',
-        
-        # 大脑充电类
-        '和智者对话': '大脑充电',
-        '做调研': '大脑充电',
-        
-        # 修养生息类
-        '睡觉仪式': '修养生息',
-        '处理日常': '修养生息',
-        
-        # 身体改善类
-        '健身': '身体改善',
-        '创作/写作': '身体改善',
-        
-        # 沟通交流类
-        '交流心得': '沟通交流',
-        '散步': '沟通交流',
-        '记录|反思|计划': '沟通交流',
-        
-        # 纯属娱乐类
-        '玩玩具': '纯属娱乐',
-        
-        # 保持学习类
-        '学习': '保持学习',
-        
-        # 生活计划类
-        '生活计划': '生活计划',
-        
-        # 规律作息类
-        '规律作息': '规律作息'
-    }
+    # 读取活动类别配置文件
+    categories_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
+    if os.path.exists(categories_file):
+        try:
+            with open(categories_file, 'r', encoding='utf-8') as f:
+                categories_data = json.load(f)
+                for category in categories_data.get('categories', []):
+                    if activity in category.get('activities', []):
+                        return category['name']
+        except Exception as e:
+            print(f"读取活动类别配置文件出错: {e}")
     
     # 如果找不到匹配的类别，返回活动名称本身作为类别
-    return category_map.get(activity, activity)
+    return activity
+
+
+def get_activity_categories():
+    """获取所有活动类别配置"""
+    categories_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
+    if os.path.exists(categories_file):
+        try:
+            with open(categories_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"读取活动类别配置文件出错: {e}")
+            return {"categories": []}
+    return {"categories": []}
+
+
+def save_activity_categories(categories_data):
+    """保存活动类别配置"""
+    categories_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
+    try:
+        with open(categories_file, 'w', encoding='utf-8') as f:
+            json.dump(categories_data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"保存活动类别配置文件出错: {e}")
+        return False
+
+
+@app.route('/api/activity-categories', methods=['GET'])
+def api_get_activity_categories():
+    """获取活动类别配置的API端点"""
+    categories_data = get_activity_categories()
+    return jsonify({
+        'success': True,
+        'data': categories_data
+    })
+
+
+@app.route('/api/activity-categories', methods=['PUT'])
+def api_update_activity_categories():
+    """更新活动类别配置的API端点"""
+    data = request.get_json()
+    if not data or 'categories' not in data:
+        return jsonify({
+            'success': False,
+            'error': '缺少必要的categories字段'
+        }), 400
+    
+    if save_activity_categories(data):
+        return jsonify({
+            'success': True,
+            'message': '活动类别配置更新成功'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': '保存活动类别配置失败'
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5002)

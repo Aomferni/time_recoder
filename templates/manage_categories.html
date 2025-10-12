@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>管理活动类别</h1>
+
+<div class="manage-categories-container">
+    <div class="section">
+        <h2>活动类别配置</h2>
+        <div id="categories-container"></div>
+        <button class="control-btn" id="addCategoryBtn">添加类别</button>
+        <div class="control-buttons">
+            <button class="control-btn save-btn" id="saveCategoriesBtn">保存配置</button>
+            <button class="control-btn cancel-btn" id="cancelBtn">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let activityCategories = [];
+
+// 颜色选项
+const colorOptions = [
+    { name: '蓝色', value: 'blue' },
+    { name: '绿色', value: 'green' },
+    { name: '紫色', value: 'purple' },
+    { name: '橙色', value: 'orange' },
+    { name: '青色', value: 'cyan' },
+    { name: '灰色', value: 'gray' }
+];
+
+// 颜色到CSS类的映射
+const colorClassMap = {
+    'blue': 'btn-work-output',
+    'green': 'btn-charge',
+    'purple': 'btn-rest',
+    'orange': 'btn-create',
+    'cyan': 'btn-gap',
+    'gray': 'btn-entertainment'
+};
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 加载活动类别配置
+    loadActivityCategories();
+    
+    // 绑定事件
+    document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+    document.getElementById('saveCategoriesBtn').addEventListener('click', saveActivityCategories);
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+        if (confirm('确定要取消修改吗？未保存的更改将丢失。')) {
+            window.location.href = '/';
+        }
+    });
+});
+
+// 加载活动类别配置
+function loadActivityCategories() {
+    fetch('/api/activity-categories')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.categories) {
+                activityCategories = data.data.categories;
+                renderCategories();
+            }
+        })
+        .catch(error => {
+            console.error('加载活动类别配置失败:', error);
+            alert('加载活动类别配置失败，请查看控制台了解详情');
+        });
+}
+
+// 渲染活动类别
+function renderCategories() {
+    const container = document.getElementById('categories-container');
+    container.innerHTML = '';
+    
+    activityCategories.forEach((category, index) => {
+        const categoryElement = createCategoryElement(category, index);
+        container.appendChild(categoryElement);
+    });
+}
+
+// 创建类别元素
+function createCategoryElement(category, index) {
+    const categoryDiv = document.createElement('div');
+    categoryDiv.className = 'category-item';
+    categoryDiv.innerHTML = `
+        <div class="category-header">
+            <input type="text" class="category-name" value="${category.name}" placeholder="类别名称">
+            <select class="category-color">
+                ${colorOptions.map(option => 
+                    `<option value="${option.value}" ${category.color === option.value ? 'selected' : ''}>${option.name}</option>`
+                ).join('')}
+            </select>
+            <button class="control-btn delete-btn" onclick="deleteCategory(${index})">删除</button>
+        </div>
+        <div class="activities-container">
+            <div class="activities-list">
+                ${category.activities.map((activity, activityIndex) => `
+                    <div class="activity-item">
+                        <input type="text" class="activity-name" value="${activity}" placeholder="活动名称">
+                        <button class="control-btn delete-btn small" onclick="deleteActivity(${index}, ${activityIndex})">删除</button>
+                    </div>
+                `).join('')}
+            </div>
+            <button class="control-btn add-activity-btn" onclick="addActivity(${index})">添加活动</button>
+        </div>
+    `;
+    
+    return categoryDiv;
+}
+
+// 添加类别
+function addCategory() {
+    activityCategories.push({
+        name: '',
+        color: 'blue',
+        activities: []
+    });
+    renderCategories();
+}
+
+// 删除类别
+function deleteCategory(index) {
+    if (confirm('确定要删除这个类别吗？')) {
+        activityCategories.splice(index, 1);
+        renderCategories();
+    }
+}
+
+// 添加活动
+function addActivity(categoryIndex) {
+    activityCategories[categoryIndex].activities.push('');
+    renderCategories();
+}
+
+// 删除活动
+function deleteActivity(categoryIndex, activityIndex) {
+    if (confirm('确定要删除这个活动吗？')) {
+        activityCategories[categoryIndex].activities.splice(activityIndex, 1);
+        renderCategories();
+    }
+}
+
+// 保存活动类别配置
+function saveActivityCategories() {
+    // 收集表单数据
+    const categoryElements = document.querySelectorAll('.category-item');
+    const updatedCategories = [];
+    
+    categoryElements.forEach((element, index) => {
+        const nameInput = element.querySelector('.category-name');
+        const colorSelect = element.querySelector('.category-color');
+        const activityInputs = element.querySelectorAll('.activity-name');
+        
+        const categoryName = nameInput.value.trim();
+        const categoryColor = colorSelect.value;
+        const activities = [];
+        
+        activityInputs.forEach(input => {
+            const activityName = input.value.trim();
+            if (activityName) {
+                activities.push(activityName);
+            }
+        });
+        
+        if (categoryName && activities.length > 0) {
+            updatedCategories.push({
+                name: categoryName,
+                color: categoryColor,
+                activities: activities
+            });
+        }
+    });
+    
+    // 发送到后端保存
+    fetch('/api/activity-categories', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ categories: updatedCategories })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('活动类别配置保存成功');
+            // 重新加载配置
+            loadActivityCategories();
+        } else {
+            alert('保存失败: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('保存活动类别配置失败:', error);
+        alert('保存活动类别配置失败，请查看控制台了解详情');
+    });
+}
+</script>
+{% endblock %}
