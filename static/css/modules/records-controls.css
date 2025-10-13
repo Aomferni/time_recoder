@@ -74,8 +74,9 @@
     align-self: end;
 }
 
-.search-btn {
-    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+/* 统一四个按钮的样式 */
+.search-btn, .reset-btn, .export-btn, .import-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -84,30 +85,61 @@
     font-size: 15px;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    min-width: 100px;
+    text-align: center;
 }
 
-.search-btn:hover {
+.search-btn:hover, .reset-btn:hover, .export-btn:hover, .import-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
 }
 
-.reset-btn {
-    background: linear-gradient(135deg, #9E9E9E 0%, #616161 100%);
-    color: white;
-    border: none;
-    padding: 10px 20px;
+.search-btn:active, .reset-btn:active, .export-btn:active, .import-btn:active {
+    transform: translateY(-1px);
+}
+
+/* 移除导入按钮的特殊样式 */
+.import-btn {
+    display: inline-block;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+}
+
+.import-btn::before {
+    content: '';
+    font-size: 16px;
+}
+
+.file-input {
+    display: none;
+}
+
+.import-status {
+    padding: 8px 12px;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 15px;
     font-weight: 500;
+    font-size: 14px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(158, 158, 158, 0.2);
 }
 
-.reset-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(158, 158, 158, 0.3);
+.import-status.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.import-status.error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.import-status.info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    color: #0c5460;
+    border: 1px solid #bee5eb;
 }
 
 .control-btn {
@@ -150,7 +182,9 @@
     }
     
     .search-btn,
-    .reset-btn {
+    .reset-btn,
+    .export-btn,
+    .import-btn {
         padding: 8px 16px;
         font-size: 14px;
     }

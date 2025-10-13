@@ -12,13 +12,6 @@
     
     <div class="user-action-section">
         <button class="control-btn" id="toggleDetailModeBtn" onclick="TimeRecorderUI.toggleDetailMode()">切换到简化版详情</button>
-        
-        <!-- 导入记录按钮 -->
-        <div class="import-section">
-            <input type="file" id="recordFileInput" accept=".json" class="file-input" style="display: none;">
-            <button class="control-btn import-btn" id="importRecordBtn">导入记录</button>
-            <div id="importStatus" class="import-status"></div>
-        </div>
     </div>
     
     <!-- 将导航链接移到右上角 -->
@@ -87,84 +80,5 @@
 </div>
 
 <script>
-// 导入记录功能
-document.addEventListener('DOMContentLoaded', function() {
-    const importBtn = document.getElementById('importRecordBtn');
-    const fileInput = document.getElementById('recordFileInput');
-    const importStatus = document.getElementById('importStatus');
-    
-    if (importBtn && fileInput) {
-        // 点击导入按钮时触发文件选择
-        importBtn.addEventListener('click', function() {
-            fileInput.click();
-        });
-        
-        // 文件选择后处理导入
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files && fileInput.files.length > 0) {
-                importRecordFile(fileInput.files[0]);
-            }
-        });
-    }
-    
-    // 导入记录文件函数
-    function importRecordFile(file) {
-        if (!file) {
-            showImportStatus('请选择要导入的文件', 'error');
-            return;
-        }
-        
-        const username = window.TimeRecorderConfig ? window.TimeRecorderConfig.currentUsername : null;
-        if (!username || username === 'default') {
-            showImportStatus('请先设置用户名', 'error');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('username', username);
-        
-        showImportStatus('正在导入...', 'info');
-        
-        fetch('/api/import-records', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showImportStatus(`导入成功！共导入 ${data.imported_count} 条记录`, 'success');
-                // 清空文件选择
-                fileInput.value = '';
-                // 重新加载记录
-                if (window.TimeRecorderUI && window.TimeRecorderUI.loadRecords) {
-                    window.TimeRecorderUI.loadRecords();
-                }
-            } else {
-                showImportStatus(`导入失败: ${data.error}`, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('导入记录失败:', error);
-            showImportStatus('导入失败，请查看控制台了解详情', 'error');
-        });
-    }
-    
-    // 显示导入状态
-    function showImportStatus(message, type) {
-        if (!importStatus) return;
-        
-        importStatus.textContent = message;
-        importStatus.className = 'import-status ' + type;
-        
-        // 3秒后自动清除状态信息
-        if (type === 'success' || type === 'error') {
-            setTimeout(() => {
-                importStatus.textContent = '';
-                importStatus.className = 'import-status';
-            }, 3000);
-        }
-    }
-});
 </script>
 {% endblock %}

@@ -194,7 +194,16 @@ export const TimeRecorderFrontendUtils = {
      */
     calculateRecordTotalTime: function(record, currentElapsed = 0) {
         // 根据规范，duration记录所有segments累计的时间
-        let total = (record && record.duration) || 0;
+        // 重新计算段落总时间以确保准确性
+        let total = 0;
+        if (record.segments && Array.isArray(record.segments)) {
+            // 使用工具类计算所有段落的总时间
+            total = this.calculateSegmentsTotalTime(record.segments);
+        }
+        // 如果计算结果为0，使用record.duration作为后备值
+        if (total === 0) {
+            total = (record && record.duration) || 0;
+        }
         
         // 确保window.TimeRecorderConfig存在且有currentRecordId属性
         if (typeof window !== 'undefined' && 

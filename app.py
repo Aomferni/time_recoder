@@ -1242,5 +1242,36 @@ def import_records():
             'error': f'导入记录失败: {str(e)}'
         }), 500
 
+@app.route('/api/export-records', methods=['GET'])
+def export_records():
+    """导出记录文件"""
+    try:
+        # 获取用户名参数
+        username = request.args.get('username', 'default')
+        
+        if not username:
+            return jsonify({
+                'success': False,
+                'error': '用户名不能为空'
+            }), 400
+        
+        # 加载该用户的记录
+        records = TimeRecorderUtils.load_records_by_username(username)
+        
+        # 返回JSON格式的记录数据
+        return jsonify({
+            'success': True,
+            'records': records,
+            'username': username,
+            'count': len(records)
+        })
+        
+    except Exception as e:
+        print(f"导出记录失败: {e}")
+        return jsonify({
+            'success': False,
+            'error': f'导出记录失败: {str(e)}'
+        }), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5002)

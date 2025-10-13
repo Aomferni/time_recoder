@@ -55,6 +55,11 @@
             <div class="filter-actions">
                 <button class="control-btn search-btn" onclick="applyFilters()">搜索</button>
                 <button class="control-btn reset-btn" onclick="resetFilters()">重置</button>
+                <button class="control-btn export-btn" onclick="exportRecords()">导出记录</button>
+                <!-- 导入记录按钮 -->
+                <input type="file" id="recordFileInput" accept=".json" class="file-input" style="display: none;">
+                <button class="control-btn import-btn" id="importRecordBtn">导入记录</button>
+                <div id="importStatus" class="import-status"></div>
             </div>
         </div>
     </div>
@@ -148,6 +153,24 @@
         
         // 添加键盘事件监听器，支持ESC键关闭模态框
         document.addEventListener('keydown', handleKeyDown);
+        
+        // 添加导入记录相关事件监听器
+        const importBtn = document.getElementById('importRecordBtn');
+        const fileInput = document.getElementById('recordFileInput');
+        
+        if (importBtn && fileInput) {
+            // 点击导入按钮时触发文件选择
+            importBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // 文件选择后处理导入
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    importRecordFile(fileInput.files[0]);
+                }
+            });
+        }
     });
 
     // 处理键盘事件
@@ -209,7 +232,16 @@
                 ).join(' ') : '';
             
             // 根据规范，duration记录所有segments累计的时间
-            const totalDuration = record.duration || 0;
+            // 重新计算段落总时间以确保准确性
+            let totalDuration = 0;
+            if (record.segments && Array.isArray(record.segments)) {
+                // 使用工具类计算所有段落的总时间
+                totalDuration = TimeRecorderFrontendUtils.calculateSegmentsTotalTime(record.segments);
+            }
+            // 如果计算结果为0，使用record.duration作为后备值
+            if (totalDuration === 0) {
+                totalDuration = (record && record.duration) || 0;
+            }
             
             const row = tbody.insertRow();
             // 删除编辑按钮，只保留继续和删除按钮
@@ -707,6 +739,103 @@
             console.error('删除记录失败:', error);
             alert('删除记录失败，请查看控制台了解详情');
         });
+    }
+
+    // 导出记录
+    function exportRecords() {
+        // 显示确认对话框
+        if (!confirm(`确定要导出用户 "${currentUsername}" 的所有记录吗？`)) {
+            return;
+        }
+        
+        // 发送请求导出记录
+        fetch(`/api/export-records?username=${encodeURIComponent(currentUsername)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 创建要下载的JSON数据
+                    const jsonData = JSON.stringify(data.records, null, 2);
+                    
+                    // 创建Blob对象
+                    const blob = new Blob([jsonData], { type: 'application/json' });
+                    
+                    // 创建下载链接
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `records_${currentUsername}.json`;
+                    
+                    // 触发下载
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // 清理
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                    
+                    alert(`成功导出 ${data.count} 条记录`);
+                } else {
+                    alert('导出记录失败: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('导出记录失败:', error);
+                alert('导出记录失败，请查看控制台了解详情');
+            });
+    }
+
+    // 导入记录文件函数
+    function importRecordFile(file) {
+        if (!file) {
+            showImportStatus('请选择要导入的文件', 'error');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('username', currentUsername);
+        
+        showImportStatus('正在导入...', 'info');
+        
+        fetch('/api/import-records', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showImportStatus(`导入成功！共导入 ${data.imported_count} 条记录`, 'success');
+                // 清空文件选择
+                document.getElementById('recordFileInput').value = '';
+                // 重新加载记录
+                loadRecords();
+            } else {
+                showImportStatus(`导入失败: ${data.error}`, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('导入记录失败:', error);
+            showImportStatus('导入失败，请查看控制台了解详情', 'error');
+        });
+    }
+    
+    // 显示导入状态
+    function showImportStatus(message, type) {
+        const importStatus = document.getElementById('importStatus');
+        if (!importStatus) return;
+        
+        importStatus.textContent = message;
+        importStatus.className = 'import-status ' + type;
+        
+        // 3秒后自动清除状态信息
+        if (type === 'success' || type === 'error') {
+            setTimeout(() => {
+                importStatus.textContent = '';
+                importStatus.className = 'import-status';
+            }, 3000);
+        }
     }
 
     

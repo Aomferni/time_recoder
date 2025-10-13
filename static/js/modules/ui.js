@@ -280,7 +280,16 @@ export const TimeRecorderUI = {
         }
         
         // 根据规范，duration记录所有segments累计的时间
-        const totalDuration = (record && record.duration) || 0;
+        // 重新计算段落总时间以确保准确性
+        let totalDuration = 0;
+        if (record.segments && Array.isArray(record.segments)) {
+            // 使用工具类计算所有段落的总时间
+            totalDuration = TimeRecorderFrontendUtils.calculateSegmentsTotalTime(record.segments);
+        }
+        // 如果计算结果为0，使用record.duration作为后备值
+        if (totalDuration === 0) {
+            totalDuration = (record && record.duration) || 0;
+        }
         
         // 处理情绪显示
         const emotionDisplay = record.emotion ? 
@@ -411,7 +420,16 @@ export const TimeRecorderUI = {
             TimeRecorderFrontendUtils.getActivityClass(record.activity, record.activityCategory);
         
         // 根据规范，duration记录所有segments累计的时间
-        const totalDuration = (record && record.duration) || 0;
+        // 重新计算段落总时间以确保准确性
+        let totalDuration = 0;
+        if (record.segments && Array.isArray(record.segments)) {
+            // 使用工具类计算所有段落的总时间
+            totalDuration = TimeRecorderFrontendUtils.calculateSegmentsTotalTime(record.segments);
+        }
+        // 如果计算结果为0，使用record.duration作为后备值
+        if (totalDuration === 0) {
+            totalDuration = (record && record.duration) || 0;
+        }
         
         // 处理情绪显示，添加颜色
         let emotionDisplay = '';
