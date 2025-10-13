@@ -8,6 +8,36 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
+/* 折叠按钮样式 */
+.collapse-btn {
+    float: right;
+    background-color: #667eea;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.collapse-btn:hover {
+    background-color: #764ba2;
+    transform: translateY(-1px);
+}
+
+/* 折叠区域样式 */
+.collapsed {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+}
+
+.collapsed h3 {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+}
+
 /* 详情页分段样式 */
 .detail-section {
     border: 2px solid #eee;

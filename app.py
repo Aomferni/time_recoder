@@ -928,14 +928,45 @@ def get_all_records():
 def get_stats():
     """获取统计信息"""
     username = request.args.get('username', 'default')
-    records = TimeRecorderUtils.load_records_by_username(username)
+    all_records = TimeRecorderUtils.load_records_by_username(username)
+    
+    # 获取今天的日期（使用北京时间）
+    today = datetime.now(BEIJING_TZ).strftime('%Y/%m/%d')
+    
+    # 筛选今天的记录
+    records = [record for record in all_records if record.get('date', '') == today]
+    
+    # 计算总时长和活动次数
+    # 加载活动类别配置
+    categories = TimeRecorderUtils.load_activity_categories()
+    
+    # 创建创作类活动集合
+    creation_activities = set()
+    for category in categories:
+        if category['name'] == '输出创作':
+            creation_activities.update(category.get('activities', []))
     
     # 计算总时长和活动次数
     total_duration = 0
+    creation_total_duration = 0
+    
     for record in records:
         # 根据规范，duration记录所有segments累计的时间
         # 所以总时长就是所有记录的duration之和
-        total_duration += record.get('duration', 0)
+        duration = record.get('duration', 0)
+        total_duration += duration
+        
+        # 如果活动属于创作类活动，累加到创作总时间
+        # 使用宽松匹配方式
+        activity = record.get('activity', '')
+        is_creation_activity = False
+        for creation_activity in creation_activities:
+            if creation_activity in activity:
+                is_creation_activity = True
+                break
+        
+        if is_creation_activity:
+            creation_total_duration += duration
     
     activity_count = len(records)
     
@@ -943,12 +974,19 @@ def get_stats():
     hours = total_duration // 3600000
     minutes = (total_duration % 3600000) // 60000
     
+    # 转换创作为时间小时和分钟
+    creation_hours = creation_total_duration // 3600000
+    creation_minutes = (creation_total_duration % 3600000) // 60000
+    
     return jsonify({
         'success': True,
         'stats': {
             'totalTime': total_duration,
             'totalHours': hours,
             'totalMinutes': minutes,
+            'toyTotalTime': creation_total_duration,
+            'toyTotalHours': creation_hours,
+            'toyTotalMinutes': creation_minutes,
             'activityCount': activity_count
         }
     })

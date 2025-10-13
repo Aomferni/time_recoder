@@ -509,62 +509,8 @@ export const TimeRecorderUI = {
                     <textarea id="detail-remark" class="highlight-field important-field" placeholder="记录这次活动的收获和感悟...">${record.remark || ''}</textarea>
                 </div>
                 
-                <div class="detail-section highlight-section">
-                    <h3>核心信息</h3>
-                    <div class="highlight-field important-field">
-                        <label>活动名称:</label>
-                        <input type="text" value="${record.activity || ''}" id="detail-activity" class="${activityClass}">
-                    </div>
-                    
-                    <div class="highlight-field">
-                        <label>活动类别:</label>
-                        <select id="detail-activity-category" class="${activityClass}">
-                            <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
-                            <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
-                            <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
-                            <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
-                            <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
-                            <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
-                            <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
-                        </select>
-                    </div>
-                    
-                    <div class="highlight-field">
-                        <label>记录日期:</label>
-                        <input type="text" value="${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}" id="detail-date" readonly>
-                    </div>
-                </div>
-                
-                <div class="detail-section highlight-section">
-                    <h3>时间信息</h3>
-                    <div class="highlight-field">
-                        <label>开始时间:</label>
-                        <input type="datetime-local" value="${record.startTime ? TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.startTime)) : ''}" id="detail-start-time">
-                    </div>
-                    
-                    <div class="highlight-field">
-                        <label>结束时间:</label>
-                        <input type="datetime-local" value="${record.endTime ? TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.endTime)) : ''}" id="detail-end-time">
-                    </div>
-                    
-                    <div class="highlight-field">
-                        <label>时间跨度:</label>
-                        <input type="text" value="${record.timeSpan ? TimeRecorderFrontendUtils.formatDuration(record.timeSpan) : '0分钟0秒'}" id="detail-time-span" readonly>
-                    </div>
-                    
-                    <div class="highlight-field important-field">
-                        <label>计时时长:</label>
-                        <input type="text" value="${TimeRecorderFrontendUtils.formatDuration(totalDuration)}" id="detail-duration" readonly class="duration-input">
-                    </div>
-                    
-                    <div class="highlight-field important-field">
-                        <label>暂停次数:</label>
-                        <input type="number" value="${record.pauseCount || 0}" id="detail-pause-count" min="0">
-                    </div>
-                </div>
-                
                 <div class="detail-section">
-                    <h3>记录情绪</h3>
+                    <h3>记录情绪 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'emotion-section')">折叠</button></h3>
                     <div class="emotion-checkboxes" id="detail-emotion">
                         ${(window.TimeRecorderConfig && Array.isArray(window.TimeRecorderConfig.emotionOptions) ? 
                             window.TimeRecorderConfig.emotionOptions.map(emotion => `
@@ -578,11 +524,65 @@ export const TimeRecorderUI = {
                     </div>
                 </div>
                 
-                <div class="detail-section">
-                    <h3>段落详情</h3>
-                    <div class="segments-display">
+                <div class="detail-section collapsed">
+                    <h3>段落详情 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'segments-section')">展开</button></h3>
+                    <div class="segments-display" style="display: none;">
                         ${segmentsDisplay}
                         <button type="button" class="control-btn" onclick="TimeRecorderUI.addSegment('${record.id}')">添加段落</button>
+                    </div>
+                </div>
+                
+                <div class="detail-section collapsed">
+                    <h3>核心信息 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'core-section')">展开</button></h3>
+                    <div class="highlight-field important-field" style="display: none;">
+                        <label>活动名称:</label>
+                        <input type="text" value="${record.activity || ''}" id="detail-activity" class="${activityClass}">
+                    </div>
+                    
+                    <div class="highlight-field" style="display: none;">
+                        <label>活动类别:</label>
+                        <select id="detail-activity-category" class="${activityClass}">
+                            <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
+                            <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
+                            <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
+                            <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
+                            <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
+                            <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
+                            <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
+                        </select>
+                    </div>
+                    
+                    <div class="highlight-field" style="display: none;">
+                        <label>记录日期:</label>
+                        <input type="text" value="${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}" id="detail-date" readonly>
+                    </div>
+                </div>
+                
+                <div class="detail-section collapsed">
+                    <h3>时间信息 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'time-section')">展开</button></h3>
+                    <div class="highlight-field" style="display: none;">
+                        <label>开始时间:</label>
+                        <input type="datetime-local" value="${record.startTime ? TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.startTime)) : ''}" id="detail-start-time">
+                    </div>
+                    
+                    <div class="highlight-field" style="display: none;">
+                        <label>结束时间:</label>
+                        <input type="datetime-local" value="${record.endTime ? TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.endTime)) : ''}" id="detail-end-time">
+                    </div>
+                    
+                    <div class="highlight-field" style="display: none;">
+                        <label>时间跨度:</label>
+                        <input type="text" value="${record.timeSpan ? TimeRecorderFrontendUtils.formatDuration(record.timeSpan) : '0分钟0秒'}" id="detail-time-span" readonly>
+                    </div>
+                    
+                    <div class="highlight-field important-field" style="display: none;">
+                        <label>计时时长:</label>
+                        <input type="text" value="${TimeRecorderFrontendUtils.formatDuration(totalDuration)}" id="detail-duration" readonly class="duration-input">
+                    </div>
+                    
+                    <div class="highlight-field important-field" style="display: none;">
+                        <label>暂停次数:</label>
+                        <input type="number" value="${record.pauseCount || 0}" id="detail-pause-count" min="0">
                     </div>
                 </div>
                 
@@ -701,6 +701,40 @@ export const TimeRecorderUI = {
     editRecordDetail: function(recordId) {
         setUseSimpleDetail(false);
         TimeRecorderUI.showRecordDetail(recordId);
+    },
+    
+    /**
+     * 切换详情区域的折叠/展开状态
+     */
+    toggleSection: function(button, sectionType) {
+        const section = button.closest('.detail-section');
+        const isCollapsed = section.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            // 展开
+            section.classList.remove('collapsed');
+            button.textContent = '折叠';
+            
+            // 显示该区域的所有子元素
+            const elements = section.querySelectorAll('div:not(.emotion-checkboxes), .emotion-checkboxes, .segments-display, .highlight-field');
+            elements.forEach(el => {
+                if (el !== section.querySelector('h3')) {
+                    el.style.display = '';
+                }
+            });
+        } else {
+            // 折叠
+            section.classList.add('collapsed');
+            button.textContent = '展开';
+            
+            // 隐藏该区域的所有子元素
+            const elements = section.querySelectorAll('div:not(.emotion-checkboxes), .emotion-checkboxes, .segments-display, .highlight-field');
+            elements.forEach(el => {
+                if (el !== section.querySelector('h3')) {
+                    el.style.display = 'none';
+                }
+            });
+        }
     },
     
     /**
@@ -1146,10 +1180,15 @@ export const TimeRecorderUI = {
         TimeRecorderAPI.getStats()
             .then(stats => {
                 const totalTimeElement = document.getElementById('totalTime');
+                const toyTotalTimeElement = document.getElementById('toyTotalTime');
                 const activityCountElement = document.getElementById('activityCount');
                 
                 if (totalTimeElement) {
                     totalTimeElement.textContent = `${stats.totalHours || 0}小时${stats.totalMinutes || 0}分`;
+                }
+                
+                if (toyTotalTimeElement) {
+                    toyTotalTimeElement.textContent = `${stats.toyTotalHours || 0}小时${stats.toyTotalMinutes || 0}分`;
                 }
                 
                 if (activityCountElement) {
