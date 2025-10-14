@@ -32,15 +32,23 @@ export const TimeRecorderUI = {
      * 更新活动按钮显示
      */
     updateActivityButtons: function() {
-        // 检查必要的DOM元素是否存在
-        const section = document.querySelector('.section');
-        if (!section) {
-            console.error('找不到.section元素');
-            return;
+        // 查找包含"选择活动"标题的section
+        const sections = document.querySelectorAll('.section');
+        let targetSection = null;
+        
+        // 遍历所有section，找到包含"选择活动"h2标题的section
+        for (let i = 0; i < sections.length; i++) {
+            const h2 = sections[i].querySelector('h2');
+            if (h2 && h2.textContent === '选择活动') {
+                targetSection = sections[i];
+                break;
+            }
         }
         
-        // 查找导航区域（现在在用户区域中）
-        const navigation = document.querySelector('.top-navigation');
+        if (!targetSection) {
+            console.error('找不到包含"选择活动"标题的section元素');
+            return;
+        }
         
         // 检查是否有活动类别
         if (!Array.isArray(activityCategories) || activityCategories.length === 0) {
@@ -48,9 +56,9 @@ export const TimeRecorderUI = {
             return;
         }
         
-        // 清空现有的活动按钮容器
-        const existingCategoryLabels = section.querySelectorAll('.category-label');
-        const existingButtonGrids = section.querySelectorAll('.button-grid');
+        // 清空现有的活动按钮容器（只清空目标section中的）
+        const existingCategoryLabels = targetSection.querySelectorAll('.category-label');
+        const existingButtonGrids = targetSection.querySelectorAll('.button-grid');
         
         existingCategoryLabels.forEach(label => {
             if (label && label.parentNode) {
@@ -80,9 +88,9 @@ export const TimeRecorderUI = {
             const buttonGrid = document.createElement('div');
             buttonGrid.className = 'button-grid';
             
-            // 将分类标签和按钮网格添加到section中
-            section.appendChild(categoryLabel);
-            section.appendChild(buttonGrid);
+            // 将分类标签和按钮网格添加到目标section中
+            targetSection.appendChild(categoryLabel);
+            targetSection.appendChild(buttonGrid);
             
             // 检查是否有活动
             if (!Array.isArray(category.activities) || category.activities.length === 0) {

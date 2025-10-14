@@ -207,6 +207,7 @@ class TimeRecorderUtils:
         
         # 按日期组织情绪数据
         mood_data = {}
+        mood_records = {}  # 用于存储情绪对应的记录ID和活动信息
         for record in recent_records:
             if 'emotion' in record and record['emotion']:
                 emotions = record['emotion'].split(', ')
@@ -217,9 +218,16 @@ class TimeRecorderUtils:
                 
                 if date_str not in mood_data:
                     mood_data[date_str] = []
+                    mood_records[date_str] = []
                 
                 for emotion in emotions:
                     mood_data[date_str].append(emotion)
+                    mood_records[date_str].append({
+                        'emotion': emotion,
+                        'record_id': record['id'],
+                        'activity': record.get('activity', ''),  # 添加活动名称
+                        'duration': record.get('duration', 0)  # 添加时长
+                    })
         
         # 转换为前端需要的格式
         result = []
@@ -254,17 +262,28 @@ class TimeRecorderUtils:
                 date = start_date + timedelta(days=i)
                 date_str = date.strftime('%Y/%m/%d')
                 
-                # 计算这一天该情绪的次数
+                # 计算这一天该情绪的次数，并收集对应的记录ID和活动信息
                 count = 0
+                record_ids = []
+                activities = []  # 存储每个记录的活动名称
+                durations = []  # 存储每个记录的时长
                 if date_str in mood_data:
-                    for mood in mood_data[date_str]:
+                    for j, mood in enumerate(mood_data[date_str]):
                         if mood == emotion:
                             count += 1
+                            # 获取对应的记录ID和活动信息
+                            if j < len(mood_records[date_str]):
+                                record_ids.append(mood_records[date_str][j]['record_id'])
+                                activities.append(mood_records[date_str][j]['activity'])
+                                durations.append(mood_records[date_str][j]['duration'])
                 
                 if count > 0:
                     emotion_info['days'].append({
                         'date': date_str,
-                        'count': count
+                        'count': count,
+                        'record_ids': record_ids,  # 添加记录ID列表
+                        'activities': activities,  # 添加活动名称列表
+                        'durations': durations  # 添加时长列表
                     })
             
             if emotion_info['days']:  # 只添加有数据的情绪
@@ -317,11 +336,15 @@ class TimeRecorderUtils:
         
         # 按日期组织活动数据
         activity_data = {}
+        activity_records = {}  # 用于存储活动对应的记录ID和活动类别
         for record in recent_records:
             if 'activity' in record and record['activity']:
                 activity = record['activity']
                 # 获取活动对应的类别（使用更宽松的匹配方式）
                 category = TimeRecorderUtils.get_activity_category_loose_match(activity, activity_to_category)
+                
+                # 获取记录中的活动类别字段
+                record_activity_category = record.get('activityCategory', category)
                 
                 # 计算记录的总时长
                 duration = record.get('duration', 0)
@@ -335,11 +358,18 @@ class TimeRecorderUtils:
                 
                 if date_str not in activity_data:
                     activity_data[date_str] = []
+                    activity_records[date_str] = []
                 
                 activity_data[date_str].append({
                     'name': category,
                     'color': category_colors.get(category, '#607D8B'),
                     'duration': duration
+                })
+                activity_records[date_str].append({
+                    'category': category,
+                    'record_id': record['id'],
+                    'activity_category': record_activity_category,  # 添加活动类别字段
+                    'activity': activity  # 添加活动名称字段
                 })
         
         # 转换为前端需要的格式
@@ -363,20 +393,31 @@ class TimeRecorderUtils:
                 date = start_date + timedelta(days=i)
                 date_str = date.strftime('%Y/%m/%d')
                 
-                # 计算这一天该类别的总时长和次数
+                # 计算这一天该类别的总时长和次数，并收集对应的记录ID和活动类别
                 duration = 0
                 count = 0
+                record_ids = []
+                activity_categories = []  # 存储每个记录的活动类别
+                activities = []  # 存储每个记录的活动名称
                 if date_str in activity_data:
-                    for activity in activity_data[date_str]:
+                    for j, activity in enumerate(activity_data[date_str]):
                         if activity['name'] == category:
                             duration += activity['duration']
                             count += 1
+                            # 获取对应的记录ID和活动类别
+                            if j < len(activity_records[date_str]):
+                                record_ids.append(activity_records[date_str][j]['record_id'])
+                                activity_categories.append(activity_records[date_str][j]['activity_category'])
+                                activities.append(activity_records[date_str][j]['activity'])
                 
                 if count > 0:
                     category_info['days'].append({
                         'date': date_str,
                         'duration': duration,
-                        'count': count
+                        'count': count,
+                        'record_ids': record_ids,  # 添加记录ID列表
+                        'activity_categories': activity_categories,  # 添加活动类别列表
+                        'activities': activities  # 添加活动名称列表
                     })
             
             if category_info['days']:  # 只添加有数据的类别

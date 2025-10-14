@@ -51,6 +51,12 @@ export const TimeRecorderRecordDetail = {
             return;
         }
         
+        // 设置模态框标题为活动名称
+        const titleElement = modal.querySelector('h2');
+        if (titleElement) {
+            titleElement.textContent = record.activity || '活动详情';
+        }
+        
         if (useSimpleDetail) {
             this._renderSimpleRecordDetail(record, modal, content);
         } else {

@@ -326,9 +326,9 @@
 }
 
 .mood-box {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -336,22 +336,22 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     overflow: hidden;
     position: relative;
     animation: fadeIn 0.5s ease-out;
 }
 
 .mood-box:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
 .mood-text {
-    font-size: 12px;
+    font-size: 10px;
     text-align: center;
-    padding: 0 6px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    padding: 0 4px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     font-weight: 500;
 }
 
@@ -408,9 +408,9 @@
 }
 
 .activity-box {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -418,22 +418,22 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     overflow: hidden;
     position: relative;
     animation: fadeIn 0.5s ease-out;
 }
 
 .activity-box:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
 .activity-text {
-    font-size: 12px;
+    font-size: 10px;
     text-align: center;
-    padding: 0 6px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    padding: 0 4px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     font-weight: 500;
 }
 

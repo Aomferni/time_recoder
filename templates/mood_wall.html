@@ -188,7 +188,10 @@
                         dayMoods.push({
                             name: mood.name,
                             color: mood.color,
-                            date: dayStr
+                            date: dayStr,
+                            recordId: dayData.record_ids && dayData.record_ids[i] ? dayData.record_ids[i] : null,
+                            activity: dayData.activities && dayData.activities[i] ? dayData.activities[i] : '',
+                            duration: dayData.durations && dayData.durations[i] ? dayData.durations[i] : 0
                         });
                     }
                 }
@@ -200,8 +203,15 @@
                 moodBox.className = 'mood-box';
                 moodBox.style.backgroundColor = mood.color;
                 
-                // 添加标题显示详细信息
-                moodBox.title = `${mood.name}`;
+                // 根据时长设置透明度，时间越短越透明（最小透明度0.3，最大1.0）
+                const maxDuration = 3600000; // 1小时为最大值参考
+                const opacity = Math.max(0.3, Math.min(1.0, 0.3 + (mood.duration / maxDuration) * 0.7));
+                moodBox.style.opacity = opacity;
+                
+                // 添加标题显示详细信息（活动名称和时长）
+                const hours = Math.floor(mood.duration / (1000 * 60 * 60));
+                const minutes = Math.floor((mood.duration % (1000 * 60 * 60)) / (1000 * 60));
+                moodBox.title = `${mood.activity || mood.name}: ${hours}小时${minutes}分钟`;
                 
                 // 创建情绪文本
                 const moodText = document.createElement('span');
@@ -212,8 +222,13 @@
                 
                 // 添加点击事件打开活动详情页
                 moodBox.addEventListener('click', () => {
-                    // 查找匹配的情绪记录
-                    findAndShowMoodDetail(mood.name, mood.date, index);
+                    // 如果有recordId，直接使用recordId打开详情
+                    if (mood.recordId) {
+                        showRecordDetailById(mood.recordId);
+                    } else {
+                        // 查找匹配的情绪记录
+                        findAndShowMoodDetail(mood.name, mood.date, index);
+                    }
                 });
                 
                 moodsContainer.appendChild(moodBox);
@@ -276,7 +291,10 @@
                             name: activity.name,
                             color: activity.color,
                             duration: dayData.duration,
-                            date: dayStr
+                            date: dayStr,
+                            recordId: dayData.record_ids && dayData.record_ids[i] ? dayData.record_ids[i] : null,
+                            activityCategory: dayData.activity_categories && dayData.activity_categories[i] ? dayData.activity_categories[i] : activity.name,
+                            activity: dayData.activities && dayData.activities[i] ? dayData.activities[i] : ''
                         });
                     }
                 }
@@ -288,22 +306,32 @@
                 activityBox.className = 'activity-box';
                 activityBox.style.backgroundColor = activity.color;
                 
+                // 根据时长设置透明度，时间越短越透明（最小透明度0.3，最大1.0）
+                const maxDuration = 3600000; // 1小时为最大值参考
+                const opacity = Math.max(0.3, Math.min(1.0, 0.3 + (activity.duration / maxDuration) * 0.7));
+                activityBox.style.opacity = opacity;
+                
                 // 添加标题显示详细信息
                 const hours = Math.floor(activity.duration / (1000 * 60 * 60));
                 const minutes = Math.floor((activity.duration % (1000 * 60 * 60)) / (1000 * 60));
-                activityBox.title = `${activity.name}: ${hours}小时${minutes}分钟`;
+                activityBox.title = `${activity.activity || activity.name}: ${hours}小时${minutes}分钟`;
                 
-                // 创建活动类型文本
+                // 创建活动类型文本，显示活动类别而不是活动类别名称
                 const activityText = document.createElement('span');
                 activityText.className = 'activity-text';
-                activityText.textContent = activity.name;
+                activityText.textContent = activity.activityCategory;
                 
                 activityBox.appendChild(activityText);
                 
                 // 添加点击事件打开活动详情页
                 activityBox.addEventListener('click', () => {
-                    // 查找匹配的活动记录
-                    findAndShowActivityDetail(activity.name, activity.date, index);
+                    // 如果有recordId，直接使用recordId打开详情
+                    if (activity.recordId) {
+                        showRecordDetailById(activity.recordId);
+                    } else {
+                        // 查找匹配的活动记录
+                        findAndShowActivityDetail(activity.name, activity.date, index);
+                    }
                 });
                 
                 activitiesContainer.appendChild(activityBox);
@@ -495,6 +523,12 @@
     function showRecordDetail(record) {
         // 使用统一的记录详情组件
         TimeRecorderRecordDetail.showRecordDetail(record);
+    }
+    
+    // 通过recordId显示记录详情
+    function showRecordDetailById(recordId) {
+        // 使用统一的记录详情组件，直接传入recordId
+        TimeRecorderRecordDetail.showRecordDetail(recordId);
     }
     
     // 获取情绪颜色

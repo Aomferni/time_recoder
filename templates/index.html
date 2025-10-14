@@ -15,13 +15,6 @@
 
 <div class="main-layout">
     <div class="section">
-        <h2>选择活动</h2>
-        
-        <!-- 活动按钮将通过JavaScript动态生成 -->
-        
-    </div>
-    
-    <div class="section">
         <div class="current-activity" id="currentActivity" contenteditable="false">请选择活动</div>
         
         <!-- 突出显示的计时器区域 -->
@@ -33,8 +26,16 @@
         <div class="control-buttons">
             <button class="control-btn toggle-btn" id="toggleBtn">开始</button>
         </div>
+    </div>
+    
+    <div class="section">
+        <h2>选择活动</h2>
+        <!-- 活动按钮将通过JavaScript动态生成 -->
         
-        <h2>今日记录（<span id="currentDate"></span>）</h2>
+    </div>
+    
+    <div class="section">
+        <h2>今日记录详情（<span id="currentDate"></span>）</h2>
         <table class="records-table">
             <thead>
                 <tr>
@@ -47,7 +48,9 @@
             <tbody id="recordsBody">
             </tbody>
         </table>
-        
+    </div>
+    <div class="section">
+        <h2>今日累计时长</h2>
         <div class="stats" id="stats">
             <div class="stat-card">
                 <h3>今日总计</h3>
