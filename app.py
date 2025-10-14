@@ -22,18 +22,15 @@ class TimeRecorderUtils:
     """时间记录器工具类，包含常用的工具函数"""
     
     @staticmethod
-    def get_data_file_path(username=None):
-        """获取指定用户的數據文件路径"""
-        if username is None:
-            username = 'default'
-        user_folder = os.path.join(app.config['DATA_FOLDER'], username)
-        os.makedirs(user_folder, exist_ok=True)
-        return os.path.join(user_folder, f"records_{username}.json")
+    def get_data_file_path():
+        """获取数据文件路径"""
+        data_file = os.path.join(app.config['DATA_FOLDER'], 'records.json')
+        return data_file
     
     @staticmethod
-    def load_records_by_username(username):
-        """加载指定用户的所有记录"""
-        data_file = TimeRecorderUtils.get_data_file_path(username)
+    def load_records():
+        """加载所有记录"""
+        data_file = TimeRecorderUtils.get_data_file_path()
         if os.path.exists(data_file):
             try:
                 with open(data_file, 'r', encoding='utf-8') as f:
@@ -44,62 +41,36 @@ class TimeRecorderUtils:
         return []
     
     @staticmethod
-    def load_all_records(username=None):
-        """加载指定用户的所有记录，如果不指定用户则加载所有用户的记录"""
+    def load_all_records():
+        """加载所有记录"""
         all_records = []
         
-        if username:
-            # 查找指定用户的记录文件
-            user_folder = os.path.join(app.config['DATA_FOLDER'], username)
-            if os.path.exists(user_folder):
-                data_file = os.path.join(user_folder, f"records_{username}.json")
-                if os.path.exists(data_file):
-                    try:
-                        with open(data_file, 'r', encoding='utf-8') as f:
-                            records = json.load(f)
-                            for record in records:
-                                record['username'] = username
-                                # 确保记录包含date字段，使用北京时间的日期
-                                if 'date' not in record and 'startTime' in record:
-                                    # 将UTC时间转换为北京时间后提取日期
-                                    utc_time = datetime.fromisoformat(record['startTime'].replace('Z', '+00:00'))
-                                    beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
-                                    record['date'] = beijing_time.strftime('%Y/%m/%d')
-                            all_records.extend(records)
-                    except Exception as e:
-                        print(f"读取记录文件出错 {data_file}: {e}")
-        else:
-            # 查找所有用户的记录文件
-            user_folders = [f.path for f in os.scandir(app.config['DATA_FOLDER']) if f.is_dir()]
-            for user_folder in user_folders:
-                username = os.path.basename(user_folder)
-                data_file = os.path.join(user_folder, f"records_{username}.json")
-                if os.path.exists(data_file):
-                    try:
-                        with open(data_file, 'r', encoding='utf-8') as f:
-                            records = json.load(f)
-                            for record in records:
-                                record['username'] = username
-                                # 确保记录包含date字段，使用北京时间的日期
-                                if 'date' not in record and 'startTime' in record:
-                                    # 将UTC时间转换为北京时间后提取日期
-                                    utc_time = datetime.fromisoformat(record['startTime'].replace('Z', '+00:00'))
-                                    beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
-                                    record['date'] = beijing_time.strftime('%Y/%m/%d')
-                            all_records.extend(records)
-                    except Exception as e:
-                        print(f"读取记录文件出错 {data_file}: {e}")
+        # 加载记录文件
+        data_file = TimeRecorderUtils.get_data_file_path()
+        if os.path.exists(data_file):
+            try:
+                with open(data_file, 'r', encoding='utf-8') as f:
+                    records = json.load(f)
+                    for record in records:
+                        # 确保记录包含date字段，使用北京时间的日期
+                        if 'date' not in record and 'startTime' in record:
+                            # 将UTC时间转换为北京时间后提取日期
+                            utc_time = datetime.fromisoformat(record['startTime'].replace('Z', '+00:00'))
+                            beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
+                            record['date'] = beijing_time.strftime('%Y/%m/%d')
+                    all_records.extend(records)
+            except Exception as e:
+                print(f"读取记录文件出错 {data_file}: {e}")
         
-        # 按开始时间倒序排列
-        all_records.sort(key=lambda x: x['startTime'], reverse=True)
+        # 按开始时间倒序排列，但要确保记录有startTime字段
+        all_records.sort(key=lambda x: x.get('startTime', ''), reverse=True)
         return all_records
     
     @staticmethod
-    def save_records(records, username=None):
-        """保存记录到指定用户的文件"""
-        if username is None:
-            username = 'default'
-        data_file = TimeRecorderUtils.get_data_file_path(username)
+    def save_records(records):
+        """保存记录到文件"""
+        data_file = TimeRecorderUtils.get_data_file_path()
+        os.makedirs(os.path.dirname(data_file), exist_ok=True)
         try:
             with open(data_file, 'w', encoding='utf-8') as f:
                 json.dump(records, f, ensure_ascii=False, indent=2)
@@ -212,13 +183,13 @@ class TimeRecorderUtils:
                     # 将UTC时间转换为北京时间后提取日期
                     utc_time = datetime.fromisoformat(value.replace('Z', '+00:00'))
                     beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
-    
-
+                    record['date'] = beijing_time.strftime('%Y/%m/%d')
+                    record[key] = value
     
     @staticmethod
-    def get_mood_wall_data(username, year, month):
-        """获取指定用户指定月份的情绪墙数据"""
-        records = TimeRecorderUtils.load_records_by_username(username)
+    def get_mood_wall_data(year, month):
+        """获取指定月份的情绪墙数据"""
+        records = TimeRecorderUtils.load_records()
         
         # 获取最近7天的日期范围
         end_date = datetime.now(BEIJING_TZ)
@@ -302,9 +273,9 @@ class TimeRecorderUtils:
         return result
     
     @staticmethod
-    def get_activity_wall_data(username, year, month):
-        """获取指定用户指定月份的活动类型墙数据"""
-        records = TimeRecorderUtils.load_records_by_username(username)
+    def get_activity_wall_data(year, month):
+        """获取指定月份的活动类型墙数据"""
+        records = TimeRecorderUtils.load_records()
         
         # 加载活动类别配置
         categories = TimeRecorderUtils.load_activity_categories()
@@ -430,9 +401,9 @@ class TimeRecorderUtils:
         return '其他'
     
     @staticmethod
-    def get_keyword_cloud_data(username, days=7):
-        """获取指定用户近几天的关键词词云数据"""
-        records = TimeRecorderUtils.load_records_by_username(username)
+    def get_keyword_cloud_data(days=7):
+        """获取近几天的关键词词云数据"""
+        records = TimeRecorderUtils.load_records()
         
         # 计算日期范围（近days天）
         end_date = datetime.now(BEIJING_TZ)
@@ -509,38 +480,10 @@ def project_description():
 def manage_categories():
     return render_template('manage_categories.html')
 
-@app.route('/api/set-username', methods=['POST'])
-def set_username():
-    """设置用户名并迁移记录"""
-    data = request.get_json()
-    new_username = data.get('username')
-    old_username = data.get('oldUsername', 'default')
-    
-    # 验证用户名
-    if not new_username:
-        return jsonify({
-            'success': False,
-            'error': '用户名不能为空'
-        }), 400
-    
-    # 迁移记录
-    if old_username != new_username:
-        if not migrate_user_records(old_username, new_username):
-            return jsonify({
-                'success': False,
-                'error': '迁移记录失败'
-            }), 500
-    
-    return jsonify({
-        'success': True,
-        'message': '用户名设置成功'
-    })
-
 @app.route('/api/records', methods=['GET'])
 def get_records():
     """获取今日记录"""
-    username = request.args.get('username', 'default')
-    all_records = TimeRecorderUtils.load_records_by_username(username)
+    all_records = TimeRecorderUtils.load_records()
     
     # 获取今天的日期（使用北京时间）
     today = datetime.now(BEIJING_TZ).strftime('%Y/%m/%d')
@@ -549,7 +492,7 @@ def get_records():
     today_records = [record for record in all_records if record.get('date', '') == today]
     
     # 按开始时间倒序排列
-    today_records.sort(key=lambda x: x['startTime'], reverse=True)
+    today_records.sort(key=lambda x: x.get('startTime', ''), reverse=True)
     
     return jsonify({
         'success': True,
@@ -560,8 +503,7 @@ def get_records():
 def get_record(record_id):
     """获取单个记录的详细信息"""
     # 查找记录
-    username = request.args.get('username', 'default')
-    all_records = TimeRecorderUtils.load_all_records(username)
+    all_records = TimeRecorderUtils.load_all_records()
     target_record = None
     
     for record in all_records:
@@ -658,16 +600,12 @@ def add_record():
         'segments': segments  # 段落记录
     }
     
-    username = data.get('username', 'default')
-    
     # 加载现有记录
-    records = TimeRecorderUtils.load_records_by_username(username)
+    records = TimeRecorderUtils.load_records()
     records.append(record)
     
     # 保存记录
-    if TimeRecorderUtils.save_records(records, username):
-        # 添加username字段到返回的记录中
-        record['username'] = username
+    if TimeRecorderUtils.save_records(records):
         return jsonify({
             'success': True,
             'record': record
@@ -684,8 +622,7 @@ def update_record(record_id):
     data = request.get_json()
     
     # 查找记录
-    username = request.args.get('username', 'default')
-    all_records = TimeRecorderUtils.load_all_records(username)
+    all_records = TimeRecorderUtils.load_all_records()
     target_record = None
     
     for record in all_records:
@@ -699,8 +636,8 @@ def update_record(record_id):
             'error': '记录不存在'
         }), 404
     
-    # 加载该用户的记录
-    records = TimeRecorderUtils.load_records_by_username(username)
+    # 加载记录
+    records = TimeRecorderUtils.load_records()
     
     # 查找并更新记录
     updated = False
@@ -780,12 +717,7 @@ def update_record(record_id):
                             record['timeSpan'] = (last_end_time - first_start_time).total_seconds() * 1000
                         except Exception as e:
                             print(f"计算时间跨度出错: {e}")
-                elif 'segments' in data and not data['segments']:
-                    # 如果明确设置了空的segments数组，重置相关字段
-                    record['endTime'] = record.get('startTime', '')
-                    record['duration'] = 0
-                    record['pauseCount'] = 0
-                    record['timeSpan'] = 0
+            
             updated = True
             break
     
@@ -796,17 +728,12 @@ def update_record(record_id):
         }), 404
     
     # 保存记录
-    if TimeRecorderUtils.save_records(records, username):
+    if TimeRecorderUtils.save_records(records):
         # 查找更新后的记录并返回
         updated_record = None
         for record in records:
             if record['id'] == record_id:
                 updated_record = record
-                # 确保返回的记录包含username和date字段
-                if 'username' not in updated_record:
-                    updated_record['username'] = username
-                if 'date' not in updated_record and 'startTime' in updated_record:
-                    updated_record['date'] = updated_record['startTime'][:10].replace('-', '/')
                 break
         
         if updated_record:
@@ -829,8 +756,7 @@ def update_record(record_id):
 def delete_record(record_id):
     """删除记录"""
     # 查找记录
-    username = request.args.get('username', 'default')
-    all_records = TimeRecorderUtils.load_all_records(username)
+    all_records = TimeRecorderUtils.load_all_records()
     target_record = None
     for record in all_records:
         if record['id'] == record_id:
@@ -843,8 +769,8 @@ def delete_record(record_id):
             'error': '记录不存在'
         }), 404
     
-    # 加载该用户的记录
-    records = TimeRecorderUtils.load_records_by_username(username)
+    # 加载记录
+    records = TimeRecorderUtils.load_records()
     
     # 查找并删除记录
     original_length = len(records)
@@ -857,7 +783,7 @@ def delete_record(record_id):
         }), 404
     
     # 保存记录
-    if TimeRecorderUtils.save_records(records, username):
+    if TimeRecorderUtils.save_records(records):
         return jsonify({
             'success': True,
             'message': '记录删除成功'
@@ -881,8 +807,7 @@ def get_all_records():
     emotion = request.args.get('emotion', '')
     
     # 加载所有记录
-    username = request.args.get('username', None)  # 如果没有指定用户，则加载所有用户的记录
-    all_records = TimeRecorderUtils.load_all_records(username)
+    all_records = TimeRecorderUtils.load_all_records()
     
     # 应用筛选条件
     filtered_records = all_records
@@ -927,8 +852,7 @@ def get_all_records():
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     """获取统计信息"""
-    username = request.args.get('username', 'default')
-    all_records = TimeRecorderUtils.load_records_by_username(username)
+    all_records = TimeRecorderUtils.load_records()
     
     # 获取今天的日期（使用北京时间）
     today = datetime.now(BEIJING_TZ).strftime('%Y/%m/%d')
@@ -991,115 +915,95 @@ def get_stats():
         }
     })
 
+@app.route('/api/set-username', methods=['POST'])
+def set_username():
+    """设置用户名（已去除用户名逻辑，此端点仅用于兼容性）"""
+    return jsonify({
+        'success': True,
+        'message': '用户名功能已去除'
+    })
 
-def migrate_user_records(old_username, new_username):
-    """将旧用户名的记录迁移到新用户名"""
+@app.route('/api/import-records', methods=['POST'])
+def import_records():
+    """导入记录"""
+    # 获取上传的文件
+    file = request.files.get('file')
+    if not file:
+        return jsonify({
+            'success': False,
+            'error': '没有上传文件'
+        }), 400
+    
+    # 检查文件类型
+    if not file.filename or not file.filename.endswith('.json'):
+        return jsonify({
+            'success': False,
+            'error': '文件格式不正确，只支持JSON文件'
+        }), 400
+    
     try:
-        # 加载旧用户的记录
-        old_records = TimeRecorderUtils.load_records_by_username(old_username)
+        # 读取文件内容
+        content = file.read().decode('utf-8')
+        imported_records = json.loads(content)
         
-        # 如果旧用户没有记录，直接返回成功
-        if not old_records:
-            return True
+        # 验证记录格式
+        if not isinstance(imported_records, list):
+            return jsonify({
+                'success': False,
+                'error': '文件格式不正确，记录应该是一个数组'
+            }), 400
         
-        # 加载新用户的记录
-        new_records = TimeRecorderUtils.load_records_by_username(new_username)
+        # 加载现有记录
+        existing_records = TimeRecorderUtils.load_records()
         
-        # 合并记录
-        all_records = new_records + old_records
+        # 合并记录（避免重复）
+        existing_ids = {record['id'] for record in existing_records}
+        new_records = []
         
-        # 保存到新用户
-        if TimeRecorderUtils.save_records(all_records, new_username):
-            # 删除旧用户的记录文件
-            old_data_file = TimeRecorderUtils.get_data_file_path(old_username)
-            if os.path.exists(old_data_file):
-                os.remove(old_data_file)
-                
-                # 如果旧用户文件夹为空，删除文件夹
-                old_user_folder = os.path.dirname(old_data_file)
-                try:
-                    os.rmdir(old_user_folder)
-                except OSError:
-                    # 文件夹不为空，忽略错误
-                    pass
+        for record in imported_records:
+            # 验证必要字段
+            if 'id' not in record or 'activity' not in record:
+                continue
             
-            return True
-        
-        return False
-    except Exception as e:
-        print(f"迁移用户记录出错: {e}")
-        return False
-
-
-# 缓存活动类别配置，避免重复读取文件
-# 缓存活动类别配置，避免重复读取文件
-_activity_categories_cache = None
-_activity_categories_last_modified = 0
-
-def get_activity_category(activity):
-    """根据活动名称获取活动类别"""
-    global _activity_categories_cache, _activity_categories_last_modified
-    
-    # 读取活动类别配置文件
-    categories_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
-    
-    # 检查文件是否已修改，需要重新加载
-    if os.path.exists(categories_file):
-        try:
-            file_modified = os.path.getmtime(categories_file)
-            if _activity_categories_cache is None or file_modified > _activity_categories_last_modified:
-                with open(categories_file, 'r', encoding='utf-8') as f:
-                    _activity_categories_cache = json.load(f)
-                    _activity_categories_last_modified = file_modified
+            # 如果记录ID已存在，跳过
+            if record['id'] in existing_ids:
+                continue
             
-            # 查找活动类别
-            for category in _activity_categories_cache.get('categories', []):
-                if activity in category.get('activities', []):
-                    return category['name']
-        except Exception as e:
-            print(f"读取活动类别配置文件出错: {e}")
-    
-    # 如果找不到匹配的类别，返回活动名称本身作为类别
-    return activity
-
-
-def get_activity_categories():
-    """获取所有活动类别配置"""
-    global _activity_categories_cache, _activity_categories_last_modified
-    
-    categories_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
-    
-    # 检查文件是否已修改，需要重新加载
-    if os.path.exists(categories_file):
-        try:
-            file_modified = os.path.getmtime(categories_file)
-            if _activity_categories_cache is None or file_modified > _activity_categories_last_modified:
-                with open(categories_file, 'r', encoding='utf-8') as f:
-                    _activity_categories_cache = json.load(f)
-                    _activity_categories_last_modified = file_modified
-            return _activity_categories_cache
-        except Exception as e:
-            print(f"读取活动类别配置文件出错: {e}")
-            return {"categories": []}
-    return {"categories": []}
-
-
-def save_activity_categories(categories_data):
-    """保存活动类别配置"""
-    global _activity_categories_cache, _activity_categories_last_modified
-    
-    categories_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
-    try:
-        with open(categories_file, 'w', encoding='utf-8') as f:
-            json.dump(categories_data, f, ensure_ascii=False, indent=2)
-        # 清除缓存，下次访问时重新加载
-        _activity_categories_cache = None
-        _activity_categories_last_modified = 0
-        return True
+            # 添加记录
+            new_records.append(record)
+            existing_ids.add(record['id'])
+        
+        # 保存记录
+        all_records = existing_records + new_records
+        if TimeRecorderUtils.save_records(all_records):
+            return jsonify({
+                'success': True,
+                'imported_count': len(new_records),
+                'message': f'成功导入 {len(new_records)} 条记录'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '保存记录失败'
+            }), 500
     except Exception as e:
-        print(f"保存活动类别配置文件出错: {e}")
-        return False
+        print(f"导入记录出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': f'导入记录失败: {str(e)}'
+        }), 500
 
+@app.route('/api/export-records', methods=['GET'])
+def export_records():
+    """导出记录"""
+    # 加载所有记录
+    records = TimeRecorderUtils.load_records()
+    
+    # 返回JSON格式的记录
+    return jsonify({
+        'success': True,
+        'records': records
+    })
 
 @app.route('/api/activity-categories', methods=['GET'])
 def api_get_activity_categories():
@@ -1107,7 +1011,9 @@ def api_get_activity_categories():
     categories_data = get_activity_categories()
     return jsonify({
         'success': True,
-        'data': categories_data
+        'data': {
+            'categories': categories_data
+        }
     })
 
 
@@ -1140,15 +1046,14 @@ def mood_wall():
 @app.route('/api/mood-wall', methods=['GET'])
 def api_get_mood_wall_data():
     """获取情绪墙和活动类型墙数据的API"""
-    username = request.args.get('username', 'default')
     year = int(request.args.get('year', datetime.now().year))
     month = int(request.args.get('month', datetime.now().month))
     
     # 获取情绪墙数据
-    mood_data = TimeRecorderUtils.get_mood_wall_data(username, year, month)
+    mood_data = TimeRecorderUtils.get_mood_wall_data(year, month)
     
     # 获取活动类型墙数据
-    activity_data = TimeRecorderUtils.get_activity_wall_data(username, year, month)
+    activity_data = TimeRecorderUtils.get_activity_wall_data(year, month)
     
     # 准备图例数据
     mood_legend = []
@@ -1195,7 +1100,7 @@ def api_get_mood_wall_data():
             })
     
     # 获取关键词词云数据（默认近7天）
-    keyword_data = TimeRecorderUtils.get_keyword_cloud_data(username, 7)
+    keyword_data = TimeRecorderUtils.get_keyword_cloud_data(7)
     
     return jsonify({
         'success': True,
@@ -1207,109 +1112,35 @@ def api_get_mood_wall_data():
     })
 
 
-@app.route('/api/import-records', methods=['POST'])
-def import_records():
-    """导入记录文件"""
-    try:
-        # 获取上传的文件
-        file = request.files.get('file')
-        username = request.form.get('username', 'default')
-        
-        if not file:
-            return jsonify({
-                'success': False,
-                'error': '未找到上传的文件'
-            }), 400
-        
-        if not username:
-            return jsonify({
-                'success': False,
-                'error': '用户名不能为空'
-            }), 400
-        
-        # 读取文件内容
-        file_content = file.read()
-        records_data = json.loads(file_content)
-        
-        # 验证数据格式
-        if not isinstance(records_data, list):
-            return jsonify({
-                'success': False,
-                'error': '文件格式不正确，应为JSON数组'
-            }), 400
-        
-        # 加载现有记录
-        existing_records = TimeRecorderUtils.load_records_by_username(username)
-        
-        # 合并记录（避免重复导入）
-        imported_count = 0
-        for record in records_data:
-            # 确保记录包含必要的字段
-            if 'id' not in record:
-                record['id'] = str(uuid.uuid4())
-            
-            # 检查是否已存在相同ID的记录
-            existing_record = TimeRecorderUtils.find_record_by_id(existing_records, record['id'])
-            if not existing_record:
-                # 添加新记录
-                existing_records.append(record)
-                imported_count += 1
-        
-        # 保存记录
-        if TimeRecorderUtils.save_records(existing_records, username):
-            return jsonify({
-                'success': True,
-                'imported_count': imported_count,
-                'message': f'成功导入 {imported_count} 条记录'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': '保存记录失败'
-            }), 500
-            
-    except json.JSONDecodeError as e:
-        return jsonify({
-            'success': False,
-            'error': f'JSON格式错误: {str(e)}'
-        }), 400
-    except Exception as e:
-        print(f"导入记录失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': f'导入记录失败: {str(e)}'
-        }), 500
+def get_activity_category(activity):
+    """获取活动类别"""
+    # 加载活动类别配置
+    categories = TimeRecorderUtils.load_activity_categories()
+    
+    # 创建活动到类别的映射
+    activity_to_category = {}
+    for category in categories:
+        for activity_name in category.get('activities', []):
+            activity_to_category[activity_name] = category['name']
+    
+    # 使用宽松匹配方式获取活动类别
+    return TimeRecorderUtils.get_activity_category_loose_match(activity, activity_to_category)
 
-@app.route('/api/export-records', methods=['GET'])
-def export_records():
-    """导出记录文件"""
+def get_activity_categories():
+    """获取活动类别配置"""
+    return TimeRecorderUtils.load_activity_categories()
+
+def save_activity_categories(data):
+    """保存活动类别配置"""
+    config_file = os.path.join(app.config['DATA_FOLDER'], 'activity_categories.json')
     try:
-        # 获取用户名参数
-        username = request.args.get('username', 'default')
-        
-        if not username:
-            return jsonify({
-                'success': False,
-                'error': '用户名不能为空'
-            }), 400
-        
-        # 加载该用户的记录
-        records = TimeRecorderUtils.load_records_by_username(username)
-        
-        # 返回JSON格式的记录数据
-        return jsonify({
-            'success': True,
-            'records': records,
-            'username': username,
-            'count': len(records)
-        })
-        
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
     except Exception as e:
-        print(f"导出记录失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': f'导出记录失败: {str(e)}'
-        }), 500
+        print(f"保存活动类别配置文件出错: {e}")
+        return False
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5002)

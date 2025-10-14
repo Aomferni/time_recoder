@@ -16,6 +16,14 @@
     }
 }
 
+/* 小屏幕设备优化 */
+@media (max-width: 480px) {
+    .main-layout {
+        gap: 15px;
+        padding: 0 10px;
+    }
+}
+
 .section {
     background: white;
     padding: 30px;

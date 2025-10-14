@@ -20,6 +20,15 @@
     border-bottom: 1px solid #eee;
 }
 
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .records-table th,
+    .records-table td {
+        padding: 10px 8px;
+        font-size: 14px;
+    }
+}
+
 .records-table th {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     font-weight: 600;

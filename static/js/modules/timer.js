@@ -27,6 +27,7 @@ export const TimeRecorderTimer = {
      * 切换计时器（开始/停止）
      */
     toggleTimer: function() {
+        console.log('开始按钮被点击');
         const toggleBtn = document.getElementById('toggleBtn');
         const currentActivityElement = document.getElementById('currentActivity');
         
@@ -43,6 +44,8 @@ export const TimeRecorderTimer = {
         } else {
             currentActivityValue = currentActivityElement.textContent;
         }
+        
+        console.log('当前活动:', currentActivityValue);
         
         // 检查是否选择了活动
         if (!currentActivityValue || currentActivityValue === '请选择活动') {

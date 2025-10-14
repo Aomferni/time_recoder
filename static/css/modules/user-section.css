@@ -1,3 +1,4 @@
+/* 用户区域样式 - 从style.css迁移 */
 .user-section {
     background: white;
     padding: 20px 25px;
@@ -15,6 +16,15 @@
     border-top: 4px solid #667eea;
     /* 确保用户区域不会遮盖其他元素 */
     z-index: 2;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .user-section {
+        padding: 15px 20px;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
 }
 
 .user-section::before {
@@ -56,6 +66,15 @@
     transition: all 0.3s ease;
     background: #fff;
     min-width: 200px;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .user-input-section input {
+        padding: 8px 12px;
+        font-size: 15px;
+        min-width: 150px;
+    }
 }
 
 .user-input-section input:focus {

@@ -11,7 +11,6 @@ import {
     timerInterval, 
     currentRecordId, 
     records, 
-    currentUsername, 
     activityCategories, 
     useSimpleDetail,
     setCurrentActivity,
@@ -21,7 +20,6 @@ import {
     setCurrentRecordId,
     setRecords,
     setCurrentDetailRecordId,
-    setCurrentUsername,
     setActivityCategories,
     setUseSimpleDetail
 } from './config.js';
@@ -107,11 +105,6 @@ export const TimeRecorderUI = {
                 
                 // 添加事件监听器
                 button.addEventListener('click', function() {
-                    // 检查用户名
-                    if (!TimeRecorderUI.checkUsernameBeforeActivity()) {
-                        return;
-                    }
-                    
                     // 更新活动按钮的激活状态
                     const allButtons = document.querySelectorAll('.activity-btn');
                     allButtons.forEach(b => {
@@ -233,422 +226,10 @@ export const TimeRecorderUI = {
      * 显示记录详情浮窗
      */
     showRecordDetail: function(recordId) {
-        // 检查records是否为有效数组
-        if (!Array.isArray(records)) {
-            console.error('records不是有效数组');
-            return;
-        }
-        
-        const record = records.find(r => r && r.id === recordId);
-        if (!record) {
-            console.error('找不到记录:', recordId);
-            return;
-        }
-        
-        setCurrentDetailRecordId(recordId);
-        
-        if (useSimpleDetail) {
-            TimeRecorderUI.showSimpleRecordDetail(record);
-        } else {
-            TimeRecorderUI.showFullRecordDetail(record);
-        }
-        
-        // 添加键盘事件监听器，支持ESC键关闭模态框
-        document.addEventListener('keydown', TimeRecorderUI.handleKeyDown);
+        // 使用统一的记录详情组件
+        TimeRecorderRecordDetail.showRecordDetail(recordId, useSimpleDetail);
     },
-    
-    /**
-     * 处理键盘事件
-     */
-    handleKeyDown: function(event) {
-        // ESC键关闭模态框
-        if (event && event.key === 'Escape') {
-            TimeRecorderUI.closeRecordDetailModal();
-        }
-    },
-    
-    /**
-     * 显示简化版记录详情
-     */
-    showSimpleRecordDetail: function(record) {
-        const modal = document.getElementById('recordDetailModal');
-        const content = document.getElementById('recordDetailContent');
-        
-        if (!modal || !content) {
-            console.error('找不到模态框元素');
-            return;
-        }
-        
-        // 根据规范，duration记录所有segments累计的时间
-        // 重新计算段落总时间以确保准确性
-        let totalDuration = 0;
-        if (record.segments && Array.isArray(record.segments)) {
-            // 使用工具类计算所有段落的总时间
-            totalDuration = TimeRecorderFrontendUtils.calculateSegmentsTotalTime(record.segments);
-        }
-        // 如果计算结果为0，使用record.duration作为后备值
-        if (totalDuration === 0) {
-            totalDuration = (record && record.duration) || 0;
-        }
-        
-        // 处理情绪显示
-        const emotionDisplay = record.emotion ? 
-            record.emotion.split(', ').map(e => {
-                const span = document.createElement('span');
-                span.className = 'simple-detail-emotion';
-                span.style.backgroundColor = TimeRecorderFrontendUtils.getEmotionColor(e);
-                span.textContent = e;
-                return span.outerHTML;
-            }).join(' ') : '无';
-        
-        // 计算段落信息
-        let segmentInfo = '无段落信息';
-        if (record.segments && Array.isArray(record.segments) && record.segments.length > 0) {
-            const segmentDetails = record.segments.map((segment, index) => {
-                if (!segment || !segment.start || !segment.end) return null;
-                
-                try {
-                    // 数据存储的是UTC时间，需要转换为北京时间显示
-                    const start = new Date(new Date(segment.start).getTime());
-                    const end = new Date(new Date(segment.end).getTime());
-                    const duration = end - start;
-                    return {
-                        index,
-                        start,
-                        end,
-                        duration
-                    };
-                } catch (e) {
-                    console.error('处理段落信息时出错:', e);
-                    return null;
-                }
-            }).filter(Boolean); // 过滤掉无效的段落
-            
-            if (segmentDetails.length > 0) {
-                const totalSegmentDuration = segmentDetails.reduce((total, segment) => total + segment.duration, 0);
-                segmentInfo = `段落数量: ${segmentDetails.length}, 总时长: ${TimeRecorderFrontendUtils.formatDuration(totalSegmentDuration)}`;
-            }
-        }
-        
-        // 构建简化版详情内容
-        const detailContent = `
-            <div class="simple-detail-content">
-                <div class="simple-detail-section">
-                    <h3>基本信息</h3>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">活动名称:</span>
-                        <span class="simple-detail-value simple-detail-highlight">${record.activity || ''}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">活动类别:</span>
-                        <span class="simple-detail-value">${record.activityCategory || '未分类'}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">记录日期:</span>
-                        <span class="simple-detail-value">${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}</span>
-                    </div>
-                </div>
-                
-                <div class="simple-detail-section">
-                    <h3>时间信息</h3>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">开始时间:</span>
-                        <span class="simple-detail-value">${record.startTime ? TimeRecorderFrontendUtils.formatTime(new Date(record.startTime)) : ''}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">结束时间:</span>
-                        <span class="simple-detail-value">${record.endTime ? TimeRecorderFrontendUtils.formatTime(new Date(record.endTime)) : ''}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">时间跨度:</span>
-                        <span class="simple-detail-value">${record.timeSpan ? TimeRecorderFrontendUtils.formatDuration(record.timeSpan) : '0分钟0秒'}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">计时时长:</span>
-                        <span class="simple-detail-value simple-detail-duration">${TimeRecorderFrontendUtils.formatDuration(totalDuration)}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">暂停次数:</span>
-                        <span class="simple-detail-value">${record.pauseCount || 0}</span>
-                    </div>
-                </div>
-                
-                <div class="simple-detail-section" style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-left: 5px solid #4CAF50; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3); animation: highlightGlow 3s infinite;">
-                    <h3 style="color: #1B5E20; font-size: 1.5rem; text-align: center; margin-bottom: 15px;">🎯 记录收获</h3>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-value" style="font-size: 1.2rem; line-height: 1.7; color: #1B5E20; font-weight: 500;">${record.remark || '暂无收获记录'}</span>
-                    </div>
-                </div>
-                
-                <div class="simple-detail-section">
-                    <h3>其他信息</h3>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">记录情绪:</span>
-                        <span class="simple-detail-value">${emotionDisplay}</span>
-                    </div>
-                    <div class="simple-detail-item">
-                        <span class="simple-detail-label">段落信息:</span>
-                        <span class="simple-detail-value">${segmentInfo}</span>
-                    </div>
-                </div>
-                
-                <div class="simple-detail-actions">
-                    <button type="button" class="simple-detail-btn simple-detail-edit-btn" onclick="TimeRecorderUI.editRecordDetail('${record.id}')">编辑</button>
-                    <button type="button" class="simple-detail-btn simple-detail-cancel-btn" onclick="TimeRecorderUI.closeRecordDetailModal()">关闭</button>
-                </div>
-            </div>
-        `;
-        
-        modal.className = 'simple-detail-modal';
-        modal.style.display = 'block';
-    },
-    
-    /**
-     * 显示完整版记录详情
-     */
-    showFullRecordDetail: function(record) {
-        const modal = document.getElementById('recordDetailModal');
-        const content = document.getElementById('recordDetailContent');
-        
-        if (!modal || !content) {
-            console.error('找不到模态框元素');
-            return;
-        }
-        
-        const activityClass = record.activityCategory ? 
-            TimeRecorderFrontendUtils.getActivityCategoryClass(record.activityCategory) : 
-            TimeRecorderFrontendUtils.getActivityClass(record.activity, record.activityCategory);
-        
-        // 根据规范，duration记录所有segments累计的时间
-        // 重新计算段落总时间以确保准确性
-        let totalDuration = 0;
-        if (record.segments && Array.isArray(record.segments)) {
-            // 使用工具类计算所有段落的总时间
-            totalDuration = TimeRecorderFrontendUtils.calculateSegmentsTotalTime(record.segments);
-        }
-        // 如果计算结果为0，使用record.duration作为后备值
-        if (totalDuration === 0) {
-            totalDuration = (record && record.duration) || 0;
-        }
-        
-        // 处理情绪显示，添加颜色
-        let emotionDisplay = '';
-        if (record.emotion) {
-            const emotions = record.emotion.split(', ');
-            emotionDisplay = emotions.map(e => {
-                const span = document.createElement('span');
-                span.className = 'emotion-tag';
-                span.style.backgroundColor = TimeRecorderFrontendUtils.getEmotionColor(e);
-                span.textContent = e;
-                return span.outerHTML;
-            }).join(' ');
-        }
-        
-        // 处理段落信息显示
-        let segmentsDisplay = '';
-        if (record.segments && Array.isArray(record.segments) && record.segments.length > 0) {
-            // 计算每个段落的持续时间
-            const segmentDetails = record.segments.map((segment, index) => {
-                if (!segment || !segment.start || !segment.end) return null;
-                
-                try {
-                    // 数据存储的是UTC时间，需要转换为北京时间显示
-                    const start = new Date(segment.start);
-                    const end = new Date(segment.end);
-                    // 转换为北京时间（UTC+8）
-                    const beijingStart = new Date(start.getTime());
-                    const beijingEnd = new Date(end.getTime());
-                    const duration = beijingEnd - beijingStart;
-                    return {
-                        index,
-                        start: beijingStart,
-                        end: beijingEnd,
-                        duration
-                    };
-                } catch (e) {
-                    console.error('处理段落信息时出错:', e);
-                    return null;
-                }
-            }).filter(Boolean); // 过滤掉无效的段落
-            
-            if (segmentDetails.length > 0) {
-                // 生成段落显示内容
-                segmentsDisplay = segmentDetails.map(segment => {
-                    return `
-                        <div class="segment-row" data-segment-index="${segment.index}">
-                            <span>段落 ${segment.index + 1}:</span>
-                            <input type="datetime-local" class="segment-start" value="${TimeRecorderFrontendUtils.formatDateTimeForInput(segment.start)}">
-                            <span> - </span>
-                            <input type="datetime-local" class="segment-end" value="${TimeRecorderFrontendUtils.formatDateTimeForInput(segment.end)}">
-                            <span>(${TimeRecorderFrontendUtils.formatDuration(segment.duration)})</span>
-                            <button type="button" class="delete-btn small" onclick="TimeRecorderUI.deleteSegment('${record.id}', ${segment.index})">删除</button>
-                        </div>
-                    `;
-                }).join('');
-                
-                // 添加段落统计信息
-                const totalSegmentDuration = segmentDetails.reduce((total, segment) => total + segment.duration, 0);
-                segmentsDisplay += `
-                    <div class="segment-summary">
-                        <p>段落数量: ${segmentDetails.length}</p>
-                        <p>段落总时长: ${TimeRecorderFrontendUtils.formatDuration(totalSegmentDuration)}</p>
-                    </div>
-                `;
-            } else {
-                segmentsDisplay = '<div class="segment-row">暂无有效段落记录</div>';
-            }
-        } else {
-            segmentsDisplay = '<div class="segment-row">暂无段落记录</div>';
-        }
-        
-        // 构建详情内容
-        const detailContent = `
-            <form id="recordDetailForm" class="detail-form">
-                <div class="detail-section highlight-section">
-                    <h3>记录收获</h3>
-                    <textarea id="detail-remark" class="highlight-field important-field" placeholder="记录这次活动的收获和感悟...">${record.remark || ''}</textarea>
-                </div>
-                
-                <div class="detail-section">
-                    <h3>记录情绪 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'emotion-section')">折叠</button></h3>
-                    <div class="emotion-checkboxes" id="detail-emotion">
-                        ${(window.TimeRecorderConfig && Array.isArray(window.TimeRecorderConfig.emotionOptions) ? 
-                            window.TimeRecorderConfig.emotionOptions.map(emotion => `
-                                <div class="emotion-checkbox">
-                                    <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
-                                        ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
-                                    <label for="emotion-${emotion}" style="color: ${TimeRecorderFrontendUtils.getEmotionColor(emotion)};">${emotion}</label>
-                                </div>
-                            `).join('') : 
-                            '')}
-                    </div>
-                </div>
-                
-                <div class="detail-section collapsed">
-                    <h3>段落详情 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'segments-section')">展开</button></h3>
-                    <div class="segments-display" style="display: none;">
-                        ${segmentsDisplay}
-                        <button type="button" class="control-btn" onclick="TimeRecorderUI.addSegment('${record.id}')">添加段落</button>
-                    </div>
-                </div>
-                
-                <div class="detail-section collapsed">
-                    <h3>核心信息 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'core-section')">展开</button></h3>
-                    <div class="highlight-field important-field" style="display: none;">
-                        <label>活动名称:</label>
-                        <input type="text" value="${record.activity || ''}" id="detail-activity" class="${activityClass}">
-                    </div>
-                    
-                    <div class="highlight-field" style="display: none;">
-                        <label>活动类别:</label>
-                        <select id="detail-activity-category" class="${activityClass}">
-                            <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
-                            <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
-                            <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
-                            <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
-                            <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
-                            <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
-                            <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
-                        </select>
-                    </div>
-                    
-                    <div class="highlight-field" style="display: none;">
-                        <label>记录日期:</label>
-                        <input type="text" value="${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}" id="detail-date" readonly>
-                    </div>
-                </div>
-                
-                <div class="detail-section collapsed">
-                    <h3>时间信息 <button type="button" class="collapse-btn" onclick="toggleSection(this, 'time-section')">展开</button></h3>
-                    <div class="highlight-field" style="display: none;">
-                        <label>开始时间:</label>
-                        <input type="datetime-local" value="${record.startTime ? TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.startTime)) : ''}" id="detail-start-time">
-                    </div>
-                    
-                    <div class="highlight-field" style="display: none;">
-                        <label>结束时间:</label>
-                        <input type="datetime-local" value="${record.endTime ? TimeRecorderFrontendUtils.formatDateTimeForInput(new Date(record.endTime)) : ''}" id="detail-end-time">
-                    </div>
-                    
-                    <div class="highlight-field" style="display: none;">
-                        <label>时间跨度:</label>
-                        <input type="text" value="${record.timeSpan ? TimeRecorderFrontendUtils.formatDuration(record.timeSpan) : '0分钟0秒'}" id="detail-time-span" readonly>
-                    </div>
-                    
-                    <div class="highlight-field important-field" style="display: none;">
-                        <label>计时时长:</label>
-                        <input type="text" value="${TimeRecorderFrontendUtils.formatDuration(totalDuration)}" id="detail-duration" readonly class="duration-input">
-                    </div>
-                    
-                    <div class="highlight-field important-field" style="display: none;">
-                        <label>暂停次数:</label>
-                        <input type="number" value="${record.pauseCount || 0}" id="detail-pause-count" min="0">
-                    </div>
-                </div>
-                
-                <div class="detail-actions">
-                    <button type="button" class="save-btn" onclick="TimeRecorderUI.saveRecordDetail('${record.id}')">保存</button>
-                    <button type="button" class="cancel-btn" onclick="TimeRecorderUI.closeRecordDetailModal()">关闭</button>
-                    <button type="button" class="cancel-btn" id="toggleDetailModeBtn" onclick="TimeRecorderUI.toggleDetailMode()">
-                        ${useSimpleDetail ? '切换到完整版详情' : '切换到简化版详情'}
-                    </button>
-                </div>
-            </form>
-        `;
-        
-        content.innerHTML = detailContent;
-        modal.className = 'modal';
-        modal.style.display = 'block';
-        
-        // 添加欢迎动画效果
-        const modalContent = document.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.classList.add('welcome-animation');
-            setTimeout(() => {
-                if (modalContent.classList.contains('welcome-animation')) {
-                    modalContent.classList.remove('welcome-animation');
-                }
-            }, 1000);
-        }
-        
-        // 绑定开始时间和结束时间的更改事件
-        const startTimeElement = document.getElementById('detail-start-time');
-        const endTimeElement = document.getElementById('detail-end-time');
-        
-        if (startTimeElement) {
-            startTimeElement.addEventListener('change', function() {
-                TimeRecorderUI.updateTimeSpan(record.id);
-            });
-        }
-        
-        if (endTimeElement) {
-            endTimeElement.addEventListener('change', function() {
-                TimeRecorderUI.updateTimeSpan(record.id);
-            });
-        }
-        
-        // 绑定活动类别更改事件，更新活动输入框的样式
-        const categoryElement = document.getElementById('detail-activity-category');
-        const activityElement = document.getElementById('detail-activity');
-        
-        if (categoryElement && activityElement) {
-            categoryElement.addEventListener('change', function() {
-                const selectedCategory = this.value;
-                const activityClass = TimeRecorderFrontendUtils.getActivityCategoryClass(selectedCategory);
-                
-                // 移除所有可能的类别类
-                if (window.TimeRecorderConfig && window.TimeRecorderConfig.activityCategoryClassMap) {
-                    Object.values(window.TimeRecorderConfig.activityCategoryClassMap).forEach(cls => {
-                        activityElement.classList.remove(cls);
-                    });
-                }
-                
-                // 添加新的类别类
-                activityElement.classList.add(activityClass);
-            });
-        }
-    },
-    
+
     /**
      * 关闭记录详情浮窗
      */
@@ -678,21 +259,6 @@ export const TimeRecorderUI = {
         
         // 移除键盘事件监听器
         document.removeEventListener('keydown', TimeRecorderUI.handleKeyDown);
-    },
-    
-    /**
-     * 切换详情模式
-     */
-    toggleDetailMode: function() {
-        setUseSimpleDetail(!useSimpleDetail);
-        // 更新按钮文本
-        const toggleBtn = document.getElementById('toggleDetailModeBtn');
-        if (toggleBtn) {
-            toggleBtn.textContent = useSimpleDetail ? '切换到完整版详情' : '切换到简化版详情';
-        }
-        if (window.TimeRecorderConfig && window.TimeRecorderConfig.currentDetailRecordId) {
-            TimeRecorderUI.showRecordDetail(window.TimeRecorderConfig.currentDetailRecordId);
-        }
     },
     
     /**
@@ -1201,45 +767,6 @@ export const TimeRecorderUI = {
     },
     
     /**
-     * 检查用户名，没有设置用户名前不能记录活动
-     */
-    checkUsernameBeforeActivity: function() {
-        if (!currentUsername || currentUsername === 'default') {
-            alert('请先设置用户名后再记录活动');
-            return false;
-        }
-        return true;
-    },
-    
-    /**
-     * 更新活动按钮的可用状态
-     */
-    updateActivityButtonsState: function() {
-        const activityButtons = document.querySelectorAll('.activity-btn');
-        if (!currentUsername || currentUsername === 'default') {
-            // 未设置用户名，禁用所有活动按钮
-            activityButtons.forEach(btn => {
-                if (btn) {
-                    btn.disabled = true;
-                    btn.title = '请先设置用户名';
-                    btn.style.opacity = '0.5';
-                    btn.style.cursor = 'not-allowed';
-                }
-            });
-        } else {
-            // 已设置用户名，启用所有活动按钮
-            activityButtons.forEach(btn => {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.title = '';
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                }
-            });
-        }
-    },
-    
-    /**
      * 设置用户名
      */
     setUsername: function() {
@@ -1256,22 +783,10 @@ export const TimeRecorderUI = {
             return;
         }
         
-        // 保存旧用户名
-        const oldUsername = currentUsername;
-        
-        // 调用后端API设置用户名并迁移记录
-        TimeRecorderAPI.setUsername(username, oldUsername)
+        // 调用后端API设置用户名
+        TimeRecorderAPI.setUsername(username)
             .then(data => {
                 if (data && data.success) {
-                    setCurrentUsername(username);
-                    localStorage.setItem('timeRecorderUsername', username);
-                    
-                    // 重新加载记录
-                    TimeRecorderUI.loadRecords();
-                    
-                    // 更新活动按钮状态
-                    TimeRecorderUI.updateActivityButtonsState();
-                    
                     alert(`用户名已设置为: ${username}`);
                 } else {
                     alert('设置用户名失败: ' + (data.error || '未知错误'));

@@ -12,7 +12,6 @@ let currentRecordId = null; // 用于跟踪当前记录的ID
 let records = [];
 let expandedRecordId = null; // 用于跟踪当前展开的记录ID
 let currentDetailRecordId = null; // 用于跟踪当前详情浮窗的记录ID
-let currentUsername = 'default'; // 当前用户名
 let activityCategories = []; // 活动类别配置
 let useSimpleDetail = false; // 是否使用简化版详情视图
 
@@ -81,7 +80,6 @@ export {
     records,
     expandedRecordId,
     currentDetailRecordId,
-    currentUsername,
     activityCategories,
     useSimpleDetail,
     activityCategoryClassMap,
@@ -124,10 +122,6 @@ export function setExpandedRecordId(id) {
 
 export function setCurrentDetailRecordId(id) {
     currentDetailRecordId = id;
-}
-
-export function setCurrentUsername(username) {
-    currentUsername = username;
 }
 
 export function setActivityCategories(categories) {

@@ -2,8 +2,6 @@
  * 时间记录器API模块
  */
 
-import { currentUsername } from './config.js';
-
 /**
  * API模块 - 处理与后端的所有通信
  */
@@ -34,9 +32,9 @@ export const TimeRecorderAPI = {
     /**
      * 设置用户名
      */
-    setUsername: function(username, oldUsername) {
+    setUsername: function(newUsername, oldUsername) {
         // 检查参数有效性
-        if (!username) {
+        if (!newUsername) {
             return Promise.reject(new Error('用户名不能为空'));
         }
         
@@ -46,7 +44,7 @@ export const TimeRecorderAPI = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: username,
+                username: newUsername,
                 oldUsername: oldUsername
             })
         })
@@ -66,12 +64,7 @@ export const TimeRecorderAPI = {
      * 加载记录
      */
     loadRecords: function() {
-        // 确保currentUsername已定义
-        if (!currentUsername) {
-            return Promise.reject(new Error('用户名未设置'));
-        }
-        
-        return fetch(`/api/records?username=${encodeURIComponent(currentUsername)}`)
+        return fetch(`/api/records`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -99,14 +92,12 @@ export const TimeRecorderAPI = {
             return Promise.reject(new Error('记录数据不能为空'));
         }
         
-        const recordWithUsername = {...record, username: currentUsername};
-        
         return fetch('/api/records', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(recordWithUsername)
+            body: JSON.stringify(record)
         })
         .then(response => {
             if (!response.ok) {
@@ -133,7 +124,7 @@ export const TimeRecorderAPI = {
             return Promise.reject(new Error('更新数据不能为空'));
         }
         
-        return fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
+        return fetch(`/api/records/${recordId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -161,7 +152,7 @@ export const TimeRecorderAPI = {
             return Promise.reject(new Error('记录ID不能为空'));
         }
         
-        return fetch(`/api/records/${recordId}?username=${encodeURIComponent(currentUsername)}`, {
+        return fetch(`/api/records/${recordId}`, {
             method: 'DELETE'
         })
         .then(response => {
@@ -177,10 +168,34 @@ export const TimeRecorderAPI = {
     },
     
     /**
+     * 获取单个记录
+     */
+    getRecord: function(recordId) {
+        // 检查参数有效性
+        if (!recordId) {
+            return Promise.reject(new Error('记录ID不能为空'));
+        }
+        
+        return fetch(`/api/records/${recordId}`, {
+            method: 'GET'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('获取记录失败:', error);
+            throw error;
+        });
+    },
+    
+    /**
      * 获取统计信息
      */
     getStats: function() {
-        return fetch(`/api/stats?username=${encodeURIComponent(currentUsername)}`)
+        return fetch(`/api/stats`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -195,6 +210,30 @@ export const TimeRecorderAPI = {
             })
             .catch(error => {
                 console.error('加载统计信息失败:', error);
+                throw error;
+            });
+    },
+    
+    /**
+     * 加载所有记录（带筛选和分页）
+     */
+    loadAllRecords: function(params) {
+        const url = `/api/all-records${params ? `?${params.toString()}` : ''}`;
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    return data;
+                }
+                throw new Error('Failed to load all records');
+            })
+            .catch(error => {
+                console.error('加载所有记录失败:', error);
                 throw error;
             });
     }

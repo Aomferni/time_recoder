@@ -216,5 +216,48 @@ export const TimeRecorderFrontendUtils = {
         }
         
         return total;
+    },
+    
+    /**
+     * 切换详情区域的折叠/展开状态
+     */
+    toggleSection: function(button, sectionType) {
+        // 委托给UI模块的实现
+        if (typeof window !== 'undefined' && window.TimeRecorderUI && window.TimeRecorderUI.toggleSection) {
+            window.TimeRecorderUI.toggleSection(button, sectionType);
+        } else {
+            console.warn('TimeRecorderUI.toggleSection方法未定义');
+        }
+    },
+    
+    /**
+     * 解析时间字符串为毫秒数
+     */
+    parseDurationString: function(durationStr) {
+        // 支持格式：1小时30分钟、90分钟、1.5小时等
+        const hourMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*小时/);
+        const minuteMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*分钟/);
+        const secondMatch = durationStr.match(/(\d+(?:\.\d+)?)\s*秒/);
+        
+        let totalMs = 0;
+        
+        if (hourMatch) {
+            totalMs += parseFloat(hourMatch[1]) * 3600000;
+        }
+        
+        if (minuteMatch) {
+            totalMs += parseFloat(minuteMatch[1]) * 60000;
+        }
+        
+        if (secondMatch) {
+            totalMs += parseFloat(secondMatch[1]) * 1000;
+        }
+        
+        // 如果没有匹配到任何单位，尝试直接解析数字作为分钟
+        if (totalMs === 0 && !isNaN(parseFloat(durationStr))) {
+            totalMs = parseFloat(durationStr) * 60000;
+        }
+        
+        return totalMs > 0 ? Math.round(totalMs) : null;
     }
 };

@@ -5,6 +5,15 @@
     margin-top: 30px;
 }
 
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .stats {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 20px;
+    }
+}
+
 .stat-card {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 20px;
@@ -14,6 +23,14 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .stat-card {
+        padding: 15px;
+        border-radius: 8px;
+    }
 }
 
 .stat-card:hover {
@@ -57,4 +74,16 @@
     font-size: 26px;
     font-weight: 700;
     color: #333;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .stat-card h3 {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+    
+    .stat-card p {
+        font-size: 22px;
+    }
 }

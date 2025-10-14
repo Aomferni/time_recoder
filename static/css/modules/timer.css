@@ -23,6 +23,15 @@
     z-index: 1;
 }
 
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .focus-timer-section {
+        padding: 20px 15px;
+        border-radius: 12px;
+        margin: 15px 0;
+    }
+}
+
 .focus-timer-section:hover {
     transform: scale(1.02);
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -63,6 +72,14 @@
     animation: timerPulse 2s infinite;
 }
 
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .focus-timer-section .timer-display {
+        font-size: 48px;
+        letter-spacing: 1px;
+    }
+}
+
 @keyframes timerPulse {
     0% { opacity: 1; }
     50% { opacity: 0.9; }
@@ -84,6 +101,15 @@
     /* 确保当前活动区域不会遮盖其他元素 */
     z-index: 1;
     position: relative;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .current-activity {
+        font-size: 18px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
 }
 
 .current-activity:hover {

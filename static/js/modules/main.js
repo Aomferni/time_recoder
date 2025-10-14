@@ -29,6 +29,7 @@ import { TimeRecorderFrontendUtils } from './utils.js';
 import { TimeRecorderAPI } from './api.js';
 import { TimeRecorderUI } from './ui.js';
 import { TimeRecorderTimer } from './timer.js';
+import { TimeRecorderRecordDetail } from './recordDetail.js';
 
 // 将配置暴露到全局作用域，以便其他模块可以访问
 window.TimeRecorderConfig = {
@@ -52,6 +53,7 @@ window.TimeRecorderConfig = {
 window.TimeRecorderFrontendUtils = TimeRecorderFrontendUtils;
 window.TimeRecorderUI = TimeRecorderUI;
 window.TimeRecorderTimer = TimeRecorderTimer;
+window.TimeRecorderRecordDetail = TimeRecorderRecordDetail;
 
 /**
  * 解析时间字符串为毫秒数

@@ -622,6 +622,10 @@
                     <li><code>formatTime()</code> - 格式化时间显示</li>
                     <li><code>formatDuration()</code> - 格式化时长显示</li>
                     <li><code>getEmotionColor()</code> - 获取情绪颜色</li>
+                    <li><code>parseDurationString()</code> - 解析时长字符串</li>
+                    <li><code>calculateSegmentsTotalTime()</code> - 计算段落总时间</li>
+                    <li><code>calculateRecordTotalTime()</code> - 计算记录总时间</li>
+                    <li><code>toggleSection()</code> - 切换详情区域的折叠/展开状态</li>
                 </ul>
             </div>
             
@@ -634,6 +638,9 @@
                     <li><code>addRecord()</code> - 添加记录</li>
                     <li><code>updateRecord()</code> - 更新记录</li>
                     <li><code>deleteRecord()</code> - 删除记录</li>
+                    <li><code>getRecord()</code> - 获取单个记录</li>
+                    <li><code>getStats()</code> - 获取统计信息</li>
+                    <li><code>loadAllRecords()</code> - 加载所有记录（带筛选和分页）</li>
                 </ul>
             </div>
             
@@ -655,6 +662,19 @@
                     <li><code>updateTimer()</code> - 更新计时器显示</li>
                     <li><code>resetTimer()</code> - 重置计时器</li>
                     <li><code>stopTimer()</code> - 停止计时</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>记录详情模块 (recordDetail.js)</h4>
+                <ul>
+                    <li><code>showRecordDetail()</code> - 显示记录详情</li>
+                    <li><code>closeRecordDetailModal()</code> - 关闭记录详情浮窗</li>
+                    <li><code>editRecordDetail()</code> - 编辑记录详情</li>
+                    <li><code>saveRecordDetail()</code> - 保存记录详情</li>
+                    <li><code>addSegment()</code> - 添加段落</li>
+                    <li><code>deleteSegment()</code> - 删除段落</li>
+                    <li><code>renumberSegments()</code> - 重新编号段落</li>
                 </ul>
             </div>
             
@@ -687,7 +707,6 @@ time_recoder/<br>
 ├── app.py              # Flask应用主文件<br>
 ├── requirements.txt    # 项目依赖<br>
 ├── README.md           # 项目说明文档<br>
-├── PROJECT_DESCRIPTION.md  # 详细项目说明<br>
 ├── structure.md        # 架构设计文档<br>
 ├── VERSION.md          # 版本更新记录 (当前版本: V1.1)<br>
 ├── data/               # 数据存储目录<br>
@@ -700,16 +719,43 @@ time_recoder/<br>
 │   └── project_description.html # 项目说明页面<br>
 └── static/             # 静态文件目录<br>
     ├── css/<br>
-    │   └── style.css   # 样式文件<br>
+    │   ├── style.css   # 样式文件<br>
+    │   └── modules/    # CSS模块目录<br>
+    │       ├── base.css              # 基础样式模块<br>
+    │       ├── user-section.css      # 用户区域模块<br>
+    │       ├── layout.css            # 布局模块<br>
+    │       ├── activity-buttons.css  # 活动按钮模块<br>
+    │       ├── activity-colors.css   # 活动颜色模块<br>
+    │       ├── timer.css             # 计时器模块<br>
+    │       ├── control-buttons.css   # 控制按钮模块<br>
+    │       ├── detail-modal.css      # 详情模态框模块<br>
+    │       ├── detail-form.css       # 详情表单模块<br>
+    │       ├── navigation.css        # 导航模块<br>
+    │       ├── records-table.css     # 记录表格模块<br>
+    │       ├── stats.css             # 统计模块<br>
+    │       ├── labels.css            # 标签模块<br>
+    │       ├── manage-categories.css # 类别管理模块<br>
+    │       ├── records-controls.css  # 记录控制模块<br>
+    │       ├── pagination.css        # 分页模块<br>
+    │       ├── segments.css          # 段落模块<br>
+    │       ├── record-detail.css     # 记录详情模块<br>
+    │       ├── selected-record.css   # 选中记录模块<br>
+    │       ├── detail-sections.css   # 详情分段模块<br>
+    │       ├── remark.css            # 收获记录模块<br>
+    │       ├── activity-category.css # 活动类别模块<br>
+    │       ├── start-time.css        # 开始时间模块<br>
+    │       ├── emotion-tag.css       # 情绪标签模块<br>
+    │       └── control-btn.css       # 控制按钮特殊样式<br>
     └── js/<br>
         ├── script.js   # JavaScript主文件（模块入口）<br>
         └── modules/    # JavaScript模块目录<br>
-            ├── config.js    # 配置模块<br>
-            ├── utils.js     # 工具模块<br>
-            ├── api.js       # API模块<br>
-            ├── ui.js        # UI模块<br>
-            ├── timer.js     # 计时器模块<br>
-            └── main.js      # 主模块
+            ├── config.js       # 配置模块<br>
+            ├── utils.js        # 工具模块<br>
+            ├── api.js          # API模块<br>
+            ├── ui.js           # UI模块<br>
+            ├── timer.js        # 计时器模块<br>
+            ├── recordDetail.js # 记录详情模块<br>
+            └── main.js         # 主模块
         </div>
     </div>
     
@@ -724,6 +770,16 @@ flowchart TD
     B --> A
     D[API接口] --> B
     E[ES6模块化前端] --> A
+    
+    subgraph ES6模块化前端
+        E1[配置模块] --> E
+        E2[工具模块] --> E
+        E3[API模块] --> E
+        E4[UI模块] --> E
+        E5[计时器模块] --> E
+        E6[记录详情模块] --> E
+        E7[主模块] --> E
+    end
             </pre>
         </div>
     </div>
