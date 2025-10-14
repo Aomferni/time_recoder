@@ -3,6 +3,7 @@ import json
 from datetime import datetime, date, timezone, timedelta
 import uuid
 import glob
+import re
 from flask import Flask, render_template, request, jsonify
 
 # 设置北京时区
@@ -1181,6 +1182,526 @@ def save_activity_categories(data):
     except Exception as e:
         print(f"保存活动类别配置文件出错: {e}")
         return False
+
+
+# ==================== 飞书多维表格集成 ====================
+import requests
+import time
+
+class FeishuBitableAPI:
+    """飞书多维表格API封装类"""
+    
+    def __init__(self):
+        self.app_id = ""
+        self.app_secret = ""
+        self.tenant_access_token = ""
+        self.token_expire_time = 0
+        self.load_config()
+    
+    def load_config(self):
+        """加载飞书配置"""
+        config_file = os.path.join('config', 'feishu_config.json')
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    self.app_id = config.get('app_id', '')
+                    self.app_secret = config.get('app_secret', '')
+                    self.tenant_access_token = config.get('tenant_access_token', '')
+            except Exception as e:
+                print(f"读取飞书配置文件出错: {e}")
+    
+    def get_tenant_access_token(self):
+        """获取租户访问令牌"""
+        # 检查令牌是否有效且未过期
+        current_time = time.time()
+        if self.tenant_access_token and self.token_expire_time > current_time:
+            return self.tenant_access_token
+        
+        try:
+            url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+            headers = {
+                'Content-Type': 'application/json; charset=utf-8'
+            }
+            payload = {
+                "app_id": self.app_id,
+                "app_secret": self.app_secret
+            }
+            
+            response = requests.post(url, json=payload, headers=headers)
+            result = response.json()
+            
+            if result.get('code') == 0:
+                self.tenant_access_token = result.get('tenant_access_token', '')
+                # 设置过期时间（提前5分钟过期）
+                self.token_expire_time = current_time + result.get('expire', 0) - 300
+                return self.tenant_access_token
+            else:
+                raise Exception(f"获取访问令牌失败: {result.get('msg', '未知错误')}")
+        except Exception as e:
+            print(f"获取租户访问令牌出错: {e}")
+            raise e
+    
+    def get_records_from_bitable(self, app_token="BKCLblwCmajwm9sFmo4cyJxJnON", table_id="tblfFpqZNNqGshC3", page_size=100):
+        """从飞书多维表格获取记录"""
+        try:
+            token = self.get_tenant_access_token()
+            
+            # 获取记录
+            url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records"
+            headers = {
+                'Authorization': f'Bearer {token}'
+            }
+            
+            # 添加查询参数
+            params = {
+                'page_size': page_size
+            }
+            
+            records = []
+            has_more = True
+            page_token = None
+            
+            while has_more:
+                if page_token:
+                    params['page_token'] = page_token
+                
+                response = requests.get(url, headers=headers, params=params)
+                result = response.json()
+                
+                if result.get('code') != 0:
+                    raise Exception(f"获取记录失败: {result.get('msg', '未知错误')}")
+                
+                data = result.get('data', {})
+                records.extend(data.get('items', []))
+                
+                has_more = data.get('has_more', False)
+                page_token = data.get('page_token')
+            
+            return {
+                'success': True,
+                'records': records
+            }
+        except Exception as e:
+            print(f"从飞书多维表格获取记录出错: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def import_records_to_bitable(self, records, app_token="BKCLblwCmajwm9sFmo4cyJxJnON", table_id="tblfFpqZNNqGshC3"):
+        """导入记录到飞书多维表格"""
+        try:
+            token = self.get_tenant_access_token()
+            print(f"获取到的访问令牌: {token[:20]}...")  # 只显示部分令牌用于调试
+            
+            # 准备数据格式
+            feishu_records = []
+            for record in records:
+                # 检查记录格式，如果是前端传来的格式（包含fields字段），则直接使用
+                if 'fields' in record:
+                    feishu_records.append(record)
+                    continue
+                    
+                # 格式化时间
+                start_time = ""
+                end_time = ""
+                if record.get('startTime'):
+                    start_time = datetime.fromisoformat(record['startTime'].replace('Z', '+00:00')).astimezone(BEIJING_TZ).strftime('%Y-%m-%d %H:%M:%S')
+                if record.get('endTime'):
+                    end_time = datetime.fromisoformat(record['endTime'].replace('Z', '+00:00')).astimezone(BEIJING_TZ).strftime('%Y-%m-%d %H:%M:%S')
+                
+                # 计算时长
+                duration_str = ""
+                if record.get('duration'):
+                    total_seconds = int(record['duration'] / 1000)
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    seconds = total_seconds % 60
+                    
+                    if hours > 0:
+                        duration_str = f"{hours}小时{minutes}分钟{seconds}秒"
+                    elif minutes > 0:
+                        duration_str = f"{minutes}分钟{seconds}秒"
+                    else:
+                        duration_str = f"{seconds}秒"
+                
+                # 时间跨度
+                time_span_str = ""
+                if record.get('timeSpan'):
+                    time_span_str = f"{int(record['timeSpan'] / 1000)}秒"
+                
+                # 处理情绪字段，确保是列表格式
+                emotion_value = record.get('emotion', '')
+                if emotion_value:
+                    # 如果情绪是以逗号分隔的字符串，转换为列表
+                    if isinstance(emotion_value, str):
+                        emotion_list = [e.strip() for e in emotion_value.split(',') if e.strip()]
+                    else:
+                        emotion_list = emotion_value if isinstance(emotion_value, list) else [str(emotion_value)]
+                else:
+                    emotion_list = []
+                
+                # 处理日期字段，转换为时间戳
+                date_value = record.get('date', '')
+                timestamp_value = 0
+                if date_value:
+                    try:
+                        # 将日期字符串转换为时间戳
+                        date_obj = datetime.strptime(date_value, '%Y/%m/%d')
+                        timestamp_value = int(date_obj.timestamp() * 1000)
+                    except ValueError:
+                        # 如果日期格式不正确，使用当前日期
+                        timestamp_value = int(datetime.now().timestamp() * 1000)
+                
+                feishu_record = {
+                    "fields": {
+                        "activity(活动名称)": record.get('activity', ''),
+                        "activityCategory(活动类型)": record.get('activityCategory', ''),
+                        "startTime(开始时间)": start_time,
+                        "endTime(结束时间)": end_time,
+                        "duration(总计专注时长)": duration_str,
+                        "timeSpan(时间跨度)": time_span_str,
+                        "remark(感想&记录)": record.get('remark', ''),
+                        "emotion(情绪记录)": emotion_list,
+                        "pauseCount(暂停次数)": int(record.get('pauseCount', 0)),  # 确保是整数类型
+                        "活动日期": timestamp_value,
+                        "id(活动唯一标识)": record.get('id', '')  # 添加ID字段
+                    }
+                }
+                feishu_records.append(feishu_record)
+            
+            print(f"准备导入 {len(feishu_records)} 条记录")  # 调试信息
+            
+            # 分批处理，飞书API限制每次最多100条记录
+            batch_size = 100
+            results = []
+            
+            for i in range(0, len(feishu_records), batch_size):
+                batch = feishu_records[i:i + batch_size]
+                url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_create"
+                headers = {
+                    'Authorization': f'Bearer {token}',
+                    'Content-Type': 'application/json; charset=utf-8'
+                }
+                payload = {
+                    "records": batch
+                }
+                
+                print(f"发送请求到: {url}")  # 调试信息
+                print(f"请求头: {{'Authorization': 'Bearer {token[:10]}...', 'Content-Type': 'application/json; charset=utf-8'}}")  # 调试信息
+                print(f"记录数量: {len(batch)}")  # 调试信息
+                
+                response = requests.post(url, json=payload, headers=headers)
+                print(f"响应状态码: {response.status_code}")  # 调试信息
+                print(f"响应内容: {response.text[:200]}...")  # 调试信息
+                
+                # 检查响应状态码
+                if response.status_code == 403:
+                    print("权限错误：应用可能没有写入多维表格的权限")
+                    print("请检查以下几点：")
+                    print("1. 飞书应用是否具有 bitable:app 权限")
+                    print("2. 应用是否已安装到对应的多维表格")
+                    print("3. 表格所有者是否已将应用添加为协作者")
+                    return {
+                        'success': False,
+                        'error': '权限错误：应用可能没有写入多维表格的权限，请检查飞书应用权限配置'
+                    }
+                
+                result = response.json()
+                
+                if result.get('code') != 0:
+                    raise Exception(f"导入记录失败 (批次 {i//batch_size + 1}): {result.get('msg', '未知错误')}")
+                
+                results.append(result)
+            
+            return {
+                'success': True,
+                'imported_count': len(feishu_records),
+                'message': f'成功导入 {len(feishu_records)} 条记录到飞书多维表格'
+            }
+        except Exception as e:
+            print(f"导入记录到飞书多维表格出错: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
+
+# 初始化飞书API实例
+feishu_api = FeishuBitableAPI()
+
+
+@app.route('/api/feishu/config', methods=['GET'])
+def get_feishu_config():
+    """获取飞书配置信息（不包含密钥）"""
+    return jsonify({
+        'success': True,
+        'config': {
+            'app_id': feishu_api.app_id
+        }
+    })
+
+
+@app.route('/api/feishu/config', methods=['POST'])
+def update_feishu_config():
+    """更新飞书配置信息"""
+    try:
+        # 获取请求数据
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': '没有提供配置数据'
+            }), 400
+        
+        # 更新飞书API实例的配置
+        if 'app_id' in data:
+            feishu_api.app_id = data['app_id']
+        if 'app_secret' in data:
+            feishu_api.app_secret = data['app_secret']
+        
+        # 保存配置到文件
+        config_file = os.path.join('config', 'feishu_config.json')
+        os.makedirs(os.path.dirname(config_file), exist_ok=True)
+        
+        # 读取现有配置
+        existing_config = {}
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    existing_config = json.load(f)
+            except Exception as e:
+                print(f"读取飞书配置文件出错: {e}")
+        
+        # 更新配置
+        existing_config['app_id'] = feishu_api.app_id
+        existing_config['app_secret'] = feishu_api.app_secret
+        
+        # 保存配置到文件
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(existing_config, f, ensure_ascii=False, indent=2)
+        
+        return jsonify({
+            'success': True,
+            'message': '飞书配置更新成功'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/feishu/token', methods=['POST'])
+def get_feishu_token():
+    """获取飞书租户访问令牌"""
+    try:
+        token = feishu_api.get_tenant_access_token()
+        # 返回令牌和过期时间
+        return jsonify({
+            'success': True,
+            'token': token,
+            'expire': int(feishu_api.token_expire_time - time.time())
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/feishu/import-records', methods=['POST'])
+def import_records_to_feishu():
+    """导出记录到飞书多维表格"""
+    try:
+        # 获取请求数据
+        data = request.get_json()
+        records = data.get('records', [])
+        
+        if not records:
+            return jsonify({
+                'success': False,
+                'error': '没有提供记录数据'
+            }), 400
+        
+        # 导出记录
+        result = feishu_api.import_records_to_bitable(records)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/feishu/sync-records', methods=['POST'])
+def sync_records_from_feishu():
+    """从飞书多维表格同步记录到本地"""
+    try:
+        # 从飞书多维表格获取记录
+        result = feishu_api.get_records_from_bitable()
+        
+        if not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', '获取飞书记录失败')
+            }), 500
+        
+        feishu_records = result.get('records', [])
+        
+        # 转换飞书记录为本地记录格式
+        local_records = []
+        for record in feishu_records:
+            fields = record.get('fields', {})
+            
+            # 生成唯一的ID（如果飞书记录中没有ID，则生成一个新的）
+            record_id = fields.get('id(活动唯一标识)', str(uuid.uuid4()))
+            
+            # 转换日期格式
+            date_value = ''
+            activity_date = fields.get('活动日期')
+            if activity_date:
+                try:
+                    # 飞书日期字段是时间戳（毫秒）
+                    if isinstance(activity_date, (int, float)):
+                        date_obj = datetime.fromtimestamp(activity_date / 1000)
+                        date_value = date_obj.strftime('%Y/%m/%d')
+                    else:
+                        # 如果是字符串格式，直接使用
+                        date_value = str(activity_date)
+                except Exception as e:
+                    print(f"转换日期时出错: {e}")
+            
+            # 转换情绪字段
+            emotion_value = ''
+            emotion_field = fields.get('emotion(情绪记录)')
+            if emotion_field:
+                if isinstance(emotion_field, list):
+                    emotion_value = ', '.join(emotion_field)
+                else:
+                    emotion_value = str(emotion_field)
+            
+            # 转换时间为UTC格式
+            start_time = ''
+            end_time = ''
+            start_time_field = fields.get('startTime(开始时间)')
+            end_time_field = fields.get('endTime(结束时间)')
+            
+            if start_time_field:
+                try:
+                    # 将北京时间转换为UTC时间
+                    beijing_time = datetime.strptime(start_time_field, '%Y-%m-%d %H:%M:%S')
+                    # 使用replace方法设置时区
+                    beijing_time = beijing_time.replace(tzinfo=BEIJING_TZ)
+                    utc_time = beijing_time.astimezone(timezone.utc)
+                    start_time = utc_time.isoformat().replace('+00:00', 'Z')
+                except Exception as e:
+                    print(f"转换开始时间时出错: {e}")
+            
+            if end_time_field:
+                try:
+                    # 将北京时间转换为UTC时间
+                    beijing_time = datetime.strptime(end_time_field, '%Y-%m-%d %H:%M:%S')
+                    # 使用replace方法设置时区
+                    beijing_time = beijing_time.replace(tzinfo=BEIJING_TZ)
+                    utc_time = beijing_time.astimezone(timezone.utc)
+                    end_time = utc_time.isoformat().replace('+00:00', 'Z')
+                except Exception as e:
+                    print(f"转换结束时间时出错: {e}")
+            
+            # 计算时长（从字符串转换为毫秒）
+            duration = 0
+            duration_field = fields.get('duration(总计专注时长)')
+            if duration_field:
+                try:
+                    # 解析时长字符串，例如"27分钟1秒"
+                    duration_str = str(duration_field)
+                    total_seconds = 0
+                    
+                    # 提取小时
+                    hour_match = re.search(r'(\d+)小时', duration_str)
+                    if hour_match:
+                        total_seconds += int(hour_match.group(1)) * 3600
+                    
+                    # 提取分钟
+                    minute_match = re.search(r'(\d+)分钟', duration_str)
+                    if minute_match:
+                        total_seconds += int(minute_match.group(1)) * 60
+                    
+                    # 提取秒
+                    second_match = re.search(r'(\d+)秒', duration_str)
+                    if second_match:
+                        total_seconds += int(second_match.group(1))
+                    
+                    duration = total_seconds * 1000
+                except Exception as e:
+                    print(f"转换时长时出错: {e}")
+            
+            # 计算时间跨度
+            time_span = 0
+            time_span_field = fields.get('timeSpan(时间跨度)')
+            if time_span_field and start_time and end_time:
+                try:
+                    # 解析时间跨度字符串，例如"3290秒"
+                    time_span_str = str(time_span_field)
+                    second_match = re.search(r'(\d+)秒', time_span_str)
+                    if second_match:
+                        time_span = int(second_match.group(1)) * 1000
+                except Exception as e:
+                    print(f"转换时间跨度时出错: {e}")
+            
+            local_record = {
+                'id': record_id,
+                'activity': fields.get('activity(活动名称)', ''),
+                'activityCategory': fields.get('activityCategory(活动类型)', ''),
+                'date': date_value,
+                'startTime': start_time,
+                'endTime': end_time,
+                'duration': duration,
+                'remark': fields.get('remark(感想&记录)', ''),
+                'emotion': emotion_value,
+                'pauseCount': fields.get('pauseCount(暂停次数)', 0),
+                'timeSpan': time_span
+            }
+            
+            local_records.append(local_record)
+        
+        # 加载现有记录
+        existing_records = TimeRecorderUtils.load_records()
+        
+        # 合并记录（避免重复）
+        existing_ids = {record['id'] for record in existing_records}
+        new_records = []
+        
+        for record in local_records:
+            # 如果记录ID已存在，跳过
+            if record['id'] in existing_ids:
+                continue
+            
+            # 添加记录
+            new_records.append(record)
+            existing_ids.add(record['id'])
+        
+        # 保存记录
+        all_records = existing_records + new_records
+        if TimeRecorderUtils.save_records(all_records):
+            return jsonify({
+                'success': True,
+                'imported_count': len(new_records),
+                'message': f'成功从飞书同步 {len(new_records)} 条记录'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '保存记录失败'
+            }), 500
+    except Exception as e:
+        print(f"从飞书同步记录出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 if __name__ == '__main__':

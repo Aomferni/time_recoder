@@ -48,30 +48,33 @@
     transform: translateY(-1px);
 }
 
-.toggle-btn {
-    background: linear-gradient(400deg, #4CAF50 0%, #2E7D32 100%);
-    padding: 15px 10px;
+button.toggle-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 25px 40px;
     border: none;
-    border-radius: 10px;
+    border-radius: 15px;
     color: white;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 54px;
     transition: all 0.3s ease;
     font-weight: 500;
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     position: relative;
     overflow: hidden;
     transform: scale(1);
+    min-width: 200px;
+    min-height: 80px;
 }
 
 /* 移动端优化 */
 @media (max-width: 480px) {
-    .toggle-btn {
-        padding: 20px 40px;
-        font-size: 36px;
-        min-width: 150px;
+    button.toggle-btn {
+        padding: 25px 50px;
+        font-size: 58px;
+        min-width: 200px;
+        min-height: 90px;
         border-radius: 20px;
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 }
 

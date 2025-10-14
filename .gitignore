@@ -1,3 +1,10 @@
 data/*/
 __pycache__/
 data/records.json
+reference_demos/
+.DS_Store
+config/
+test/
+debug*.py
+test*.py
+test*.html

@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/emotion-tag.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/control-btn.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/mood-wall.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-import.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-config.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -36,6 +38,8 @@
         {% block content %}{% endblock %}
     </div>
     <script type="module" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- 引入飞书客户端 -->
+    <script type="module" src="{{ url_for('static', filename='js/modules/feishuClient.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

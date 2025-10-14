@@ -1,0 +1,61 @@
+/* 飞书配置按钮样式 */
+.feishu-config-btn {
+    background: linear-gradient(135deg, #0066ff 0%, #00b900 100%);
+    box-shadow: 0 4px 10px rgba(0, 102, 255, 0.3);
+}
+
+.feishu-config-btn:hover {
+    box-shadow: 0 6px 15px rgba(0, 102, 255, 0.4);
+}
+
+/* 飞书配置模态框样式 */
+#feishuConfigModal .modal-content {
+    max-width: 500px;
+}
+
+#feishuConfigModal .detail-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#feishuConfigModal .highlight-field {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #2196F3;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+#feishuConfigModal .highlight-field:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: translateX(5px);
+}
+
+#feishuConfigModal .highlight-field label {
+    font-weight: 600;
+    color: #0D47A1;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+#feishuConfigModal .highlight-field input {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    padding: 10px 12px;
+}
+
+#feishuConfigModal .detail-actions {
+    margin-top: 25px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 25px;
+    border-top: 2px solid #eee;
+}

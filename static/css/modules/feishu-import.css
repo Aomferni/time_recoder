@@ -1,0 +1,76 @@
+/* 飞书导入按钮样式 */
+.feishu-import-btn {
+    background-color: #0066ff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.feishu-import-btn:hover {
+    background-color: #0052cc;
+}
+
+.feishu-import-btn:active {
+    background-color: #0044b3;
+}
+
+.feishu-import-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* 飞书同步按钮样式 */
+.feishu-sync-btn {
+    background-color: #00b900;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.feishu-sync-btn:hover {
+    background-color: #009e00;
+}
+
+.feishu-sync-btn:active {
+    background-color: #008500;
+}
+
+.feishu-sync-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* 导入状态样式 */
+.import-status {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.import-status.info {
+    background-color: #e6f7ff;
+    color: #1890ff;
+    border: 1px solid #91d5ff;
+}
+
+.import-status.success {
+    background-color: #f6ffed;
+    color: #52c41a;
+    border: 1px solid #b7eb8f;
+}
+
+.import-status.error {
+    background-color: #fff2f0;
+    color: #ff4d4f;
+    border: 1px solid #ffccc7;
+}

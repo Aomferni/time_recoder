@@ -206,6 +206,7 @@ graph TD
 23. **开始时间模块** (`start-time.css`) - 开始时间输入框样式
 24. **情绪标签模块** (`emotion-tag.css`) - 情绪标签样式
 25. **控制按钮模块** (`control-btn.css`) - 控制按钮特殊样式
+26. **飞书配置模块** (`feishu-config.css`) - 飞书配置样式
 
 #### 3.3.1 CSS模块依赖关系
 
@@ -235,6 +236,9 @@ graph TD
     A --> U[收获记录 remark.css]
     A --> V[活动类别 activity-category.css]
     A --> W[开始时间 start-time.css]
+    A --> X[情绪标签 emotion-tag.css]
+    A --> Y[控制按钮 control-btn.css]
+    A --> Z[飞书配置 feishu-config.css]
 ```
 
 ## 4. 功能模块设计

@@ -75,7 +75,7 @@
 }
 
 /* 统一四个按钮的样式 */
-.search-btn, .reset-btn, .export-btn, .import-btn {
+.search-btn, .reset-btn, .export-btn, .import-btn, .feishu-config-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
@@ -90,12 +90,12 @@
     text-align: center;
 }
 
-.search-btn:hover, .reset-btn:hover, .export-btn:hover, .import-btn:hover {
+.search-btn:hover, .reset-btn:hover, .export-btn:hover, .import-btn:hover, .feishu-config-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
 }
 
-.search-btn:active, .reset-btn:active, .export-btn:active, .import-btn:active {
+.search-btn:active, .reset-btn:active, .export-btn:active, .import-btn:active, .feishu-config-btn:active {
     transform: translateY(-1px);
 }
 
