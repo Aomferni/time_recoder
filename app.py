@@ -1306,7 +1306,7 @@ class FeishuBitableAPI:
             }
     
     def import_records_to_bitable(self, records, app_token="BKCLblwCmajwm9sFmo4cyJxJnON", table_id="tblfFpqZNNqGshC3"):
-        """导入记录到飞书多维表格"""
+        """导出记录到飞书多维表格"""
         try:
             token = self.get_tenant_access_token()
             print(f"获取到的访问令牌: {token[:20]}...")  # 只显示部分令牌用于调试
@@ -1370,6 +1370,11 @@ class FeishuBitableAPI:
                         # 如果日期格式不正确，使用当前日期
                         timestamp_value = int(datetime.now().timestamp() * 1000)
                 
+                # 将segments转换为JSON格式的文本
+                segments_json = ''
+                if 'segments' in record and isinstance(record['segments'], list):
+                    segments_json = json.dumps(record['segments'], ensure_ascii=False, indent=2)
+                
                 feishu_record = {
                     "fields": {
                         "activity(活动名称)": record.get('activity', ''),
@@ -1382,7 +1387,8 @@ class FeishuBitableAPI:
                         "emotion(情绪记录)": emotion_list,
                         "pauseCount(暂停次数)": int(record.get('pauseCount', 0)),  # 确保是整数类型
                         "活动日期": timestamp_value,
-                        "id(活动唯一标识)": record.get('id', '')  # 添加ID字段
+                        "id(活动唯一标识)": record.get('id', ''),  # 添加ID字段
+                        "segments(专注段落)": segments_json  # 添加segments JSON文本
                     }
                 }
                 feishu_records.append(feishu_record)
@@ -1667,6 +1673,20 @@ def sync_records_from_feishu():
                 except Exception as e:
                     print(f"转换时间跨度时出错: {e}")
             
+            # 处理segments字段，从JSON格式的文本转换为Python对象
+            segments = []
+            segments_field = fields.get('segments(专注段落)')
+            if segments_field:
+                try:
+                    # 如果segments字段是字符串格式的JSON，解析它
+                    if isinstance(segments_field, str) and segments_field.strip():
+                        segments = json.loads(segments_field)
+                    # 如果已经是列表格式，直接使用
+                    elif isinstance(segments_field, list):
+                        segments = segments_field
+                except Exception as e:
+                    print(f"解析segments字段时出错: {e}")
+            
             local_record = {
                 'id': record_id,
                 'activity': fields.get('activity(活动名称)', ''),
@@ -1678,7 +1698,8 @@ def sync_records_from_feishu():
                 'remark': fields.get('remark(感想&记录)', ''),
                 'emotion': emotion_value,
                 'pauseCount': fields.get('pauseCount(暂停次数)', 0),
-                'timeSpan': time_span
+                'timeSpan': time_span,
+                'segments': segments  # 添加segments字段
             }
             
             local_records.append(local_record)

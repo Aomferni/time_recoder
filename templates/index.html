@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/user-section.css') }}">
+{% endblock %}
+
 {% block content %}
 <h1>时间追踪器</h1>
 
 <div class="user-section">
-    <!-- 将导航链接移到右上角 -->
     <div class="top-navigation">
         <a href="/records" class="nav-link">查看历史记录</a>
         <a href="/mood-wall" class="nav-link">情绪与活动墙</a>

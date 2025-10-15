@@ -85,38 +85,6 @@ h1::after {
     border-radius: 2px;
 }
 
-.user-section {
-    background: white;
-    padding: 15px 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    animation: fadeIn 1s ease-out;
-    border-left: 4px solid #667eea;
-    transition: all 0.3s ease;
-}
-
-.user-section:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
-
-.user-section label {
-    font-weight: 500;
-    color: #555;
-}
-
-.user-section input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
 .main-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;

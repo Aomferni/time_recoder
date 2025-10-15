@@ -64,7 +64,7 @@ class FeishuBitableClient {
     }
 
     /**
-     * 导入记录到飞书多维表格
+     * 导出记录到飞书多维表格
      */
     async importRecordsToBitable(records) {
         try {
@@ -121,6 +121,12 @@ class FeishuBitableClient {
                     }
                 }
                 
+                // 将segments转换为JSON格式的文本
+                let segmentsJson = '';
+                if (record.segments && Array.isArray(record.segments)) {
+                    segmentsJson = JSON.stringify(record.segments, null, 2);
+                }
+                
                 return {
                     fields: {
                         "activity(活动名称)": record.activity || '',
@@ -133,7 +139,8 @@ class FeishuBitableClient {
                         "emotion(情绪记录)": emotionArray,
                         "pauseCount(暂停次数)": parseInt(record.pauseCount) || 0,  // 确保是数字类型
                         "活动日期": dateTimestamp,  // 使用时间戳格式
-                        "id(活动唯一标识)": record.id || ''
+                        "id(活动唯一标识)": record.id || '',
+                        "segments(专注段落)": segmentsJson  // 添加segments JSON文本
                     }
                 };
             });
