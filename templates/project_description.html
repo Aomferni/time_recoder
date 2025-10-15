@@ -436,6 +436,7 @@
     <div class="navigation">
         <a href="/" class="nav-link">返回首页</a>
         <a href="/records" class="nav-link secondary">查看记录</a>
+        <a href="/mood_wall" class="nav-link secondary">情绪与活动墙</a>
     </div>
     
     <div class="section user-focused">
@@ -444,10 +445,11 @@
         
         <h3>主要功能</h3>
         <ul>
-            <li><strong>活动时间追踪</strong> - 实时计时功能，精确到秒，支持活动暂停和继续</li>
+            <li><strong>活动时间追踪</strong> - 实时计时功能，精确到秒，支持活动暂停和继续，支持段落记录</li>
             <li><strong>活动分类管理</strong> - 提供多种预设活动类别，支持自定义活动类别</li>
-            <li><strong>记录管理</strong> - 添加、编辑和删除时间记录，查看历史记录</li>
-            <li><strong>数据统计</strong> - 今日时间统计，活动次数统计</li>
+            <li><strong>记录管理</strong> - 添加、编辑和删除时间记录，查看历史记录，支持情绪标签</li>
+            <li><strong>数据统计</strong> - 今日时间统计，活动次数统计，情绪和活动类型可视化</li>
+            <li><strong>数据可视化</strong> - 情绪墙和活动类型墙展示，关键词词云分析</li>
         </ul>
     </div>
     
@@ -522,22 +524,63 @@
             </tbody>
         </table>
         
+        <h4>情绪分类体系</h4>
+        <p>情绪按照四个象限进行分类，帮助用户更好地理解和记录自己的情绪状态：</p>
+        <table class="data-mapping-table">
+            <thead>
+                <tr>
+                    <th>象限</th>
+                    <th>情绪类型</th>
+                    <th>包含情绪</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>正向+专注</td>
+                    <td>积极且专注的情绪</td>
+                    <td>惊奇、兴奋、高兴、愉悦</td>
+                </tr>
+                <tr>
+                    <td>正向+松弛</td>
+                    <td>积极且放松的情绪</td>
+                    <td>安逸、安心、满足、宁静、放松</td>
+                </tr>
+                <tr>
+                    <td>负面+松弛</td>
+                    <td>消极但放松的情绪</td>
+                    <td>悲伤、伤心、沮丧、疲惫</td>
+                </tr>
+                <tr>
+                    <td>负面+专注</td>
+                    <td>消极且专注的情绪</td>
+                    <td>惊恐、紧张、愤怒、苦恼</td>
+                </tr>
+            </tbody>
+        </table>
+        
         <h4>数据结构映射</h4>
         <h5>记录数据结构</h5>
         <div class="code-block">
 {
-  "id": "唯一标识符",
+  "id": "记录唯一标识符",
+  "username": "用户名",
   "activity": "活动名称",
   "activityCategory": "活动类别",
-  "date": "日期",
-  "startTime": "开始时间",
-  "endTime": "结束时间",
-  "duration": "计时时长(毫秒)",
-  "timeSpan": "时间跨度(毫秒)",
+  "date": "记录日期（北京时间，格式：YYYY/MM/DD）",
+  "startTime": "开始时间（UTC时间格式，ISO 8601）",
+  "endTime": "结束时间（UTC时间格式，ISO 8601）",
+  "duration": "计时时长（毫秒）",
+  "timeSpan": "时间跨度（毫秒）",
   "remark": "备注信息",
   "emotion": "情绪标签",
   "pauseCount": "暂停次数",
-  "segments": "段落记录"
+  "segments": [
+    {
+      "start": "段落开始时间（UTC时间格式，ISO 8601）",
+      "end": "段落结束时间（UTC时间格式，ISO 8601）",
+      "duration": "段落持续时间（毫秒，可选）"
+    }
+  ]
 }
         </div>
         
@@ -674,6 +717,7 @@
                     <li><code>addSegment()</code> - 添加段落</li>
                     <li><code>deleteSegment()</code> - 删除段落</li>
                     <li><code>renumberSegments()</code> - 重新编号段落</li>
+                    <li><code>toggleEmotion()</code> - 切换情绪选择</li>
                 </ul>
             </div>
             
@@ -697,7 +741,9 @@ DELETE /api/records/&lt;record_id&gt; # 删除记录<br>
 GET  /api/all-records      # 获取所有记录（支持筛选和分页）<br>
 GET  /api/stats            # 获取统计信息<br>
 POST /api/set-username     # 设置用户名并迁移记录<br>
-GET  /api/activity-categories # 获取活动类别配置
+GET  /api/activity-categories # 获取活动类别配置<br>
+GET  /api/mood-data        # 获取情绪墙数据<br>
+GET  /api/activity-data    # 获取活动类型墙数据
         </div>
         
         <h3>项目结构</h3>
@@ -715,7 +761,10 @@ time_recoder/<br>
 │   ├── base.html       # 基础模板<br>
 │   ├── index.html      # 主页面模板<br>
 │   ├── records.html    # 记录页面模板<br>
+│   ├── mood_wall.html  # 情绪墙页面模板<br>
+│   ├── manage_categories.html # 类别管理页面模板<br>
 │   └── project_description.html # 项目说明页面<br>
+├── fix_records/        # 修复记录目录<br>
 └── static/             # 静态文件目录<br>
     ├── css/<br>
     │   ├── style.css   # 样式文件<br>
@@ -829,6 +878,7 @@ flowchart TD
     <div class="navigation">
         <a href="/" class="nav-link">返回首页</a>
         <a href="/records" class="nav-link secondary">查看记录</a>
+        <a href="/mood_wall" class="nav-link secondary">情绪与活动墙</a>
     </div>
 </div>
 

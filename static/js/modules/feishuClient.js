@@ -72,9 +72,9 @@ class FeishuBitableClient {
             
             // 准备数据格式
             const feishuRecords = records.map(record => {
-                // 格式化时间
-                const startTime = record.startTime ? new Date(record.startTime).toLocaleString('zh-CN') : '';
-                const endTime = record.endTime ? new Date(record.endTime).toLocaleString('zh-CN') : '';
+                // 格式化时间 - 使用正确的格式
+                const startTime = record.startTime ? this.formatDateTimeForFeishu(record.startTime) : '';
+                const endTime = record.endTime ? this.formatDateTimeForFeishu(record.endTime) : '';
                 
                 // 计算时长
                 let durationStr = '';
@@ -181,6 +181,40 @@ class FeishuBitableClient {
                 success: false,
                 error: error.message || '导入记录到飞书多维表格失败'
             };
+        }
+    }
+    
+    /**
+     * 格式化日期时间为飞书所需的格式
+     */
+    formatDateTimeForFeishu(dateTimeStr) {
+        try {
+            // 如果已经是正确的格式，直接返回
+            if (typeof dateTimeStr === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateTimeStr)) {
+                return dateTimeStr;
+            }
+            
+            // 将UTC时间转换为北京时间并格式化
+            const date = new Date(dateTimeStr);
+            if (isNaN(date.getTime())) {
+                return '';
+            }
+            
+            // 转换为北京时间
+            const beijingTime = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+            
+            // 格式化为 "YYYY-MM-DD HH:mm:ss"
+            const year = beijingTime.getFullYear();
+            const month = String(beijingTime.getMonth() + 1).padStart(2, '0');
+            const day = String(beijingTime.getDate()).padStart(2, '0');
+            const hours = String(beijingTime.getHours()).padStart(2, '0');
+            const minutes = String(beijingTime.getMinutes()).padStart(2, '0');
+            const seconds = String(beijingTime.getSeconds()).padStart(2, '0');
+            
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        } catch (e) {
+            console.error('格式化日期时间失败:', e);
+            return '';
         }
     }
 }

@@ -1620,17 +1620,17 @@ def sync_records_from_feishu():
                     start_time = utc_time.isoformat().replace('+00:00', 'Z')
                 except Exception as e:
                     print(f"转换开始时间时出错: {e}")
-            
-            if end_time_field:
-                try:
-                    # 将北京时间转换为UTC时间
-                    beijing_time = datetime.strptime(end_time_field, '%Y-%m-%d %H:%M:%S')
-                    # 使用replace方法设置时区
-                    beijing_time = beijing_time.replace(tzinfo=BEIJING_TZ)
-                    utc_time = beijing_time.astimezone(timezone.utc)
-                    end_time = utc_time.isoformat().replace('+00:00', 'Z')
-                except Exception as e:
-                    print(f"转换结束时间时出错: {e}")
+                
+                if end_time_field:
+                    try:
+                        # 将北京时间转换为UTC时间
+                        beijing_time = datetime.strptime(end_time_field, '%Y-%m-%d %H:%M:%S')
+                        # 使用replace方法设置时区
+                        beijing_time = beijing_time.replace(tzinfo=BEIJING_TZ)
+                        utc_time = beijing_time.astimezone(timezone.utc)
+                        end_time = utc_time.isoformat().replace('+00:00', 'Z')
+                    except Exception as e:
+                        print(f"转换结束时间时出错: {e}")
             
             # 计算时长（从字符串转换为毫秒）
             duration = 0

@@ -18,7 +18,7 @@
     border: none;
     border-radius: 12px;
     width: 90%;
-    max-width: 800px; /* 增加最大宽度 */
+    max-width: 1000px; /* 增加最大宽度 */
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     position: relative;
     resize: both; /* 添加可调整大小功能 */

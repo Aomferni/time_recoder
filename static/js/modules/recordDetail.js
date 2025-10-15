@@ -318,16 +318,18 @@ export const TimeRecorderRecordDetail = {
                                 <div class="emotion-quadrant">
                                     <div class="emotion-quadrant-title">${groupName}</div>
                                     <div class="emotion-quadrant-grid">
-                                        ${groupData.emotions.map(emotion => `
-                                            <div class="emotion-checkbox ${record.emotion && record.emotion.includes(emotion) ? 'selected' : ''}" 
+                                        ${groupData.emotions.map(emotion => {
+                                            const isSelected = record.emotion && record.emotion.includes(emotion);
+                                            return `
+                                            <div class="emotion-checkbox ${isSelected ? 'selected' : ''}" 
                                                 data-emotion="${emotion}" 
-                                                onclick="TimeRecorderRecordDetail.toggleEmotion('${emotion}')"
                                                 style="background-color: ${TimeRecorderFrontendUtils.getEmotionColor(emotion)};">
                                                 <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
-                                                    ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
+                                                    ${isSelected ? 'checked' : ''}>
                                                 <label for="emotion-${emotion}">${emotion}</label>
+                                                ${isSelected ? '<div class="checkmark">✓</div>' : ''}
                                             </div>
-                                        `).join('')}
+                                        `}).join('')}
                                     </div>
                                 </div>
                             `).join('');
@@ -417,6 +419,9 @@ export const TimeRecorderRecordDetail = {
                 }
             }, 1000);
         }
+        
+        // 绑定情绪按钮点击事件
+        this._bindEmotionClickEvents();
         
         // 绑定开始时间和结束时间的更改事件
         const startTimeElement = document.getElementById('detail-start-time');
@@ -623,6 +628,43 @@ export const TimeRecorderRecordDetail = {
     },
     
     /**
+     * 绑定情绪按钮点击事件
+     */
+    _bindEmotionClickEvents: function() {
+        const emotionContainer = document.getElementById('detail-emotion');
+        if (emotionContainer) {
+            // 使用事件委托处理情绪按钮点击
+            emotionContainer.addEventListener('click', (event) => {
+                // 查找被点击的元素或其父元素是否为情绪按钮
+                let emotionElement = event.target.closest('.emotion-checkbox');
+                
+                // 如果没有找到情绪按钮元素，直接返回
+                if (!emotionElement) return;
+                
+                // 获取情绪名称
+                const emotion = emotionElement.getAttribute('data-emotion');
+                if (emotion) {
+                    // 防止重复点击
+                    if (emotionElement.classList.contains('processing')) return;
+                    
+                    // 添加处理标记，防止重复点击
+                    emotionElement.classList.add('processing');
+                    
+                    // 调用切换情绪函数
+                    this.toggleEmotion(emotion);
+                    
+                    // 移除处理标记
+                    setTimeout(() => {
+                        if (emotionElement && emotionElement.classList.contains('processing')) {
+                            emotionElement.classList.remove('processing');
+                        }
+                    }, 100);
+                }
+            });
+        }
+    },
+    
+    /**
      * 切换情绪选择
      */
     toggleEmotion: function(emotion) {
@@ -636,21 +678,20 @@ export const TimeRecorderRecordDetail = {
             if (isSelected) {
                 emotionElement.classList.remove('selected');
                 checkbox.checked = false;
-                
-                // 添加取消选中的视觉反馈
-                emotionElement.style.transform = 'translateY(0) scale(0.95)';
-                setTimeout(() => {
-                    emotionElement.style.transform = '';
-                }, 150);
+                // 移除选中标识
+                const checkmark = emotionElement.querySelector('.checkmark');
+                if (checkmark) {
+                    checkmark.remove();
+                }
             } else {
                 emotionElement.classList.add('selected');
                 checkbox.checked = true;
                 
-                // 添加选中的视觉反馈
-                emotionElement.style.transform = 'translateY(-2px) scale(1.05)';
-                setTimeout(() => {
-                    emotionElement.style.transform = '';
-                }, 150);
+                // 添加选中标识
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = '✓';
+                emotionElement.appendChild(checkmark);
                 
                 // 添加触觉反馈（如果设备支持）
                 if (navigator.vibrate) {
@@ -844,6 +885,9 @@ export const TimeRecorderRecordDetail = {
                         window.TimeRecorderUI.updateRecordsTable();
                         window.TimeRecorderUI.updateStats();
                     }
+                    
+                    // 刷新情绪墙和活动墙
+                    this.refreshMoodAndActivityWalls();
                 } else {
                     alert('更新记录失败: ' + (data.error || '未知错误'));
                 }
@@ -852,5 +896,33 @@ export const TimeRecorderRecordDetail = {
                 console.error('更新记录失败:', error);
                 alert('更新记录失败，请查看控制台了解详情');
             });
+    },
+    
+    /**
+     * 刷新情绪墙和活动墙
+     */
+    refreshMoodAndActivityWalls: function() {
+        // 检查当前是否在情绪墙页面
+        if (window.location.pathname === '/mood_wall') {
+            // 重新加载情绪墙数据
+            if (typeof loadWallData === 'function') {
+                loadWallData();
+            }
+        }
+        
+        // 检查当前是否在记录页面
+        if (window.location.pathname === '/records') {
+            // 重新加载记录数据
+            if (window.timeRecorderRecords && typeof window.timeRecorderRecords.loadRecords === 'function') {
+                window.timeRecorderRecords.loadRecords();
+            }
+        }
+        
+        // 如果在首页，刷新统计信息
+        if (window.location.pathname === '/') {
+            if (window.TimeRecorderUI && typeof window.TimeRecorderUI.updateStats === 'function') {
+                window.TimeRecorderUI.updateStats();
+            }
+        }
     }
 };

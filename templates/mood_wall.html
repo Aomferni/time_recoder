@@ -543,27 +543,17 @@
             if (isSelected) {
                 emotionElement.classList.remove('selected');
                 checkbox.checked = false;
-                
-                // 添加取消选中的视觉反馈
-                emotionElement.style.transform = 'translateY(0) scale(0.95)';
-                setTimeout(() => {
-                    emotionElement.style.transform = '';
-                }, 150);
             } else {
                 emotionElement.classList.add('selected');
                 checkbox.checked = true;
-                
-                // 添加选中的视觉反馈
-                emotionElement.style.transform = 'translateY(-2px) scale(1.05)';
-                setTimeout(() => {
-                    emotionElement.style.transform = '';
-                }, 150);
                 
                 // 添加触觉反馈（如果设备支持）
                 if (navigator.vibrate) {
                     navigator.vibrate(50);
                 }
             }
+        } else {
+            console.warn('找不到情绪元素:', emotion);
         }
     }
     

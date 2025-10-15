@@ -119,20 +119,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px; /* 减小内边距以缩小按钮 */
-    border-radius: 6px;
-    transition: all 0.3s ease;
+    padding: 12px; /* 增加内边距以扩大点击区域 */
+    border-radius: 6px; /* 适度的圆角 */
+    transition: all 0.2s ease; /* 平滑过渡 */
     border: 2px solid transparent;
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    min-height: 36px; /* 减小高度以缩小按钮 */
+    min-height: 44px; /* 确保最小触摸目标为44px */
     text-align: center;
     color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
     user-select: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-size: 0.9rem; /* 调整字体大小 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 适度的阴影 */
+    font-size: 1rem; /* 标准字体大小 */
+    width: 100%; /* 确保填满容器 */
+    box-sizing: border-box; /* 包含padding和border */
+}
+
+.emotion-checkbox.processing {
+    pointer-events: none;
 }
 
 .emotion-checkbox::after {
@@ -151,25 +157,56 @@
 }
 
 .emotion-checkbox:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: scale(1.05); /* 适度的悬停效果 */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3); /* 适度的阴影 */
 }
 
 /* 选中的情绪按钮样式 */
 .emotion-checkbox.selected {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    filter: brightness(1.1);
-    animation: emotionSelectPulse 0.3s ease;
+    transform: scale(1.1); /* 明显的选中效果 */
+    border-color: white; /* 白色边框 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); /* 明显的阴影 */
+    filter: brightness(1.2); /* 更亮的效果 */
+    animation: emotionSelectPulse 0.3s ease; /* 选中动画 */
 }
 
 /* 选中动画 */
 @keyframes emotionSelectPulse {
-    0% { transform: translateY(-2px) scale(1); }
-    50% { transform: translateY(-2px) scale(1.05); }
-    100% { transform: translateY(-2px) scale(1); }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 情绪选中标识 */
+.emotion-checkbox .checkmark {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transform: scale(0);
+    transition: transform 0.2s ease;
+    z-index: 2;
+}
+
+.emotion-checkbox.selected .checkmark {
+    transform: scale(1);
+    animation: checkmarkAppear 0.3s ease;
+}
+
+@keyframes checkmarkAppear {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 }
 
 .emotion-checkbox input[type="checkbox"] {
@@ -179,8 +216,8 @@
 .emotion-checkbox label {
     cursor: pointer;
     font-weight: 500;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
+    transition: all 0.2s ease; /* 平滑过渡 */
+    font-size: 1rem; /* 标准字体大小 */
     width: 100%;
     text-align: center;
     color: inherit;
@@ -193,7 +230,7 @@
 }
 
 .emotion-checkbox:hover label {
-    transform: scale(1.05);
+    transform: scale(1.1); /* 适度的悬停效果 */
 }
 
 /* 情绪象限分组 */
@@ -218,42 +255,43 @@
 
 .emotion-quadrant-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); /* 缩小网格项 */
-    gap: 8px; /* 减小间距 */
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* 增大网格项 */
+    gap: 12px; /* 增加间距 */
+    margin-bottom: 5px; /* 添加底部间距 */
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
     .detail-form .emotion-checkboxes {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 6px;
-        padding: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); /* 增大网格项 */
+        gap: 8px; /* 增加间距 */
+        padding: 12px; /* 增加内边距 */
     }
     
     .emotion-checkbox {
-        padding: 6px;
-        min-height: 32px;
-        font-size: 0.8rem;
+        padding: 8px; /* 增加内边距 */
+        min-height: 40px; /* 确保最小触摸目标 */
+        font-size: 0.85rem; /* 调整字体大小 */
     }
     
     .emotion-checkbox label {
-        font-size: 0.8rem;
+        font-size: 0.85rem; /* 调整字体大小 */
     }
     
     .emotion-quadrant-grid {
-        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-        gap: 6px;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* 增大网格项 */
+        gap: 8px; /* 增加间距 */
     }
     
     .emotion-quadrant {
-        margin-bottom: 12px;
-        padding: 10px;
+        margin-bottom: 15px; /* 增加间距 */
+        padding: 12px; /* 增加内边距 */
     }
     
     .emotion-quadrant-title {
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-        font-size: 0.9rem;
+        margin-bottom: 12px; /* 增加间距 */
+        padding-bottom: 8px; /* 增加内边距 */
+        font-size: 0.95rem; /* 调整字体大小 */
     }
 }
 
@@ -366,7 +404,12 @@
     padding-top: 25px;
     border-top: 2px solid #eee;
     flex-shrink: 0; /* 防止操作按钮被压缩 */
-    animation: actionsAppear 0.5s ease-out;
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    padding-bottom: 20px;
+    z-index: 10;
+    /* 移除动画，使按钮始终可见 */
 }
 
 @keyframes actionsAppear {

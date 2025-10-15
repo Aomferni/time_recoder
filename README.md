@@ -8,6 +8,7 @@
    - 实时计时功能，精确到秒
    - 支持活动暂停和继续
    - 自动记录活动开始和结束时间
+   - 支持段落记录，可记录多个专注时间段
 
 2. **活动分类管理**
    - 提供多种预设活动类别
@@ -24,21 +25,27 @@
 | 暂停一下 | 青色 | 交流心得、记录\|反思\|计划 | 短暂休息和反思 |
 | 纯属娱乐 | 灰色 | 刷手机 | 娱乐消遣时间 |
 
-
 3. **记录管理**
    - 添加、编辑和删除时间记录
    - 查看历史记录（支持分页和筛选）
    - 为记录添加备注和情绪标签
+   - 支持段落时间管理
 
 4. **数据统计**
    - 今日时间统计
    - 活动次数统计
    - 按时间段查看记录
+   - 情绪和活动类型可视化展示
 
 5. **用户管理**
    - 支持多用户使用
    - 用户数据隔离
    - 用户数据迁移
+
+6. **数据可视化**
+   - 情绪墙展示情绪变化趋势
+   - 活动类型墙展示活动分布
+   - 关键词词云展示关注点
 
 ## 核心技术路线
 
@@ -58,6 +65,7 @@
    - MVC模式（Model-View-Controller）
    - 前后端分离（通过API交互）
    - 响应式设计（适配移动端）
+   - 模块化设计（CSS和JavaScript模块化）
 
 ## 部署和运行
 
@@ -73,9 +81,9 @@
 4. 在浏览器中访问 `http://localhost:5002`
 
 ### 配置说明
-- 端口配置：在[app.py](file:///Users/amy/Documents/codes/time_recoder/app.py)中修改`app.run()`的port参数
-- 数据存储路径：在[app.py](file:///Users/amy/Documents/codes/time_recoder/app.py)中修改`DATA_FOLDER`常量
-- 调试模式：在[app.py](file:///Users/amy/Documents/codes/time_recoder/app.py)中修改`app.run()`的debug参数
+- 端口配置：在[app.py](file:///Users/mac/Documents/local-Datawhale%E6%95%99%E7%A0%94/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%B7%A5%E5%85%B7/time_recoder/app.py)中修改`app.run()`的port参数
+- 数据存储路径：在[app.py](file:///Users/mac/Documents/local-Datawhale%E6%95%99%E7%A0%94/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%B7%A5%E5%85%B7/time_recoder/app.py)中修改`DATA_FOLDER`常量
+- 调试模式：在[app.py](file:///Users/mac/Documents/local-Datawhale%E6%95%99%E7%A0%94/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%B7%A5%E5%85%B7/time_recoder/app.py)中修改`app.run()`的debug参数
 
 ### 核心函数说明
 
@@ -165,7 +173,11 @@ time_recoder/
 ├── templates/          # HTML模板目录
 │   ├── base.html       # 基础模板
 │   ├── index.html      # 主页面模板
-│   └── records.html    # 记录页面模板
+│   ├── records.html    # 记录页面模板
+│   ├── mood_wall.html  # 情绪墙页面模板
+│   ├── manage_categories.html # 类别管理页面模板
+│   └── project_description.html # 项目说明页面
+├── fix_records/        # 修复记录目录
 └── static/             # 静态文件目录
     ├── css/
     │   ├── style.css   # 样式文件
@@ -219,4 +231,4 @@ time_recoder/
 
 ## 许可证
 
-本项目采用MIT许可证，详情请见[LICENSE](file:///Users/amy/Documents/codes/time_recoder/LICENSE)文件。
+本项目采用MIT许可证，详情请见[LICENSE](./LICENSE)文件。
