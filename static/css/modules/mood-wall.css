@@ -4,13 +4,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    padding: 20px;
+    margin-bottom: 15px;
+    padding: 15px;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    border-top: 4px solid #667eea;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    border-top: 2px solid #667eea;
     position: relative;
     overflow: hidden;
 }
@@ -21,37 +21,37 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 4px;
+    height: 2px;
     background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
 .mood-wall-header:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
 .date-navigation {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 .nav-btn {
     background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 8px 15px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
 }
 
 .nav-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
 }
 
 .nav-btn:active {
@@ -61,17 +61,33 @@
 .wall-container {
     display: flex;
     flex-direction: column;
-    gap: 30px;
-    margin-bottom: 30px;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.wall-section-container {
+    display: flex;
+    gap: 20px;
+}
+
+.wall-section-container .wall-section {
+    flex: 1;
+}
+
+/* 响应式设计：在小屏幕上改为垂直布局 */
+@media (max-width: 768px) {
+    .wall-section-container {
+        flex-direction: column;
+    }
 }
 
 .wall-section {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    padding: 25px;
-    transition: all 0.3s ease;
-    border-top: 4px solid #667eea;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+    transition: all 0.2s ease;
+    border-top: 2px solid #667eea;
     position: relative;
     overflow: hidden;
 }
@@ -82,22 +98,22 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 4px;
+    height: 2px;
     background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
 .wall-section:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
 .wall-section h2 {
     margin-top: 0;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     color: #333;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 12px;
-    font-size: 1.5rem;
+    border-bottom: 1px solid #007bff;
+    padding-bottom: 8px;
+    font-size: 1.3rem;
 }
 
 .wall-grid {
@@ -158,13 +174,13 @@
 
 .legend-section {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    padding: 25px;
-    transition: all 0.3s ease;
-    border-top: 4px solid #667eea;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+    transition: all 0.2s ease;
+    border-top: 2px solid #667eea;
     position: relative;
     overflow: hidden;
 }
@@ -175,13 +191,13 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 4px;
+    height: 2px;
     background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
 .legend-section:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
 .legend-group {
@@ -190,44 +206,45 @@
 
 .legend-group h3 {
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: #333;
     border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    font-size: 1.3rem;
+    padding-bottom: 5px;
+    font-size: 1.1rem;
 }
 
 .legend-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 5px;
+    padding: 5px 8px;
     background: #f8f9fa;
-    border-radius: 6px;
-    transition: all 0.3s ease;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 13px;
 }
 
 .legend-item:hover {
     background: #e9ecef;
-    transform: translateX(5px);
+    transform: translateX(3px);
 }
 
 .legend-color-box {
-    width: 25px;
-    height: 25px;
-    border-radius: 5px;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
     border: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .legend-label {
-    font-size: 15px;
+    font-size: 13px;
     color: #555;
     font-weight: 500;
 }
@@ -277,19 +294,19 @@
 .mood-wall-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 25px;
+    gap: 10px;
+    padding: 15px;
 }
 
 .mood-day-row {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 10px;
 }
 
 .mood-date-label {
-    width: 130px;
-    padding: 20px 15px;
+    width: 80px;
+    padding: 8px 5px;
     font-weight: bold;
     color: #333;
     text-align: right;
@@ -297,60 +314,63 @@
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    font-size: 12px;
+    align-self: center; /* 垂直居中对齐 */
 }
 
 .mood-date-label:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: scale(1.01);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .moods-container {
     flex: 1;
-    min-height: 140px;
+    min-height: 30px; /* 从80px减小到30px，与方块大小匹配 */
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    padding: 20px;
-    border-radius: 10px;
+    gap: 8px;
+    padding: 5px; /* 减小内边距 */
+    border-radius: 6px;
     background: #ffffff;
     border: 1px solid #eee;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    align-items: center; /* 垂直居中对齐内容 */
 }
 
 .moods-container:hover {
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
 .mood-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     overflow: hidden;
     position: relative;
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .mood-box:hover {
     transform: scale(1.1);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .mood-text {
-    font-size: 10px;
+    font-size: 8px;
     text-align: center;
-    padding: 0 4px;
+    padding: 0 2px;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     font-weight: 500;
 }
@@ -359,19 +379,19 @@
 .activity-wall-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 25px;
+    gap: 10px;
+    padding: 15px;
 }
 
 .activity-day-row {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 10px;
 }
 
 .activity-date-label {
-    width: 130px;
-    padding: 20px 15px;
+    width: 80px;
+    padding: 8px 5px;
     font-weight: bold;
     color: #333;
     text-align: right;
@@ -379,60 +399,63 @@
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    font-size: 12px;
+    align-self: center; /* 垂直居中对齐 */
 }
 
 .activity-date-label:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: scale(1.01);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .activities-container {
     flex: 1;
-    min-height: 140px;
+    min-height: 30px; /* 从80px减小到30px，与方块大小匹配 */
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    padding: 20px;
-    border-radius: 10px;
+    gap: 8px;
+    padding: 5px; /* 减小内边距 */
+    border-radius: 6px;
     background: #ffffff;
     border: 1px solid #eee;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    align-items: center; /* 垂直居中对齐内容 */
 }
 
 .activities-container:hover {
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
 .activity-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     overflow: hidden;
     position: relative;
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .activity-box:hover {
     transform: scale(1.1);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .activity-text {
-    font-size: 10px;
+    font-size: 8px;
     text-align: center;
-    padding: 0 4px;
+    padding: 0 2px;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     font-weight: 500;
 }
@@ -653,31 +676,31 @@
 .keyword-cloud {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    padding: 25px;
+    gap: 10px;
+    padding: 15px;
     justify-content: center;
     align-items: center;
-    min-height: 250px;
+    min-height: 150px;
 }
 
 .keyword-item {
     display: inline-block;
-    padding: 12px 20px;
-    border-radius: 25px;
+    padding: 6px 12px;
+    border-radius: 15px;
     color: white;
     font-weight: bold;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     position: relative;
     overflow: hidden;
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .keyword-item:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
 .keyword-item::before {
@@ -688,7 +711,7 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.5s;
+    transition: 0.3s;
 }
 
 .keyword-item:hover::before {
@@ -696,9 +719,9 @@
 }
 
 .keyword-count {
-    font-size: 0.85em;
+    font-size: 0.75em;
     opacity: 0.9;
-    margin-left: 8px;
+    margin-left: 5px;
     font-weight: 600;
 }
 
@@ -711,5 +734,141 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* 情绪象限分组 */
+.emotion-quadrant {
+    margin-bottom: 15px; /* 减小间距 */
+    border-radius: 8px;
+    padding: 12px; /* 减小内边距 */
+    background: rgba(248, 249, 250, 0.5);
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.emotion-quadrant-title {
+    font-weight: 600;
+    margin-bottom: 12px; /* 减小间距 */
+    padding-bottom: 6px; /* 减小内边距 */
+    border-bottom: 2px solid #667eea;
+    color: #495057;
+    text-align: center;
+    font-size: 1rem; /* 调整标题字体大小 */
+}
+
+.emotion-quadrant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); /* 缩小网格项 */
+    gap: 8px; /* 减小间距 */
+}
+
+.emotion-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px; /* 减小内边距以缩小按钮 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 36px; /* 减小高度以缩小按钮 */
+    text-align: center;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    user-select: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 0.9rem; /* 调整字体大小 */
+}
+
+.emotion-checkbox::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transition: 0.5s;
+}
+
+.emotion-checkbox:hover::after {
+    left: 100%;
+}
+
+.emotion-checkbox:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* 选中的情绪按钮样式 */
+.emotion-checkbox.selected {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    filter: brightness(1.1);
+    animation: emotionSelectPulse 0.3s ease;
+}
+
+/* 选中动画 */
+@keyframes emotionSelectPulse {
+    0% { transform: translateY(-2px) scale(1); }
+    50% { transform: translateY(-2px) scale(1.05); }
+    100% { transform: translateY(-2px) scale(1); }
+}
+
+.emotion-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.emotion-checkbox label {
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+    color: inherit;
+    text-shadow: inherit;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.emotion-checkbox:hover label {
+    transform: scale(1.05);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .emotion-quadrant-grid {
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+        gap: 6px;
+    }
+    
+    .emotion-checkbox {
+        padding: 6px;
+        min-height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .emotion-checkbox label {
+        font-size: 0.8rem;
+    }
+    
+    .emotion-quadrant {
+        margin-bottom: 12px;
+        padding: 10px;
+    }
+    
+    .emotion-quadrant-title {
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        font-size: 0.9rem;
     }
 }

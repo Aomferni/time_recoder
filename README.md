@@ -194,6 +194,7 @@ time_recoder/
     │       ├── activity-category.css # 活动类别模块
     │       ├── start-time.css        # 开始时间模块
     │       ├── emotion-tag.css       # 情绪标签模块
+    │       ├── mood-wall.css         # 情绪墙模块
     │       └── control-btn.css       # 控制按钮特殊样式
     └── js/
         ├── script.js   # JavaScript主文件（模块入口）
@@ -205,6 +206,7 @@ time_recoder/
             ├── timer.js     # 计时器模块
             ├── recordDetail.js # 记录详情模块
             └── main.js      # 主模块
+
 ```
 
 ## 贡献指南

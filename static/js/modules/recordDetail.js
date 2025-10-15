@@ -305,15 +305,33 @@ export const TimeRecorderRecordDetail = {
                 <div class="detail-section">
                     <h3>记录情绪 <button type="button" class="collapse-btn" onclick="TimeRecorderFrontendUtils.toggleSection(this, 'emotion-section')">折叠</button></h3>
                     <div class="emotion-checkboxes" id="detail-emotion">
-                        ${(window.TimeRecorderConfig && Array.isArray(window.TimeRecorderConfig.emotionOptions) ? 
-                            window.TimeRecorderConfig.emotionOptions.map(emotion => `
-                                <div class="emotion-checkbox">
-                                    <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
-                                        ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
-                                    <label for="emotion-${emotion}" style="color: ${TimeRecorderFrontendUtils.getEmotionColor(emotion)};">${emotion}</label>
+                        ${(() => {
+                            // 按象限分组情绪选项
+                            const emotionGroups = {
+                                '正向+专注': { emotions: ['惊奇', '兴奋', '高兴', '愉悦'], color: '#4CAF50' },
+                                '正向+松弛': { emotions: ['安逸', '安心', '满足', '宁静', '放松'], color: '#00BCD4' },
+                                '负面+松弛': { emotions: ['悲伤', '伤心', '沮丧', '疲惫'], color: '#9E9E9E' },
+                                '负面+专注': { emotions: ['惊恐', '紧张', '愤怒', '苦恼'], color: '#F44336' }
+                            };
+                            
+                            return Object.entries(emotionGroups).map(([groupName, groupData]) => `
+                                <div class="emotion-quadrant">
+                                    <div class="emotion-quadrant-title">${groupName}</div>
+                                    <div class="emotion-quadrant-grid">
+                                        ${groupData.emotions.map(emotion => `
+                                            <div class="emotion-checkbox ${record.emotion && record.emotion.includes(emotion) ? 'selected' : ''}" 
+                                                data-emotion="${emotion}" 
+                                                onclick="TimeRecorderRecordDetail.toggleEmotion('${emotion}')"
+                                                style="background-color: ${TimeRecorderFrontendUtils.getEmotionColor(emotion)};">
+                                                <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
+                                                    ${record.emotion && record.emotion.includes(emotion) ? 'checked' : ''}>
+                                                <label for="emotion-${emotion}">${emotion}</label>
+                                            </div>
+                                        `).join('')}
+                                    </div>
                                 </div>
-                            `).join('') : 
-                            '')}
+                            `).join('');
+                        })()}
                     </div>
                 </div>
                 
@@ -602,6 +620,50 @@ export const TimeRecorderRecordDetail = {
                 }
             }
         });
+    },
+    
+    /**
+     * 切换情绪选择
+     */
+    toggleEmotion: function(emotion) {
+        const emotionElement = document.querySelector(`.emotion-checkbox[data-emotion="${emotion}"]`);
+        const checkbox = document.getElementById(`emotion-${emotion}`);
+        
+        if (emotionElement && checkbox) {
+            // 切换选中状态
+            const isSelected = emotionElement.classList.contains('selected');
+            
+            if (isSelected) {
+                emotionElement.classList.remove('selected');
+                checkbox.checked = false;
+                
+                // 添加取消选中的视觉反馈
+                emotionElement.style.transform = 'translateY(0) scale(0.95)';
+                setTimeout(() => {
+                    emotionElement.style.transform = '';
+                }, 150);
+            } else {
+                emotionElement.classList.add('selected');
+                checkbox.checked = true;
+                
+                // 添加选中的视觉反馈
+                emotionElement.style.transform = 'translateY(-2px) scale(1.05)';
+                setTimeout(() => {
+                    emotionElement.style.transform = '';
+                }, 150);
+                
+                // 添加触觉反馈（如果设备支持）
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+            
+            // 触发自定义事件，便于其他组件监听
+            const event = new CustomEvent('emotionToggled', {
+                detail: { emotion: emotion, selected: !isSelected }
+            });
+            document.dispatchEvent(event);
+        }
     },
     
     /**

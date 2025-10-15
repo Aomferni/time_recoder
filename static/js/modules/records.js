@@ -151,17 +151,14 @@ class TimeRecorderRecords {
             }
             
             const row = tbody.insertRow();
-            // 删除编辑按钮，只保留继续和删除按钮
+            // 只显示指定字段：日期、活动名称、开始时间、专注时长、备注信息、情绪
             row.innerHTML = `
                 <td>${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}</td>
                 <td><span class="activity-label ${activityClass}" onclick="timeRecorderRecords.showRecordDetail('${record.id}')">${record.activity}</span></td>
                 <td>${TimeRecorderFrontendUtils.formatTime(new Date(record.startTime))}</td>
-                <td>${TimeRecorderFrontendUtils.formatTime(new Date(record.endTime))}</td>
                 <td>${TimeRecorderFrontendUtils.formatDuration(totalDuration)}</td>
-                <td>${TimeRecorderFrontendUtils.formatDuration(record.timeSpan)}</td>
-                <td>${record.remark || ''}</td>
+                <td class="remark-cell" title="${record.remark || ''}">${record.remark || ''}</td>
                 <td>${emotionDisplay}</td>
-                <td>${record.pauseCount || 0}</td>
                 <td>
                     <button class="continue-btn" onclick="timeRecorderRecords.continueActivity('${record.id}')">继续</button>
                     <button class="delete-btn" onclick="timeRecorderRecords.deleteRecord('${record.id}')">删除</button>

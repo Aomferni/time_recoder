@@ -3,7 +3,7 @@
 {% block title %}情绪墙与活动类型墙 - 时间追踪器{% endblock %}
 
 {% block content %}
-<h1>情绪墙与活动类型墙（<span id="currentUsernameDisplay">default</span>）</h1>
+<h1>情绪墙与活动类型墙</h1>
 
 <div class="mood-wall-header">
     <div class="navigation">
@@ -19,14 +19,16 @@
 </div>
 
 <div class="wall-container">
-    <div class="wall-section">
-        <h2>情绪墙</h2>
-        <div id="moodWall" class="mood-wall-container"></div>
-    </div>
-    
-    <div class="wall-section">
-        <h2>活动类型墙</h2>
-        <div id="activityWall" class="activity-wall-container"></div>
+    <div class="wall-section-container">
+        <div class="wall-section">
+            <h2>情绪墙</h2>
+            <div id="moodWall" class="mood-wall-container"></div>
+        </div>
+        
+        <div class="wall-section">
+            <h2>活动类型墙</h2>
+            <div id="activityWall" class="activity-wall-container"></div>
+        </div>
     </div>
     
     <div class="wall-section">
@@ -67,15 +69,13 @@
         const savedUsername = localStorage.getItem('timeRecorderUsername');
         if (savedUsername) {
             currentUsername = savedUsername;
-            document.getElementById('currentUsernameDisplay').textContent = savedUsername;
         } else {
             // 如果没有找到保存的用户名，尝试从URL参数获取
             const urlParams = new URLSearchParams(window.location.search);
             const urlUsername = urlParams.get('username');
             if (urlUsername) {
                 currentUsername = urlUsername;
-                document.getElementById('currentUsernameDisplay').textContent = urlUsername;
-                // 同时保存到localStorage
+                // 保存到localStorage
                 localStorage.setItem('timeRecorderUsername', urlUsername);
             }
         }
@@ -204,7 +204,7 @@
                 moodBox.style.backgroundColor = mood.color;
                 
                 // 根据时长设置透明度，时间越短越透明（最小透明度0.3，最大1.0）
-                const maxDuration = 3600000; // 1小时为最大值参考
+                const maxDuration = 1800000; // 30分钟为最大值参考，使透明度变化更明显
                 const opacity = Math.max(0.3, Math.min(1.0, 0.3 + (mood.duration / maxDuration) * 0.7));
                 moodBox.style.opacity = opacity;
                 
@@ -307,7 +307,7 @@
                 activityBox.style.backgroundColor = activity.color;
                 
                 // 根据时长设置透明度，时间越短越透明（最小透明度0.3，最大1.0）
-                const maxDuration = 3600000; // 1小时为最大值参考
+                const maxDuration = 1800000; // 30分钟为最大值参考，使透明度变化更明显
                 const opacity = Math.max(0.3, Math.min(1.0, 0.3 + (activity.duration / maxDuration) * 0.7));
                 activityBox.style.opacity = opacity;
                 
@@ -531,20 +531,100 @@
         TimeRecorderRecordDetail.showRecordDetail(recordId);
     }
     
+    // 切换情绪选择
+    function toggleEmotion(emotion) {
+        const emotionElement = document.querySelector(`.emotion-checkbox[data-emotion="${emotion}"]`);
+        const checkbox = document.getElementById(`emotion-${emotion}`);
+        
+        if (emotionElement && checkbox) {
+            // 切换选中状态
+            const isSelected = emotionElement.classList.contains('selected');
+            
+            if (isSelected) {
+                emotionElement.classList.remove('selected');
+                checkbox.checked = false;
+                
+                // 添加取消选中的视觉反馈
+                emotionElement.style.transform = 'translateY(0) scale(0.95)';
+                setTimeout(() => {
+                    emotionElement.style.transform = '';
+                }, 150);
+            } else {
+                emotionElement.classList.add('selected');
+                checkbox.checked = true;
+                
+                // 添加选中的视觉反馈
+                emotionElement.style.transform = 'translateY(-2px) scale(1.05)';
+                setTimeout(() => {
+                    emotionElement.style.transform = '';
+                }, 150);
+                
+                // 添加触觉反馈（如果设备支持）
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }
+    }
+    
     // 获取情绪颜色
     function getEmotionColor(emotion) {
         const emotionColors = {
-            '开心': '#4CAF50',
-            '专注': '#2196F3',
-            '疲惫': '#9E9E9E',
-            '焦虑': '#FF9800',
-            '兴奋': '#E91E63',
-            '平静': '#00BCD4',
-            '沮丧': '#F44336',
-            '满足': '#8BC34A',
-            '无聊': '#795548'
+            // 正向+专注：惊奇、兴奋、高兴、愉悦
+            '惊奇': '#9C27B0',  // 紫色
+            '兴奋': '#E91E63',  // 粉色
+            '高兴': '#4CAF50',  // 绿色
+            '愉悦': '#8BC34A',  // 浅绿色
+            
+            // 正向+松弛：安逸、安心、满足、宁静、放松
+            '安逸': '#00BCD4',  // 青色
+            '安心': '#2196F3',  // 蓝色
+            '满足': '#8BC34A',  // 浅绿色
+            '宁静': '#009688',  // 青绿色
+            '放松': '#CDDC39',  // 青黄色
+            
+            // 负面+松弛：悲伤、伤心、沮丧、疲惫
+            '悲伤': '#546E7A',  // 更暗的蓝灰色
+            '伤心': '#78909C',  // 更暗的灰色
+            '沮丧': '#5D4037',  // 暗棕色
+            '疲惫': '#4E342E',  // 更暗的棕色
+            
+            // 负面+专注：惊恐、紧张、愤怒、苦恼
+            '惊恐': '#424242',  // 暗灰色
+            '紧张': '#616161',  // 更暗的灰色
+            '愤怒': '#BF360C',  // 暗红色
+            '苦恼': '#FF6F00'   // 暗琥珀色
         };
         return emotionColors[emotion] || '#607D8B';
+    }
+    
+    // 生成情绪选择HTML（按象限分组）
+    function generateEmotionCheckboxes(selectedEmotions = []) {
+        // 按象限分组情绪选项
+        const emotionGroups = {
+            '正向+专注': { emotions: ['惊奇', '兴奋', '高兴', '愉悦'], color: '#4CAF50' },
+            '正向+松弛': { emotions: ['安逸', '安心', '满足', '宁静', '放松'], color: '#00BCD4' },
+            '负面+松弛': { emotions: ['悲伤', '伤心', '沮丧', '疲惫'], color: '#9E9E9E' },
+            '负面+专注': { emotions: ['惊恐', '紧张', '愤怒', '苦恼'], color: '#F44336' }
+        };
+        
+        return Object.entries(emotionGroups).map(([groupName, groupData]) => `
+            <div class="emotion-quadrant">
+                <div class="emotion-quadrant-title">${groupName}</div>
+                <div class="emotion-quadrant-grid">
+                    ${groupData.emotions.map(emotion => `
+                        <div class="emotion-checkbox ${selectedEmotions.includes(emotion) ? 'selected' : ''}" 
+                            data-emotion="${emotion}" 
+                            onclick="toggleEmotion('${emotion}')"
+                            style="background-color: ${getEmotionColor(emotion)};">
+                            <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
+                                ${selectedEmotions.includes(emotion) ? 'checked' : ''}>
+                            <label for="emotion-${emotion}">${emotion}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
     }
     
     // 关闭记录详情浮窗

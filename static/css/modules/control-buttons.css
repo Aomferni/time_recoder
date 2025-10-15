@@ -55,7 +55,7 @@ button.toggle-btn {
     border-radius: 15px;
     color: white;
     cursor: pointer;
-    font-size: 54px;
+    font-size: 36px;
     transition: all 0.3s ease;
     font-weight: 500;
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);

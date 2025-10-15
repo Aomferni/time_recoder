@@ -6,6 +6,7 @@
     border-radius: 8px;
     overflow: hidden;
     animation: fadeIn 0.5s ease-out;
+    font-size: 14px; /* 缩小整体字体 */
 }
 
 .records-table:hover {
@@ -15,7 +16,7 @@
 
 .records-table th,
 .records-table td {
-    padding: 15px;
+    padding: 10px 8px; /* 减小内边距 */
     text-align: left;
     border-bottom: 1px solid #eee;
 }
@@ -24,8 +25,8 @@
 @media (max-width: 480px) {
     .records-table th,
     .records-table td {
-        padding: 10px 8px;
-        font-size: 14px;
+        padding: 8px 6px;
+        font-size: 12px;
     }
 }
 
@@ -35,6 +36,7 @@
     color: #444;
     position: relative;
     overflow: hidden;
+    font-size: 15px; /* 表头字体稍大 */
 }
 
 .records-table th::after {
@@ -55,11 +57,32 @@
     background-color: #e3f2fd;
 }
 
+/* 控制备注信息的显示长度和宽度 */
+.remark-cell {
+    max-width: 200px; /* 限制最大宽度 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 情绪标签样式 */
+.emotion-tag {
+    display: inline-block;
+    padding: 3px 6px;
+    border-radius: 12px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
 .delete-btn {
     background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 5px 10px; /* 减小按钮内边距 */
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
@@ -80,7 +103,7 @@
     background-color: #FF9800;
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 5px 10px; /* 减小按钮内边距 */
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
