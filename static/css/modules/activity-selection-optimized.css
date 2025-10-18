@@ -1,0 +1,177 @@
+/* 优化的活动选择弹窗样式 */
+
+/* 活动选择弹窗样式 */
+#activitySelectionModal .modal-content {
+    width: 60%; /* 占据页面的3/5 */
+    max-width: 1000px; /* 设置最大宽度 */
+    margin: 5% auto;
+    padding: 15px; /* 减少内边距使布局更紧凑 */
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* 活动选择容器 */
+.activities-selection-container {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); /* 每行最多显示8个按钮 */
+    gap: 8px; /* 减少间距使布局更紧凑 */
+    margin-top: 15px;
+}
+
+/* 活动类别容器 */
+.activity-category-box {
+    grid-column: 1 / -1; /* 占据整行 */
+    margin-bottom: 15px; /* 减少外边距使布局更紧凑 */
+    padding: 12px; /* 减少内边距使布局更紧凑 */
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* 活动类别标题 */
+.activity-category-title {
+    margin: 0 0 12px 0; /* 减少外边距使布局更紧凑 */
+    padding: 0 0 10px 0; /* 减少内边距使布局更紧凑 */
+    color: #333;
+    font-size: 18px; /* 稍微减小字体大小 */
+    font-weight: 600;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* 活动类别按钮容器 */
+.activity-category-buttons {
+    display: contents; /* 使用父级网格布局 */
+}
+
+/* 活动按钮样式 */
+#activitySelectionModal .activity-btn {
+    margin: 0;
+    padding: 10px 6px; /* 减少内边距使布局更紧凑 */
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px; /* 稍微减小字体大小 */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-height: 40px; /* 减少最小高度使布局更紧凑 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transform: scale(1);
+}
+
+#activitySelectionModal .activity-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#activitySelectionModal .activity-btn:active {
+    transform: scale(0.98);
+}
+
+/* 活动按钮波纹效果 */
+#activitySelectionModal .activity-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+#activitySelectionModal .activity-btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* 活动按钮发光效果 */
+#activitySelectionModal .activity-btn.glow {
+    animation: glow 2s infinite;
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    100% {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    #activitySelectionModal .modal-content {
+        width: 90%;
+        padding: 12px;
+    }
+    
+    .activities-selection-container {
+        grid-template-columns: repeat(4, 1fr); /* 移动端每行显示4个按钮 */
+        gap: 6px;
+    }
+    
+    #activitySelectionModal .activity-btn {
+        padding: 8px 4px;
+        font-size: 12px;
+        min-height: 35px;
+    }
+    
+    .activity-category-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+    
+    .activity-category-box {
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    #activitySelectionModal .modal-content {
+        width: 95%;
+        margin: 8% auto;
+        padding: 10px;
+    }
+    
+    .activities-selection-container {
+        grid-template-columns: repeat(3, 1fr); /* 小屏设备每行显示3个按钮 */
+        gap: 5px;
+    }
+    
+    #activitySelectionModal .activity-btn {
+        padding: 6px 3px;
+        font-size: 11px;
+        min-height: 32px;
+    }
+    
+    .activity-category-title {
+        font-size: 15px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+    }
+    
+    .activity-category-box {
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+}

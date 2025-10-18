@@ -1,14 +1,28 @@
-/* 活动类别选择框特殊样式 */
+/* 字节风活动类别选择框样式优化 */
+
 #detail-activity-category {
-    font-size: 1.1rem;
-    padding: 12px;
-    border: 2px solid #bbdefb;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    box-shadow: 0 2px 5px rgba(33, 150, 243, 0.1);
-    transition: all 0.3s ease;
+    font-size: var(--byte-font-size-md);
+    padding: var(--byte-spacing-3);
+    border: 1px solid var(--byte-gray-3);
+    border-radius: var(--byte-border-radius-medium);
+    background: #fff;
+    box-shadow: var(--byte-shadow-1);
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    cursor: pointer;
+}
+
+#detail-activity-category:hover {
+    box-shadow: var(--byte-shadow-2);
+    border-color: var(--byte-gray-4);
+}
+
+#detail-activity-category:focus {
+    outline: none;
+    border-color: var(--byte-primary-color);
+    box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
 }
 
 #detail-activity-category::after {
@@ -24,16 +38,4 @@
 
 #detail-activity-category:hover::after {
     left: 100%;
-}
-
-#detail-activity-category:hover {
-    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-    transform: scale(1.02);
-}
-
-#detail-activity-category:focus {
-    outline: none;
-    border-color: #2196F3;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
-    transform: scale(1.02);
 }

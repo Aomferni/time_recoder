@@ -4,6 +4,11 @@
 
 {% block head %}
 <style>
+    /* 隐藏页面内的导航链接，因为顶部导航栏已经提供了导航 */
+    .project-description .navigation {
+        display: none;
+    }
+    
     .project-description {
         max-width: 1200px;
         margin: 0 auto;
@@ -66,6 +71,10 @@
         border-left-color: #9C27B0;
     }
     
+    .section.ai-coding {
+        border-left-color: #9C27B0;
+    }
+    
     .section h2 {
         color: #333;
         border-bottom: 3px solid #2196F3;
@@ -83,6 +92,10 @@
     }
     
     .section.future-plans h2 {
+        border-bottom-color: #9C27B0;
+    }
+    
+    .section.ai-coding h2 {
         border-bottom-color: #9C27B0;
     }
     
@@ -430,39 +443,93 @@
 {% block content %}
 <div class="project-description">
     <div class="page-header">
-        <h1>时间追踪器项目说明 (V1.2.10)</h1>
+        <h1>时间追踪器项目说明 (V1.2.15)</h1>
         <p>一个基于Python Flask的时间追踪Web应用，帮助用户记录和管理日常活动时间</p>
     </div>
     
-    <div class="navigation">
-        <a href="/" class="nav-link">返回首页</a>
-        <a href="/records" class="nav-link secondary">查看记录</a>
-        <a href="/mood-wall" class="nav-link secondary">情绪与活动墙</a>
-        <a href="/conclusion" class="nav-link secondary">项目结论</a>
+    <div class="section user-focused">
+        <h2>项目价值与使用场景</h2>
+        
+        <h3>核心价值</h3>
+        <p>时间追踪器是一个基于Web的时间追踪与管理工具，帮助用户记录、分析和优化日常活动时间分配，同时记录情绪状态和活动收获。通过精确到秒的时间追踪和多维度的数据可视化，用户可以更好地了解自己的时间使用习惯，从而做出更明智的时间管理决策。</p>
+        
+        <h3>目标用户群体</h3>
+        <ul>
+            <li><strong>知识工作者</strong> - 需要管理个人时间，提高工作效率</li>
+            <li><strong>自我提升者</strong> - 希望量化自己时间投入，追踪成长轨迹</li>
+            <li><strong>情绪管理者</strong> - 需要了解情绪与活动的关系，进行情绪调节</li>
+            <li><strong>时间复盘者</strong> - 需要定期回顾和反思时间使用情况</li>
+        </ul>
+        
+        <h3>典型使用场景</h3>
+        <div class="core-functions">
+            <div class="function-card">
+                <h4>日常工作时间管理</h4>
+                <p>通过精确记录工作活动时间，了解各项任务的时间消耗，优化工作流程，提高工作效率。</p>
+                <ul>
+                    <li>记录核心工作时间（梳理方案、开会、执行工作、复盘）</li>
+                    <li>追踪专注时长和时间跨度</li>
+                    <li>分析工作时间分布，找出效率瓶颈</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>个人成长追踪</h4>
+                <p>通过记录学习和成长活动，量化个人投入，追踪成长轨迹，为自我提升提供数据支持。</p>
+                <ul>
+                    <li>记录学习时间（和智者对话、做调研）</li>
+                    <li>追踪身体锻炼（健身、散步）</li>
+                    <li>分析成长活动的时间投入趋势</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>情绪与活动关联分析</h4>
+                <p>通过关联活动与情绪，了解不同活动对情绪的影响，优化活动安排，提升生活幸福感。</p>
+                <ul>
+                    <li>记录活动时的情绪状态</li>
+                    <li>可视化情绪分布（情绪墙）</li>
+                    <li>分析情绪与活动类型的关系</li>
+                </ul>
+            </div>
+        </div>
     </div>
     
     <div class="section user-focused">
-        <h2>项目概述</h2>
-        <p>时间追踪器是一个基于Python Flask的时间追踪Web应用，帮助用户记录和管理日常活动时间。该应用允许用户按类别记录活动，追踪时间消耗，并提供统计分析功能，帮助用户更好地了解和管理自己的时间分配。</p>
+        <h2>核心功能详解</h2>
         
-        <h3>主要功能</h3>
+        <h3>活动时间追踪</h3>
+        <p>实时记录活动时间，支持开始、暂停、继续、停止操作，精确到秒的时间追踪，支持多段落专注记录。</p>
         <ul>
-            <li><strong>活动时间追踪</strong> - 实时计时功能，精确到秒，支持活动暂停和继续，支持段落记录</li>
-            <li><strong>活动分类管理</strong> - 提供多种预设活动类别，支持自定义活动类别</li>
-            <li><strong>记录管理</strong> - 添加、编辑和删除时间记录，查看历史记录，支持情绪标签</li>
-            <li><strong>数据统计</strong> - 今日时间统计，活动次数统计，情绪和活动类型可视化</li>
-            <li><strong>数据可视化</strong> - 情绪墙和活动类型墙展示，关键词词云分析</li>
-            <li><strong>今日计划</strong> - 帮助用户规划和回顾每一天，支持自动保存和飞书同步</li>
-            <li><strong>飞书集成</strong> - 支持与飞书多维表格集成，实现数据同步</li>
+            <li><strong>精确计时</strong> - 实时显示计时器，精确到秒</li>
+            <li><strong>段落管理</strong> - 支持暂停功能，每次暂停创建一个新的专注段落</li>
+            <li><strong>智能计算</strong> - 自动计算所有段落的累计时长和时间跨度</li>
+            <li><strong>便捷操作</strong> - 计时器区域本身可点击来开始/停止计时</li>
+        </ul>
+        
+        <h3>今日计划管理</h3>
+        <p>帮助用户规划和回顾每一天，支持自动保存和飞书同步，通过日期选择器可查看和编辑历史日期的计划。</p>
+        <ul>
+            <li><strong>计划制定</strong> - 记录重要的三件事、要尝试的三件事、其他事项等</li>
+            <li><strong>自动追踪</strong> - 系统自动追踪执行情况，整理今日做过的活动和情绪</li>
+            <li><strong>智能同步</strong> - 支持与飞书多维表格集成，实现数据自动同步</li>
+            <li><strong>历史查看</strong> - 支持选择不同日期进行查看和更新</li>
+        </ul>
+        
+        <h3>数据可视化分析</h3>
+        <p>通过情绪墙、活动墙、关键词词云等多维度展示时间分配，帮助用户直观了解时间使用情况。</p>
+        <ul>
+            <li><strong>情绪墙</strong> - 可视化展示最近7天的情绪分布</li>
+            <li><strong>活动墙</strong> - 可视化展示最近7天的活动类型分布</li>
+            <li><strong>词云分析</strong> - 展示最近7天活动和备注中的高频关键词</li>
+            <li><strong>统计信息</strong> - 首页展示今日时间统计信息</li>
         </ul>
     </div>
     
     <div class="section user-focused">
-        <h2>面向用户的功能说明</h2>
+        <h2>具体的分类与数据映射关系</h2>
         
-        <h3>具体的分类与数据映射关系</h3>
-        
-        <h4>活动分类体系</h4>
+        <h3>活动分类体系</h3>
         <div class="category-legend">
             <div class="category-item work-output">工作输出</div>
             <div class="category-item brain-charge">大脑充电</div>
@@ -528,7 +595,7 @@
             </tbody>
         </table>
         
-        <h4>情绪分类体系</h4>
+        <h3>情绪分类体系</h3>
         <p>情绪按照四个象限进行分类，帮助用户更好地理解和记录自己的情绪状态：</p>
         <table class="data-mapping-table">
             <thead>
@@ -562,8 +629,8 @@
             </tbody>
         </table>
         
-        <h4>数据结构映射</h4>
-        <h5>记录数据结构</h5>
+        <h3>数据结构映射</h3>
+        <h4>记录数据结构</h4>
         <div class="code-block">
 {
   "id": "记录唯一标识符",
@@ -588,7 +655,7 @@
 }
         </div>
         
-        <h5>用户数据存储</h5>
+        <h4>用户数据存储</h4>
         <ul>
             <li>每个用户的数据存储在独立的JSON文件中</li>
             <li>文件路径：<code>data/{username}/records_{username}.json</code></li>
@@ -597,7 +664,7 @@
     </div>
     
     <div class="section developer-focused">
-        <h2>面向开发者的技术说明</h2>
+        <h2>技术架构与实现</h2>
         
         <h3>核心技术路线</h3>
         <div class="tech-stack">
@@ -610,6 +677,78 @@
             <div class="tech-item">RESTful API设计</div>
             <div class="tech-item">MVC模式</div>
         </div>
+        
+        <h3>模块化设计思想</h3>
+        <p>项目采用模块化设计，将前端JavaScript代码拆分为多个独立的模块，以提高代码的可维护性和可扩展性。CSS也按照功能和样式类型划分为多个独立的样式文件。</p>
+        
+        <h4>JavaScript模块化</h4>
+        <div class="core-functions">
+            <div class="function-card">
+                <h4>配置模块 (config.js)</h4>
+                <ul>
+                    <li>管理全局状态变量</li>
+                    <li>定义常量配置</li>
+                    <li>提供状态更新函数</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>工具模块 (utils.js)</h4>
+                <ul>
+                    <li>时间格式化和计算函数</li>
+                    <li>CSS类名映射函数</li>
+                    <li>情绪颜色处理函数</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>API模块 (api.js)</h4>
+                <ul>
+                    <li>封装所有后端接口调用</li>
+                    <li>统一处理HTTP请求和响应</li>
+                    <li>提供数据加载和保存功能</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>UI模块 (ui.js)</h4>
+                <ul>
+                    <li>用户界面交互处理</li>
+                    <li>活动按钮渲染和更新</li>
+                    <li>记录表格显示和更新</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>计时器模块 (timer.js)</h4>
+                <ul>
+                    <li>计时器启动/停止逻辑</li>
+                    <li>时间显示更新</li>
+                    <li>记录创建和更新</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>记录详情模块 (recordDetail.js)</h4>
+                <ul>
+                    <li>记录详情显示和编辑</li>
+                    <li>段落管理功能</li>
+                    <li>情绪选择交互优化</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
+                <h4>今日计划模块 (dailyPlan.js)</h4>
+                <ul>
+                    <li>今日计划加载和保存</li>
+                    <li>自动保存机制</li>
+                    <li>飞书同步功能</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h4>CSS模块化</h4>
+        <p>CSS代码按照功能和样式类型划分为28个独立的样式文件，便于维护和扩展。每个模块负责特定的样式功能，如活动按钮、计时器、详情模态框等。</p>
         
         <h3>核心函数说明</h3>
         
@@ -787,7 +926,7 @@ time_recoder/<br>
 ├── README.md           # 项目说明文档<br>
 ├── PRD.md              # 产品需求文档<br>
 ├── structure.md        # 架构设计文档<br>
-├── VERSIONS.md         # 版本更新记录 (当前版本: V1.2.10)<br>
+├── VERSIONS.md         # 版本更新记录 (当前版本: V1.2.15)<br>
 ├── data/               # 数据存储目录<br>
 │   ├── records.json    # 所有用户记录文件<br>
 │   ├── activity_categories.json # 活动类别配置文件<br>
@@ -876,6 +1015,59 @@ flowchart TD
         </div>
     </div>
     
+    <div class="section ai-coding">
+        <h2>AI Coding方法建议</h2>
+        
+        <h3>开发流程优化</h3>
+        <p>基于本项目的实践经验，推荐以下AI辅助开发流程：</p>
+        
+        <h4>1. 先计划，再执行，要验证，再总结结论</h4>
+        <ul>
+            <li><strong>查看PRD和架构文档</strong> - 开始任务前先了解产品需求和技术架构</li>
+            <li><strong>调整PRD文档</strong> - 根据任务描述更新产品需求文档</li>
+            <li><strong>设计测试思路</strong> - 提前规划测试用例和验证方法</li>
+        </ul>
+        
+        <h4>2. 代码修改原则</h4>
+        <ul>
+            <li><strong>优先复用和优化</strong> - 优先复用和优化原接口和已有代码</li>
+            <li><strong>合并重复功能</strong> - 发现有重复的功能代码，进行合并</li>
+            <li><strong>保持可读性</strong> - 保持代码的可读性和可维护性</li>
+            <li><strong>确保安全性</strong> - 确保代码修改不会引入新的bug</li>
+            <li><strong>保持一致性</strong> - 保持代码的简洁性和一致性</li>
+        </ul>
+        
+        <h4>3. 测试与验证</h4>
+        <ul>
+            <li><strong>设计测试用例</strong> - 为每个功能修改设计相应的测试用例</li>
+            <li><strong>自动执行测试</strong> - 使用自动化测试验证功能正确性</li>
+            <li><strong>删除测试用例</strong> - 测试完成后删除临时测试用例</li>
+        </ul>
+        
+        <h3>项目维护最佳实践</h3>
+        
+        <h4>1. 文档同步更新</h4>
+        <ul>
+            <li><strong>更新技术架构</strong> - 创建和修改的数据流逻辑都更新在structure.md文件中</li>
+            <li><strong>记录修复过程</strong> - 记录任务概况，写入fix_records/文件夹</li>
+            <li><strong>版本信息维护</strong> - 更新VERSIONS.md文件记录项目更新</li>
+        </ul>
+        
+        <h4>2. 代码质量保障</h4>
+        <ul>
+            <li><strong>模块化设计</strong> - 保持前端JavaScript和CSS的模块化设计</li>
+            <li><strong>接口统一</strong> - 合并重复功能，统一API接口</li>
+            <li><strong>错误处理</strong> - 增强错误处理和日志记录</li>
+        </ul>
+        
+        <h4>3. 团队协作建议</h4>
+        <ul>
+            <li><strong>代码审查</strong> - 通过修复记录文档进行代码审查和知识传递</li>
+            <li><strong>知识共享</strong> - 保持PRD和structure文档的实时更新</li>
+            <li><strong>版本控制</strong> - 通过VERSIONS.md文件跟踪版本变更</li>
+        </ul>
+    </div>
+    
     <div class="section future-plans">
         <h2>未来功能展望</h2>
         
@@ -916,12 +1108,6 @@ flowchart TD
                 </ul>
             </div>
         </div>
-    </div>
-    
-    <div class="navigation">
-        <a href="/" class="nav-link">返回首页</a>
-        <a href="/records" class="nav-link secondary">查看记录</a>
-        <a href="/mood-wall" class="nav-link secondary">情绪与活动墙</a>
     </div>
 </div>
 

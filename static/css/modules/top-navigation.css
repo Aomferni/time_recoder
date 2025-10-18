@@ -1,0 +1,113 @@
+/* 字节风顶部导航栏样式优化 */
+
+.top-navigation-bar {
+    background: #fff;
+    padding: var(--byte-spacing-4) 0;
+    box-shadow: var(--byte-shadow-2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-radius: 0 0 var(--byte-border-radius-large) var(--byte-border-radius-large);
+    margin-bottom: var(--byte-spacing-6);
+    border-top: 4px solid var(--byte-primary-color);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--byte-spacing-3);
+    padding: 0 var(--byte-spacing-5);
+}
+
+.nav-link {
+    color: var(--byte-gray-8);
+    text-decoration: none;
+    font-weight: var(--byte-font-weight-semibold);
+    padding: var(--byte-spacing-3) var(--byte-spacing-5);
+    border: 1px solid var(--byte-gray-3);
+    border-radius: var(--byte-border-radius-full);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: auto;
+    text-align: center;
+    box-shadow: var(--byte-shadow-1);
+    font-size: var(--byte-font-size-sm);
+    background: #fff;
+    letter-spacing: 0.5px;
+}
+
+.nav-link:hover {
+    background: var(--byte-primary-color);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--byte-shadow-2);
+    border-color: var(--byte-primary-color);
+}
+
+.nav-link:active {
+    transform: translateY(0);
+    box-shadow: var(--byte-shadow-1);
+}
+
+/* 飞书配置按钮特殊样式 */
+.feishu-config-btn {
+    background: var(--byte-primary-color);
+    border-color: var(--byte-primary-color);
+    color: white;
+    box-shadow: var(--byte-shadow-1);
+}
+
+.feishu-config-btn:hover {
+    background: var(--byte-primary-hover);
+    border-color: var(--byte-primary-hover);
+    box-shadow: var(--byte-shadow-2);
+}
+
+.feishu-config-btn:active {
+    background: var(--byte-primary-active);
+    border-color: var(--byte-primary-active);
+    box-shadow: var(--byte-shadow-1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .top-navigation-bar {
+        padding: var(--byte-spacing-3) 0;
+        margin-bottom: var(--byte-spacing-5);
+    }
+    
+    .nav-container {
+        padding: 0 var(--byte-spacing-4);
+        gap: var(--byte-spacing-2);
+    }
+    
+    .nav-link {
+        padding: var(--byte-spacing-2) var(--byte-spacing-4);
+        font-size: var(--byte-font-size-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    .top-navigation-bar {
+        margin-bottom: var(--byte-spacing-4);
+    }
+    
+    .nav-container {
+        padding: 0 var(--byte-spacing-3);
+        gap: var(--byte-spacing-2);
+    }
+    
+    .nav-link {
+        padding: var(--byte-spacing-2) var(--byte-spacing-3);
+        font-size: var(--byte-font-size-xs);
+        border-width: 1px;
+    }
+}

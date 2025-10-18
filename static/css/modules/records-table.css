@@ -136,3 +136,73 @@
     background-color: #999999;
     transform: rotate(25deg);
 }
+
+/* 保存和取消按钮样式 */
+.detail-actions {
+    margin-top: 20px;
+    text-align: right;
+    grid-column: span 2;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.detail-actions {
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+    animation: actionsAppear 0.5s ease-out;
+}
+
+@keyframes actionsAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 活动标签样式 */
+.activity-label {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.activity-label::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+}
+
+.activity-label:hover::after {
+    left: 100%;
+}
+
+.activity-label:hover {
+    opacity: 0.8;
+}
+
+.duration-edit {
+    display: flex;
+    gap: 5px;
+}
+
+.duration-edit .small {
+    padding: 2px 6px;
+    font-size: 12px;
+}

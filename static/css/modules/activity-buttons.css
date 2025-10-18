@@ -1,42 +1,61 @@
+/* 字节风活动按钮样式优化 */
+
 .button-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 8px;
-    margin-bottom: 15px;
+    gap: var(--byte-spacing-2);
+    margin-bottom: var(--byte-spacing-4);
 }
 
-/* 移动端优化 */
 @media (max-width: 480px) {
     .button-grid {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-        gap: 6px;
+        gap: var(--byte-spacing-1);
     }
 }
 
 /* 活动按钮样式 */
 .activity-btn {
-    padding: 8px 6px;
+    padding: var(--byte-spacing-2) var(--byte-spacing-1);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--byte-border-radius-medium);
     color: white;
     cursor: pointer;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    font-size: var(--byte-font-size-xs);
+    transition: all 0.2s ease;
+    font-weight: var(--byte-font-weight-medium);
+    box-shadow: var(--byte-shadow-1);
     position: relative;
     overflow: hidden;
     transform: scale(1);
-    min-height: 36px; /* 符合移动端触摸目标最小尺寸 */
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-/* 移动端优化 */
 @media (max-width: 480px) {
     .activity-btn {
-        padding: 6px 4px;
-        font-size: 11px;
+        padding: var(--byte-spacing-1) var(--byte-spacing-1);
+        font-size: var(--byte-font-size-xs);
         min-height: 32px;
     }
+}
+
+.activity-btn:hover {
+    transform: scale(1.03);
+    box-shadow: var(--byte-shadow-2);
+}
+
+.activity-btn:active {
+    transform: scale(0.98);
+}
+
+.activity-btn.active {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px currentColor;
+    transform: scale(1.05);
+    position: relative;
 }
 
 .activity-btn::after {
@@ -52,57 +71,4 @@
 
 .activity-btn:hover::after {
     left: 100%;
-}
-
-.activity-btn:hover {
-    transform: scale(1.03);
-}
-
-.activity-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-.activity-btn:active {
-    transform: translateY(0px);
-}
-
-.activity-btn.active {
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.8), 0 0 0 2px currentColor, 0 2px 6px rgba(0,0,0,0.2);
-    transform: translateY(-1px);
-    animation: pulse 2s infinite;
-    position: relative;
-}
-
-.activity-btn.active::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border: 1px solid currentColor;
-    border-radius: 8px;
-    animation: activePulse 2s infinite;
-}
-
-@keyframes activePulse {
-    0% {
-        opacity: 0;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.02);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(1.04);
-    }
-}
-
-.activity-btn.active {
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.8), 0 0 0 2px currentColor, 0 2px 6px rgba(0,0,0,0.2);
-    transform: translateY(-1px);
-    animation: pulse 2s infinite;
 }

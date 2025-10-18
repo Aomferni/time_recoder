@@ -1,0 +1,141 @@
+[2025-10-19T05:39:16.597789] [INFO] [test_module] 这是一条测试日志 {"test_data": "test_value"}
+[2025-10-19T05:39:16.597946] [WARN] [test_module] 这是一条警告日志 {"warning": "test"}
+[2025-10-19T05:39:16.598049] [ERROR] [test_module] 这是一条错误日志 {"error": "test"}
+[2025-10-18T21:39:25.793Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:39:26.569Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:39:35.116Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:39:35.820Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:39:39.372Z] [INFO] [MoodWall] 开始加载墙数据
+[2025-10-18T21:39:39.979Z] [INFO] [MoodWall] 墙数据加载成功 {"activityData":[{"color":"#795548","days":[{"activities":["看小说《末日乐园》"],"activity_categories":["纯属娱乐"],"count":1,"date":"2025/10/17","duration":1920000,"record_ids":["9c04c967-2d0d-4ebd-a352-99136736a8a1"]}],"name":"纯属娱乐"},{"color":"#4CAF50","days":[{"activities":["散步"],"activity_categories":["身体充电"],"count":1,"date":"2025/10/15","duration":1200000,"record_ids":["ff1f965c-221e-453c-b77d-d9d15e70e34b"]}],"name":"身体充电"},{"color":"#2196F3","days":[{"activities":["探索新方法","计划（近一周内容工作）","（时间管理器）计划"],"activity_categories":["工作输出","工作输出","工作输出"],"count":3,"date":"2025/10/14","duration":2700000,"record_ids":["96cf9218-93b5-4160-bd0c-f9882f18c38b","2d721faf-e755-4a2a-8031-b3dc27f49f5f","9a80a877-fd4e-49c4-a0da-a7d6cc05abca"]},{"activities":["探索新方法（AI梳理直播方案）","探索新方法","探索新方法（AI梳理直播方案）"],"activity_categories":["工作输出","工作输出","工作输出"],"count":3,"date":"2025/10/15","duration":3120000,"record_ids":["d8bfa2c7-4acb-4b96-83e4-90401c581706","022fdb5f-4475-441d-9951-c1e646f6560b","e13f8dc0-c99d-4ce0-93d6-dffc4875fa33"]},{"activities":["设置秋训营教程"],"activity_categories":["工作输出"],"count":1,"date":"2025/10/16","duration":3960000,"record_ids":["b774831b-db06-44f3-b59c-8f9207d83dd3"]},{"activities":["设置秋训营教程"],"activity_categories":["工作输出"],"count":1,"date":"2025/10/17","duration":0,"record_ids":["de6fb689-5817-4804-bad9-6bff56250059"]},{"activities":["开始Task2的梳理（应急安全）","梳理方案"],"activity_categories":["工作输出","工作输出"],"count":2,"date":"2025/10/18","duration":780000,"record_ids":["71ece009-fc71-46b9-a6d1-c896b84d86e8","34c9fc11-228f-4f37-802f-616830a32fc2"]},{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"activity_categories":["工作输出"],"count":1,"date":"2025/10/19","duration":10800000,"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"工作输出"},{"color":"#FF9800","days":[{"activities":["玩玩具（时间管理器）","玩玩具（时间追踪器）"],"activity_categories":["输出创作","输出创作"],"count":2,"date":"2025/10/13","duration":2100000,"record_ids":["17f76ac9-d3c6-4eac-81d3-be290911257f","c9652c55-e90d-4f84-a2ad-e6dc8247e768"]},{"activities":["玩玩具（时间追踪器）"],"activity_categories":["输出创作"],"count":1,"date":"2025/10/14","duration":60000,"record_ids":["3229263d-22dd-4bca-81cd-69316b35c5e6"]},{"activities":["玩玩具（wolai API+timehelper）","玩玩具(时间追踪器)"],"activity_categories":["输出创作","输出创作"],"count":2,"date":"2025/10/15","duration":3960000,"record_ids":["40ea125b-fb18-423e-b42a-a4dad9939ea2","c9d72854-4001-4d25-b997-d43aa92b8308"]},{"activities":["给timeHelper增加今日计划"],"activity_categories":["输出创作"],"count":1,"date":"2025/10/18","duration":240000,"record_ids":["36aac305-ea14-46a3-b4d8-b8bdf6715eab"]}],"name":"输出创作"}],"activityLegend":[{"color":"#2196F3","name":"工作输出"},{"color":"#4CAF50","name":"大脑充电"},{"color":"#4CAF50","name":"身体充电"},{"color":"#9C27B0","name":"修养生息"},{"color":"#FF9800","name":"输出创作"},{"color":"#00BCD4","name":"暂停一下"},{"color":"#795548","name":"纯属娱乐"}],"keywordData":[{"color":"#FF6B6B","count":2,"keyword":"探索新方法（AI梳理直播方案）"},{"color":"#4ECDC4","count":2,"keyword":"AI"},{"color":"#45B7D1","count":2,"keyword":"探索新方法"},{"color":"#96CEB4","count":2,"keyword":"玩玩具（时间追踪器）"},{"color":"#FFEAA7","count":2,"keyword":"设置秋训营教程"},{"color":"#DDA0DD","count":1,"keyword":"玩玩具（wolai"},{"color":"#98D8C8","count":1,"keyword":"API+timehelper）"},{"color":"#F7DC6F","count":1,"keyword":"git"},{"color":"#BB8FCE","count":1,"keyword":"的网络给阻挡了"},{"color":"#85C1E9","count":1,"keyword":"就更新"},{"color":"#F8C471","count":1,"keyword":"Agent"},{"color":"#82E0AA","count":1,"keyword":"课程去了"},{"color":"#F1948A","count":1,"keyword":"还是得先有自己的方案模板"},{"color":"#85C1E9","count":1,"keyword":"再说哪些环节可以"},{"color":"#D7BDE2","count":1,"keyword":"提效"},{"color":"#FF6B6B","count":1,"keyword":"选题"},{"color":"#4ECDC4","count":1,"keyword":"流程"},{"color":"#45B7D1","count":1,"keyword":"主持词"},{"color":"#96CEB4","count":1,"keyword":"参考技术方案"},{"color":"#FFEAA7","count":1,"keyword":"使用"}],"moodData":[{"color":"#F44336","days":[{"activities":["探索新方法（AI梳理直播方案）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["e13f8dc0-c99d-4ce0-93d6-dffc4875fa33"]},{"activities":["开始Task2的梳理（应急安全）"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["71ece009-fc71-46b9-a6d1-c896b84d86e8"]}],"name":"沮丧"},{"color":"#00BCD4","days":[{"activities":["看小说《末日乐园》","设置秋训营教程"],"count":2,"date":"2025/10/17","durations":[0,0],"record_ids":["9c04c967-2d0d-4ebd-a352-99136736a8a1","de6fb689-5817-4804-bad9-6bff56250059"]}],"name":"安逸"},{"color":"#8BC34A","days":[{"activities":["玩玩具（时间追踪器）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["3229263d-22dd-4bca-81cd-69316b35c5e6"]},{"activities":["玩玩具（wolai API+timehelper）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["40ea125b-fb18-423e-b42a-a4dad9939ea2"]},{"activities":["设置秋训营教程"],"count":1,"date":"2025/10/16","durations":[0],"record_ids":["b774831b-db06-44f3-b59c-8f9207d83dd3"]},{"activities":["开始Task2的梳理（应急安全）"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["71ece009-fc71-46b9-a6d1-c896b84d86e8"]}],"name":"满足"},{"color":"#CDDC39","days":[{"activities":["玩玩具（时间管理器）"],"count":1,"date":"2025/10/13","durations":[0],"record_ids":["17f76ac9-d3c6-4eac-81d3-be290911257f"]},{"activities":["计划（近一周内容工作）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["2d721faf-e755-4a2a-8031-b3dc27f49f5f"]},{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"count":1,"date":"2025/10/19","durations":[0],"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"放松"},{"color":"#607D8B","days":[{"activities":["玩玩具（wolai API+timehelper）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["40ea125b-fb18-423e-b42a-a4dad9939ea2"]}],"name":"平静"},{"color":"#009688","days":[{"activities":["计划（近一周内容工作）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["2d721faf-e755-4a2a-8031-b3dc27f49f5f"]},{"activities":["探索新方法（AI梳理直播方案）","玩玩具(时间追踪器)","散步"],"count":3,"date":"2025/10/15","durations":[0,0,0],"record_ids":["d8bfa2c7-4acb-4b96-83e4-90401c581706","c9d72854-4001-4d25-b997-d43aa92b8308","ff1f965c-221e-453c-b77d-d9d15e70e34b"]},{"activities":["设置秋训营教程"],"count":1,"date":"2025/10/16","durations":[0],"record_ids":["b774831b-db06-44f3-b59c-8f9207d83dd3"]}],"name":"宁静"},{"color":"#FFC107","days":[{"activities":["探索新方法"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["022fdb5f-4475-441d-9951-c1e646f6560b"]}],"name":"苦恼"},{"color":"#9C27B0","days":[{"activities":["梳理方案"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["34c9fc11-228f-4f37-802f-616830a32fc2"]}],"name":"惊奇"},{"color":"#607D8B","days":[{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"count":1,"date":"2025/10/19","durations":[0],"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"悲伤"},{"color":"#4CAF50","days":[{"activities":["玩玩具（时间追踪器）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["3229263d-22dd-4bca-81cd-69316b35c5e6"]},{"activities":["散步"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["ff1f965c-221e-453c-b77d-d9d15e70e34b"]},{"activities":["给timeHelper增加今日计划"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["36aac305-ea14-46a3-b4d8-b8bdf6715eab"]},{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"count":1,"date":"2025/10/19","durations":[0],"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"高兴"},{"color":"#E91E63","days":[{"activities":["玩玩具（时间追踪器）"],"count":1,"date":"2025/10/13","durations":[0],"record_ids":["c9652c55-e90d-4f84-a2ad-e6dc8247e768"]}],"name":"兴奋"},{"color":"#8BC34A","days":[{"activities":["玩玩具（时间管理器）"],"count":1,"date":"2025/10/13","durations":[0],"record_ids":["17f76ac9-d3c6-4eac-81d3-be290911257f"]},{"activities":["探索新方法","（时间管理器）计划"],"count":2,"date":"2025/10/14","durations":[0,0],"record_ids":["96cf9218-93b5-4160-bd0c-f9882f18c38b","9a80a877-fd4e-49c4-a0da-a7d6cc05abca"]},{"activities":["探索新方法（AI梳理直播方案）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["d8bfa2c7-4acb-4b96-83e4-90401c581706"]}],"name":"愉悦"}],"moodLegend":[{"color":"#4CAF50","name":"开心"},{"color":"#2196F3","name":"专注"},{"color":"#9E9E9E","name":"疲惫"},{"color":"#FF9800","name":"焦虑"},{"color":"#E91E63","name":"兴奋"},{"color":"#00BCD4","name":"平静"},{"color":"#F44336","name":"沮丧"},{"color":"#8BC34A","name":"满足"},{"color":"#795548","name":"无聊"}],"success":true}
+[2025-10-18T21:39:39.980Z] [INFO] [MoodWall] 开始渲染情绪墙 {"moodDataCount":12}
+[2025-10-18T21:39:39.981Z] [INFO] [MoodWall] 开始渲染活动类型墙 {"activityDataCount":4}
+[2025-10-18T21:39:39.982Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:39.983Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:39.983Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:39.984Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:39.985Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:39.986Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:39.986Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:39.987Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:39.988Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:39.989Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:39.989Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:39.990Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:39:39.991Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:39.991Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#795548"}
+[2025-10-18T21:39:39.992Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:39.993Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:39.993Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:39.994Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:39.995Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:39.995Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:39.996Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:39.997Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:39.998Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:39.999Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:40.000Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:40.000Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#4CAF50"}
+[2025-10-18T21:39:40.001Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:40.002Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:40.003Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:40.004Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:40.005Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:40.006Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:39:40.007Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:39:40.008Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:40.009Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:40.011Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:40.012Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:40.013Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:40.013Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:39:40.014Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:40.015Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:39:40.016Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:39:40.019Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:39:40.022Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:39:40.023Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:39:40.017Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:39:40.024Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:10.624Z] [INFO] [MoodWall] 开始加载墙数据
+[2025-10-18T21:42:11.425Z] [INFO] [MoodWall] 墙数据加载成功 {"activityData":[{"color":"#795548","days":[{"activities":["看小说《末日乐园》"],"activity_categories":["纯属娱乐"],"count":1,"date":"2025/10/17","duration":1920000,"record_ids":["9c04c967-2d0d-4ebd-a352-99136736a8a1"]}],"name":"纯属娱乐"},{"color":"#4CAF50","days":[{"activities":["散步"],"activity_categories":["身体充电"],"count":1,"date":"2025/10/15","duration":1200000,"record_ids":["ff1f965c-221e-453c-b77d-d9d15e70e34b"]}],"name":"身体充电"},{"color":"#2196F3","days":[{"activities":["探索新方法","计划（近一周内容工作）","（时间管理器）计划"],"activity_categories":["工作输出","工作输出","工作输出"],"count":3,"date":"2025/10/14","duration":2700000,"record_ids":["96cf9218-93b5-4160-bd0c-f9882f18c38b","2d721faf-e755-4a2a-8031-b3dc27f49f5f","9a80a877-fd4e-49c4-a0da-a7d6cc05abca"]},{"activities":["探索新方法（AI梳理直播方案）","探索新方法","探索新方法（AI梳理直播方案）"],"activity_categories":["工作输出","工作输出","工作输出"],"count":3,"date":"2025/10/15","duration":3120000,"record_ids":["d8bfa2c7-4acb-4b96-83e4-90401c581706","022fdb5f-4475-441d-9951-c1e646f6560b","e13f8dc0-c99d-4ce0-93d6-dffc4875fa33"]},{"activities":["设置秋训营教程"],"activity_categories":["工作输出"],"count":1,"date":"2025/10/16","duration":3960000,"record_ids":["b774831b-db06-44f3-b59c-8f9207d83dd3"]},{"activities":["设置秋训营教程"],"activity_categories":["工作输出"],"count":1,"date":"2025/10/17","duration":0,"record_ids":["de6fb689-5817-4804-bad9-6bff56250059"]},{"activities":["开始Task2的梳理（应急安全）","梳理方案"],"activity_categories":["工作输出","工作输出"],"count":2,"date":"2025/10/18","duration":780000,"record_ids":["71ece009-fc71-46b9-a6d1-c896b84d86e8","34c9fc11-228f-4f37-802f-616830a32fc2"]},{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"activity_categories":["工作输出"],"count":1,"date":"2025/10/19","duration":10800000,"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"工作输出"},{"color":"#FF9800","days":[{"activities":["玩玩具（时间管理器）","玩玩具（时间追踪器）"],"activity_categories":["输出创作","输出创作"],"count":2,"date":"2025/10/13","duration":2100000,"record_ids":["17f76ac9-d3c6-4eac-81d3-be290911257f","c9652c55-e90d-4f84-a2ad-e6dc8247e768"]},{"activities":["玩玩具（时间追踪器）"],"activity_categories":["输出创作"],"count":1,"date":"2025/10/14","duration":60000,"record_ids":["3229263d-22dd-4bca-81cd-69316b35c5e6"]},{"activities":["玩玩具（wolai API+timehelper）","玩玩具(时间追踪器)"],"activity_categories":["输出创作","输出创作"],"count":2,"date":"2025/10/15","duration":3960000,"record_ids":["40ea125b-fb18-423e-b42a-a4dad9939ea2","c9d72854-4001-4d25-b997-d43aa92b8308"]},{"activities":["给timeHelper增加今日计划"],"activity_categories":["输出创作"],"count":1,"date":"2025/10/18","duration":240000,"record_ids":["36aac305-ea14-46a3-b4d8-b8bdf6715eab"]}],"name":"输出创作"}],"activityLegend":[{"color":"#2196F3","name":"工作输出"},{"color":"#4CAF50","name":"大脑充电"},{"color":"#4CAF50","name":"身体充电"},{"color":"#9C27B0","name":"修养生息"},{"color":"#FF9800","name":"输出创作"},{"color":"#00BCD4","name":"暂停一下"},{"color":"#795548","name":"纯属娱乐"}],"keywordData":[{"color":"#FF6B6B","count":2,"keyword":"探索新方法（AI梳理直播方案）"},{"color":"#4ECDC4","count":2,"keyword":"AI"},{"color":"#45B7D1","count":2,"keyword":"探索新方法"},{"color":"#96CEB4","count":2,"keyword":"玩玩具（时间追踪器）"},{"color":"#FFEAA7","count":2,"keyword":"设置秋训营教程"},{"color":"#DDA0DD","count":1,"keyword":"玩玩具（wolai"},{"color":"#98D8C8","count":1,"keyword":"API+timehelper）"},{"color":"#F7DC6F","count":1,"keyword":"git"},{"color":"#BB8FCE","count":1,"keyword":"的网络给阻挡了"},{"color":"#85C1E9","count":1,"keyword":"就更新"},{"color":"#F8C471","count":1,"keyword":"Agent"},{"color":"#82E0AA","count":1,"keyword":"课程去了"},{"color":"#F1948A","count":1,"keyword":"还是得先有自己的方案模板"},{"color":"#85C1E9","count":1,"keyword":"再说哪些环节可以"},{"color":"#D7BDE2","count":1,"keyword":"提效"},{"color":"#FF6B6B","count":1,"keyword":"选题"},{"color":"#4ECDC4","count":1,"keyword":"流程"},{"color":"#45B7D1","count":1,"keyword":"主持词"},{"color":"#96CEB4","count":1,"keyword":"参考技术方案"},{"color":"#FFEAA7","count":1,"keyword":"使用"}],"moodData":[{"color":"#F44336","days":[{"activities":["探索新方法（AI梳理直播方案）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["e13f8dc0-c99d-4ce0-93d6-dffc4875fa33"]},{"activities":["开始Task2的梳理（应急安全）"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["71ece009-fc71-46b9-a6d1-c896b84d86e8"]}],"name":"沮丧"},{"color":"#00BCD4","days":[{"activities":["看小说《末日乐园》","设置秋训营教程"],"count":2,"date":"2025/10/17","durations":[0,0],"record_ids":["9c04c967-2d0d-4ebd-a352-99136736a8a1","de6fb689-5817-4804-bad9-6bff56250059"]}],"name":"安逸"},{"color":"#8BC34A","days":[{"activities":["玩玩具（时间追踪器）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["3229263d-22dd-4bca-81cd-69316b35c5e6"]},{"activities":["玩玩具（wolai API+timehelper）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["40ea125b-fb18-423e-b42a-a4dad9939ea2"]},{"activities":["设置秋训营教程"],"count":1,"date":"2025/10/16","durations":[0],"record_ids":["b774831b-db06-44f3-b59c-8f9207d83dd3"]},{"activities":["开始Task2的梳理（应急安全）"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["71ece009-fc71-46b9-a6d1-c896b84d86e8"]}],"name":"满足"},{"color":"#CDDC39","days":[{"activities":["玩玩具（时间管理器）"],"count":1,"date":"2025/10/13","durations":[0],"record_ids":["17f76ac9-d3c6-4eac-81d3-be290911257f"]},{"activities":["计划（近一周内容工作）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["2d721faf-e755-4a2a-8031-b3dc27f49f5f"]},{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"count":1,"date":"2025/10/19","durations":[0],"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"放松"},{"color":"#607D8B","days":[{"activities":["玩玩具（wolai API+timehelper）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["40ea125b-fb18-423e-b42a-a4dad9939ea2"]}],"name":"平静"},{"color":"#009688","days":[{"activities":["计划（近一周内容工作）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["2d721faf-e755-4a2a-8031-b3dc27f49f5f"]},{"activities":["探索新方法（AI梳理直播方案）","玩玩具(时间追踪器)","散步"],"count":3,"date":"2025/10/15","durations":[0,0,0],"record_ids":["d8bfa2c7-4acb-4b96-83e4-90401c581706","c9d72854-4001-4d25-b997-d43aa92b8308","ff1f965c-221e-453c-b77d-d9d15e70e34b"]},{"activities":["设置秋训营教程"],"count":1,"date":"2025/10/16","durations":[0],"record_ids":["b774831b-db06-44f3-b59c-8f9207d83dd3"]}],"name":"宁静"},{"color":"#FFC107","days":[{"activities":["探索新方法"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["022fdb5f-4475-441d-9951-c1e646f6560b"]}],"name":"苦恼"},{"color":"#9C27B0","days":[{"activities":["梳理方案"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["34c9fc11-228f-4f37-802f-616830a32fc2"]}],"name":"惊奇"},{"color":"#607D8B","days":[{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"count":1,"date":"2025/10/19","durations":[0],"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"悲伤"},{"color":"#4CAF50","days":[{"activities":["玩玩具（时间追踪器）"],"count":1,"date":"2025/10/14","durations":[0],"record_ids":["3229263d-22dd-4bca-81cd-69316b35c5e6"]},{"activities":["散步"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["ff1f965c-221e-453c-b77d-d9d15e70e34b"]},{"activities":["给timeHelper增加今日计划"],"count":1,"date":"2025/10/18","durations":[0],"record_ids":["36aac305-ea14-46a3-b4d8-b8bdf6715eab"]},{"activities":["梳理写作乡村AI助教Task2 Vibe Coding部分"],"count":1,"date":"2025/10/19","durations":[0],"record_ids":["35be285c-7f25-4d8f-81d7-6a5ecd07859c"]}],"name":"高兴"},{"color":"#E91E63","days":[{"activities":["玩玩具（时间追踪器）"],"count":1,"date":"2025/10/13","durations":[0],"record_ids":["c9652c55-e90d-4f84-a2ad-e6dc8247e768"]}],"name":"兴奋"},{"color":"#8BC34A","days":[{"activities":["玩玩具（时间管理器）"],"count":1,"date":"2025/10/13","durations":[0],"record_ids":["17f76ac9-d3c6-4eac-81d3-be290911257f"]},{"activities":["探索新方法","（时间管理器）计划"],"count":2,"date":"2025/10/14","durations":[0,0],"record_ids":["96cf9218-93b5-4160-bd0c-f9882f18c38b","9a80a877-fd4e-49c4-a0da-a7d6cc05abca"]},{"activities":["探索新方法（AI梳理直播方案）"],"count":1,"date":"2025/10/15","durations":[0],"record_ids":["d8bfa2c7-4acb-4b96-83e4-90401c581706"]}],"name":"愉悦"}],"moodLegend":[{"color":"#4CAF50","name":"开心"},{"color":"#2196F3","name":"专注"},{"color":"#9E9E9E","name":"疲惫"},{"color":"#FF9800","name":"焦虑"},{"color":"#E91E63","name":"兴奋"},{"color":"#00BCD4","name":"平静"},{"color":"#F44336","name":"沮丧"},{"color":"#8BC34A","name":"满足"},{"color":"#795548","name":"无聊"}],"success":true}
+[2025-10-18T21:42:11.426Z] [INFO] [MoodWall] 开始渲染情绪墙 {"moodDataCount":12}
+[2025-10-18T21:42:11.427Z] [INFO] [MoodWall] 开始渲染活动类型墙 {"activityDataCount":4}
+[2025-10-18T21:42:11.429Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.430Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.431Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.432Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.433Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.434Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.436Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.438Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.439Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.441Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.441Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.442Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:11.443Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.444Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#795548"}
+[2025-10-18T21:42:11.445Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.446Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.446Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.447Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.448Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.449Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.450Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.451Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.453Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.455Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.456Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.458Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#4CAF50"}
+[2025-10-18T21:42:11.458Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.459Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.461Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.462Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.463Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.464Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:11.465Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:11.466Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.467Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.467Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.469Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.474Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.474Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#2196F3"}
+[2025-10-18T21:42:11.475Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.476Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:11.477Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"纯属娱乐","color":"#795548"}
+[2025-10-18T21:42:11.477Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"身体充电","color":"#4CAF50"}
+[2025-10-18T21:42:11.479Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"工作输出","color":"#2196F3"}
+[2025-10-18T21:42:11.480Z] [DEBUG] [MoodWall] 处理活动类别 {"categoryName":"输出创作","color":"#FF9800"}
+[2025-10-18T21:42:11.482Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:11.484Z] [DEBUG] [MoodWall] 设置活动方块背景色 {"color":"#FF9800"}
+[2025-10-18T21:42:12.641Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:42:13.265Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:42:22.836Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:42:23.558Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:43:48.699Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:43:49.403Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:43:49.729Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:43:50.346Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:44:50.492Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:44:51.442Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:45:26.421Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:45:27.096Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:48:46.100Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:48:46.255Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:49:22.113Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:49:22.275Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:53:57.570Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:53:57.736Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:54:05.766Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:54:05.910Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:54:43.715Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:54:43.867Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:54:52.557Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:54:52.702Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:57:22.685Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:57:23.233Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:57:30.560Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:57:30.713Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T21:57:56.297Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T21:57:56.464Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-18T22:02:14.583Z] [INFO] [API] 加载活动类别配置
+[2025-10-18T22:02:15.140Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}

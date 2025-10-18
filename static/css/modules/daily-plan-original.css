@@ -1,0 +1,574 @@
+/* 今日计划原始样式 */
+
+.daily-plan-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.daily-plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 15px;
+}
+
+.daily-plan-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.daily-plan-date {
+    font-size: 18px;
+    opacity: 0.9;
+    font-weight: normal;
+}
+
+/* 日期选择器样式 */
+.daily-plan-date-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+}
+
+.date-selector {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.date-selector:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5);
+}
+
+.date-nav-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.date-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
+.daily-plan-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.daily-plan-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* 折叠时的简要视图 */
+.daily-plan-summary {
+    margin-top: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 默认2列布局 */
+    gap: 20px;
+}
+
+/* 折叠时的全宽统计数据视图 */
+.daily-plan-stats-full-width {
+    margin-top: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.daily-plan-stats-content {
+    width: 100%;
+}
+
+.daily-plan-stats-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffd700;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    text-align: center;
+}
+
+.summary-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-section:last-child {
+    margin-bottom: 0;
+}
+
+.summary-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffd700;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.summary-list {
+    margin: 0;
+    padding-left: 20px;
+    list-style: decimal;
+}
+
+.summary-list li {
+    padding: 4px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.summary-item-empty {
+    opacity: 0.5;
+    font-style: italic;
+    list-style: none;
+    margin-left: -20px;
+    font-size: 12px;
+}
+
+.summary-item-completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.summary-emotions,
+.summary-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.summary-emotions .emotion-badge,
+.summary-categories .category-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.summary-emotions .emotion-badge::before {
+    content: '●';
+    font-size: 8px;
+}
+
+.category-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 新增：统计数据样式 */
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.summary-stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.summary-stat-item .stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.summary-stat-item .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.daily-plan-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.plan-group {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.plan-group-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.plan-group-title::before {
+    content: '▸';
+    font-size: 18px;
+}
+
+.plan-input,
+.plan-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.plan-input:focus,
+.plan-textarea:focus {
+    outline: none;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
+}
+
+.plan-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.plan-input::placeholder,
+.plan-textarea::placeholder {
+    color: #999;
+}
+
+.score-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.score-option {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid transparent;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.score-option:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.score-option.selected {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+    font-weight: bold;
+}
+
+.auto-update-section {
+    grid-column: 1 / -1;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.auto-update-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #ffd700;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.activities-list {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.plan-activity-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.plan-activity-item .activity-name {
+    font-weight: 500;
+    color: black; /* 设置活动名称为黑色以与记录详情表格保持一致 */
+}
+
+.activity-duration {
+    color: #ffd700;
+    font-size: 12px;
+}
+
+.emotions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.emotion-badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.emotion-badge::before {
+    content: '●';
+    font-size: 10px;
+}
+
+.daily-plan-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+.plan-action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.plan-action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.plan-action-btn.primary {
+    background: #ffd700;
+    color: #333;
+}
+
+.plan-action-btn.primary:hover {
+    background: #ffed4e;
+}
+
+.sync-status {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 10px;
+    text-align: right;
+}
+
+.sync-status.synced {
+    color: #90EE90;
+}
+
+.sync-status.not-synced {
+    color: #FFB6C1;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .daily-plan-section {
+        padding: 15px;
+    }
+    
+    .daily-plan-title {
+        font-size: 22px;
+    }
+    
+    .daily-plan-date {
+        font-size: 14px;
+    }
+    
+    .daily-plan-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    /* 手机端简要视图垂直堆叠 */
+    .daily-plan-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 15px;
+    }
+    
+    .summary-section {
+        min-height: auto;
+        padding: 12px;
+    }
+    
+    .summary-title {
+        font-size: 14px;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+    }
+    
+    .summary-list li {
+        font-size: 12px;
+        padding: 3px 0;
+    }
+    
+    .summary-emotions .emotion-badge,
+    .summary-categories .category-badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+    
+    /* 手机端统计数据调整 */
+    .summary-stats {
+        gap: 6px;
+    }
+    
+    .summary-stat-item {
+        font-size: 12px;
+    }
+    
+    /* 手机端全宽统计数据调整 */
+    .daily-plan-stats-full-width {
+        padding: 15px;
+    }
+    
+    .daily-plan-stats-title {
+        font-size: 16px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+}
+
+/* 大屏幕优化（超宽屏幕） */
+@media (min-width: 1400px) {
+    .daily-plan-summary {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+    
+    .summary-section {
+        min-height: 140px;
+    }
+}
+
+/* 中等屏幕优化 */
+@media (min-width: 769px) and (max-width: 1399px) {
+    .daily-plan-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 滚动条样式 */
+.activities-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.activities-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.activities-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.activities-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

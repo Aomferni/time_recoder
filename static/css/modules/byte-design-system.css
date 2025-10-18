@@ -1,0 +1,548 @@
+/* 字节风设计系统规范 */
+
+/* 全局设计变量 */
+:root {
+  /* 主要颜色 */
+  --byte-primary-color: #165DFF;
+  --byte-primary-hover: #0E42D2;
+  --byte-primary-active: #002FA6;
+  
+  /* 成功颜色 */
+  --byte-success-color: #00B42A;
+  --byte-success-hover: #009A22;
+  --byte-success-active: #00801A;
+  
+  /* 警告颜色 */
+  --byte-warning-color: #FF7D00;
+  --byte-warning-hover: #D26400;
+  --byte-warning-active: #A64F00;
+  
+  /* 错误颜色 */
+  --byte-error-color: #F53F3F;
+  --byte-error-hover: #CB2727;
+  --byte-error-active: #A11616;
+  
+  /* 中性色 */
+  --byte-gray-1: #f7f8fa;
+  --byte-gray-2: #f2f3f5;
+  --byte-gray-3: #e5e6eb;
+  --byte-gray-4: #c9cdd4;
+  --byte-gray-5: #a9aeb8;
+  --byte-gray-6: #86909c;
+  --byte-gray-7: #6b7785;
+  --byte-gray-8: #4e5969;
+  --byte-gray-9: #272e3b;
+  --byte-gray-10: #1d2129;
+  
+  /* 字体 */
+  --byte-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  
+  /* 圆角 */
+  --byte-border-radius-small: 2px;
+  --byte-border-radius-medium: 4px;
+  --byte-border-radius-large: 8px;
+  --byte-border-radius-xlarge: 12px;
+  --byte-border-radius-full: 50%;
+  
+  /* 阴影 */
+  --byte-shadow-1: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --byte-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --byte-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.16);
+  
+  /* 间距 */
+  --byte-spacing-1: 4px;
+  --byte-spacing-2: 8px;
+  --byte-spacing-3: 12px;
+  --byte-spacing-4: 16px;
+  --byte-spacing-5: 20px;
+  --byte-spacing-6: 24px;
+  --byte-spacing-7: 32px;
+  --byte-spacing-8: 40px;
+  --byte-spacing-9: 48px;
+  --byte-spacing-10: 56px;
+  
+  /* 字体大小 */
+  --byte-font-size-xs: 12px;
+  --byte-font-size-sm: 14px;
+  --byte-font-size-md: 16px;
+  --byte-font-size-lg: 18px;
+  --byte-font-size-xl: 20px;
+  --byte-font-size-2xl: 24px;
+  --byte-font-size-3xl: 30px;
+  
+  /* 字体粗细 */
+  --byte-font-weight-regular: 400;
+  --byte-font-weight-medium: 500;
+  --byte-font-weight-semibold: 600;
+  --byte-font-weight-bold: 700;
+}
+
+/* 全局重置和基础样式 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--byte-font-family);
+  font-size: var(--byte-font-size-sm);
+  color: var(--byte-gray-10);
+  background-color: var(--byte-gray-1);
+  line-height: 1.5;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--byte-gray-2);
+  border-radius: var(--byte-border-radius-medium);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--byte-gray-4);
+  border-radius: var(--byte-border-radius-medium);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--byte-gray-5);
+}
+
+/* 通用卡片样式 */
+.byte-card {
+  background: #fff;
+  border-radius: var(--byte-border-radius-large);
+  box-shadow: var(--byte-shadow-1);
+  padding: var(--byte-spacing-5);
+  transition: all 0.3s ease;
+}
+
+.byte-card:hover {
+  box-shadow: var(--byte-shadow-2);
+  transform: translateY(-2px);
+}
+
+/* 通用标题样式 */
+.byte-title {
+  font-size: var(--byte-font-size-xl);
+  font-weight: var(--byte-font-weight-semibold);
+  color: var(--byte-gray-10);
+  margin-bottom: var(--byte-spacing-4);
+  position: relative;
+  padding-bottom: var(--byte-spacing-2);
+}
+
+.byte-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 32px;
+  height: 3px;
+  background: var(--byte-primary-color);
+  border-radius: var(--byte-border-radius-small);
+}
+
+/* 通用按钮样式 */
+.byte-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--byte-spacing-2) var(--byte-spacing-4);
+  font-size: var(--byte-font-size-sm);
+  font-weight: var(--byte-font-weight-medium);
+  border-radius: var(--byte-border-radius-medium);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.byte-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.byte-btn:hover::before {
+  left: 100%;
+}
+
+/* 主要按钮 */
+.byte-btn-primary {
+  background: var(--byte-primary-color);
+  color: #fff;
+}
+
+.byte-btn-primary:hover {
+  background: var(--byte-primary-hover);
+  transform: translateY(-1px);
+}
+
+.byte-btn-primary:active {
+  background: var(--byte-primary-active);
+  transform: translateY(0);
+}
+
+/* 次要按钮 */
+.byte-btn-secondary {
+  background: #fff;
+  color: var(--byte-gray-10);
+  border: 1px solid var(--byte-gray-3);
+}
+
+.byte-btn-secondary:hover {
+  background: var(--byte-gray-1);
+  border-color: var(--byte-gray-4);
+  transform: translateY(-1px);
+}
+
+.byte-btn-secondary:active {
+  background: var(--byte-gray-2);
+  border-color: var(--byte-gray-5);
+  transform: translateY(0);
+}
+
+/* 成功按钮 */
+.byte-btn-success {
+  background: var(--byte-success-color);
+  color: #fff;
+}
+
+.byte-btn-success:hover {
+  background: var(--byte-success-hover);
+  transform: translateY(-1px);
+}
+
+.byte-btn-success:active {
+  background: var(--byte-success-active);
+  transform: translateY(0);
+}
+
+/* 警告按钮 */
+.byte-btn-warning {
+  background: var(--byte-warning-color);
+  color: #fff;
+}
+
+.byte-btn-warning:hover {
+  background: var(--byte-warning-hover);
+  transform: translateY(-1px);
+}
+
+.byte-btn-warning:active {
+  background: var(--byte-warning-active);
+  transform: translateY(0);
+}
+
+/* 错误按钮 */
+.byte-btn-error {
+  background: var(--byte-error-color);
+  color: #fff;
+}
+
+.byte-btn-error:hover {
+  background: var(--byte-error-hover);
+  transform: translateY(-1px);
+}
+
+.byte-btn-error:active {
+  background: var(--byte-error-active);
+  transform: translateY(0);
+}
+
+/* 文本按钮 */
+.byte-btn-text {
+  background: transparent;
+  color: var(--byte-primary-color);
+  padding: var(--byte-spacing-2);
+}
+
+.byte-btn-text:hover {
+  background: var(--byte-gray-1);
+  transform: translateY(-1px);
+}
+
+.byte-btn-text:active {
+  background: var(--byte-gray-2);
+  transform: translateY(0);
+}
+
+/* 小尺寸按钮 */
+.byte-btn-sm {
+  padding: var(--byte-spacing-1) var(--byte-spacing-3);
+  font-size: var(--byte-font-size-xs);
+}
+
+/* 大尺寸按钮 */
+.byte-btn-lg {
+  padding: var(--byte-spacing-3) var(--byte-spacing-5);
+  font-size: var(--byte-font-size-md);
+}
+
+/* 圆角按钮 */
+.byte-btn-round {
+  border-radius: var(--byte-border-radius-full);
+}
+
+/* 块级按钮 */
+.byte-btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* 禁用状态 */
+.byte-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none !important;
+}
+
+.byte-btn:disabled:hover {
+  transform: none !important;
+}
+
+/* 通用输入框样式 */
+.byte-input {
+  padding: var(--byte-spacing-2) var(--byte-spacing-3);
+  font-size: var(--byte-font-size-sm);
+  border: 1px solid var(--byte-gray-3);
+  border-radius: var(--byte-border-radius-medium);
+  background: #fff;
+  transition: all 0.2s ease;
+  outline: none;
+  width: 100%;
+}
+
+.byte-input:focus {
+  border-color: var(--byte-primary-color);
+  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
+}
+
+.byte-input:hover {
+  border-color: var(--byte-gray-4);
+}
+
+.byte-input:disabled {
+  background: var(--byte-gray-1);
+  cursor: not-allowed;
+  color: var(--byte-gray-5);
+}
+
+/* 文本域样式 */
+.byte-textarea {
+  padding: var(--byte-spacing-2) var(--byte-spacing-3);
+  font-size: var(--byte-font-size-sm);
+  border: 1px solid var(--byte-gray-3);
+  border-radius: var(--byte-border-radius-medium);
+  background: #fff;
+  transition: all 0.2s ease;
+  outline: none;
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.byte-textarea:focus {
+  border-color: var(--byte-primary-color);
+  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
+}
+
+/* 选择框样式 */
+.byte-select {
+  padding: var(--byte-spacing-2) var(--byte-spacing-3);
+  font-size: var(--byte-font-size-sm);
+  border: 1px solid var(--byte-gray-3);
+  border-radius: var(--byte-border-radius-medium);
+  background: #fff;
+  transition: all 0.2s ease;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.byte-select:focus {
+  border-color: var(--byte-primary-color);
+  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
+}
+
+/* 表格样式 */
+.byte-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: var(--byte-border-radius-medium);
+  overflow: hidden;
+  box-shadow: var(--byte-shadow-1);
+}
+
+.byte-table th {
+  background: var(--byte-gray-1);
+  padding: var(--byte-spacing-3);
+  text-align: left;
+  font-weight: var(--byte-font-weight-semibold);
+  color: var(--byte-gray-8);
+  font-size: var(--byte-font-size-sm);
+}
+
+.byte-table td {
+  padding: var(--byte-spacing-3);
+  border-top: 1px solid var(--byte-gray-2);
+  font-size: var(--byte-font-size-sm);
+  color: var(--byte-gray-10);
+}
+
+.byte-table tr:hover {
+  background: var(--byte-gray-1);
+}
+
+/* 标签样式 */
+.byte-tag {
+  display: inline-block;
+  padding: var(--byte-spacing-1) var(--byte-spacing-2);
+  font-size: var(--byte-font-size-xs);
+  border-radius: var(--byte-border-radius-small);
+  font-weight: var(--byte-font-weight-medium);
+  line-height: 1;
+}
+
+.byte-tag-primary {
+  background: rgba(22, 93, 255, 0.1);
+  color: var(--byte-primary-color);
+}
+
+.byte-tag-success {
+  background: rgba(0, 180, 42, 0.1);
+  color: var(--byte-success-color);
+}
+
+.byte-tag-warning {
+  background: rgba(255, 125, 0, 0.1);
+  color: var(--byte-warning-color);
+}
+
+.byte-tag-error {
+  background: rgba(245, 63, 63, 0.1);
+  color: var(--byte-error-color);
+}
+
+/* 徽章样式 */
+.byte-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: var(--byte-font-size-xs);
+  font-weight: var(--byte-font-weight-semibold);
+  border-radius: var(--byte-border-radius-full);
+  background: var(--byte-error-color);
+  color: #fff;
+}
+
+/* 进度条样式 */
+.byte-progress {
+  width: 100%;
+  height: 6px;
+  background: var(--byte-gray-2);
+  border-radius: var(--byte-border-radius-full);
+  overflow: hidden;
+}
+
+.byte-progress-inner {
+  height: 100%;
+  background: var(--byte-primary-color);
+  border-radius: var(--byte-border-radius-full);
+  transition: width 0.3s ease;
+}
+
+/* 分割线样式 */
+.byte-divider {
+  height: 1px;
+  background: var(--byte-gray-3);
+  margin: var(--byte-spacing-4) 0;
+}
+
+/* 加载动画 */
+.byte-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--byte-gray-3);
+  border-top: 2px solid var(--byte-primary-color);
+  border-radius: 50%;
+  animation: byte-spin 1s linear infinite;
+}
+
+@keyframes byte-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 提示框样式 */
+.byte-alert {
+  padding: var(--byte-spacing-3);
+  border-radius: var(--byte-border-radius-medium);
+  margin-bottom: var(--byte-spacing-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--byte-spacing-2);
+}
+
+.byte-alert-info {
+  background: rgba(22, 93, 255, 0.1);
+  border: 1px solid rgba(22, 93, 255, 0.2);
+  color: var(--byte-primary-color);
+}
+
+.byte-alert-success {
+  background: rgba(0, 180, 42, 0.1);
+  border: 1px solid rgba(0, 180, 42, 0.2);
+  color: var(--byte-success-color);
+}
+
+.byte-alert-warning {
+  background: rgba(255, 125, 0, 0.1);
+  border: 1px solid rgba(255, 125, 0, 0.2);
+  color: var(--byte-warning-color);
+}
+
+.byte-alert-error {
+  background: rgba(245, 63, 63, 0.1);
+  border: 1px solid rgba(245, 63, 63, 0.2);
+  color: var(--byte-error-color);
+}
+
+/* 响应式工具类 */
+@media (max-width: 768px) {
+  .byte-hide-mobile {
+    display: none !important;
+  }
+  
+  .byte-show-mobile {
+    display: block !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .byte-hide-desktop {
+    display: none !important;
+  }
+  
+  .byte-show-desktop {
+    display: block !important;
+  }
+}

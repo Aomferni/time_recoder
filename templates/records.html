@@ -5,18 +5,18 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/user-section.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-config.css') }}">
+<style>
+    /* 隐藏页面内的导航链接，因为顶部导航栏已经提供了导航 */
+    .records-header .navigation {
+        display: none;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <h1>历史记录</h1>
 
-<div class="records-header">
-    <div class="navigation">
-        <a href="/" class="nav-link">返回首页</a>
-        <a href="/mood-wall" class="nav-link">情绪与活动墙</a>
-        <a href="/project-description" class="nav-link">项目说明</a>
-    </div>
-</div>
+
 
 <div class="records-controls">
     <div class="filter-section">
@@ -64,8 +64,6 @@
                 <!-- 导入记录按钮 -->
                 <input type="file" id="recordFileInput" accept=".json" class="file-input" style="display: none;">
                 <button class="control-btn import-btn" id="importRecordBtn">导入记录</button>
-                <!-- 飞书配置按钮 -->
-                <button class="control-btn feishu-config-btn" onclick="timeRecorderRecords.showFeishuConfig()">飞书配置</button>
                 <!-- 导出到飞书按钮 -->
                 <button class="control-btn feishu-import-btn" onclick="timeRecorderRecords.importRecordsToFeishu()">导出至飞书</button>
                 <!-- 从飞书同步按钮 -->
@@ -76,27 +74,7 @@
     </div>
 </div>
 
-<!-- 飞书配置模态框 -->
-<div id="feishuConfigModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" onclick="timeRecorderRecords.closeFeishuConfigModal()">&times;</span>
-        <h2>飞书配置</h2>
-        <div class="detail-form">
-            <div class="highlight-field">
-                <label for="feishuAppId">App ID:</label>
-                <input type="text" id="feishuAppId" placeholder="请输入飞书应用的App ID">
-            </div>
-            <div class="highlight-field">
-                <label for="feishuAppSecret">App Secret:</label>
-                <input type="password" id="feishuAppSecret" placeholder="请输入飞书应用的App Secret">
-            </div>
-            <div class="detail-actions">
-                <button type="button" class="save-btn" onclick="timeRecorderRecords.saveFeishuConfig()">保存</button>
-                <button type="button" class="cancel-btn" onclick="timeRecorderRecords.closeFeishuConfigModal()">取消</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- 活动详情浮窗 -->
 <div id="recordDetailModal" class="modal" style="display: none;">

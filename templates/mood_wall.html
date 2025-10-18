@@ -5,17 +5,150 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/mood-wall.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/detail-modal.css') }}">
+<style>
+    /* 隐藏页面内的导航链接，因为顶部导航栏已经提供了导航 */
+    .wall-header .navigation {
+        display: none;
+    }
+    
+    .wall-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .wall-header h1 {
+        margin: 0;
+    }
+    
+    .month-navigation {
+        display: flex;
+        align-items: center;
+    }
+    
+    .month-navigation .nav-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        margin: 0 10px;
+    }
+    
+    .month-navigation .nav-btn:hover {
+        text-decoration: underline;
+    }
+    
+    .wall-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .wall-section-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        width: 100%;
+    }
+    
+    .wall-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 48%;
+    }
+    
+    .wall-section h2 {
+        margin-top: 0;
+    }
+    
+    .mood-wall-container, .activity-wall-container {
+        height: 300px;
+    }
+    
+    .keyword-cloud {
+        height: 300px;
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 100%;
+    }
+    
+    .legend-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 100%;
+    }
+    
+    .legend-group {
+        width: 48%;
+    }
+    
+    .legend-group h3 {
+        margin-top: 0;
+    }
+    
+    .legend-container {
+        margin-top: 10px;
+    }
+    
+    /* 活动详情浮窗样式 */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 15px;
+    }
+    
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="wall-header">
     <h1>情绪与活动墙</h1>
-    <div class="wall-navigation">
-        <a href="/" class="nav-link">返回首页</a>
-        <a href="/records" class="nav-link">历史记录</a>
-        <a href="/project-description" class="nav-link">项目说明</a>
-        <a href="/logs" class="nav-link">系统日志</a>
-    </div>
     <div class="month-navigation">
         <button id="prevMonth" class="nav-btn">上个月</button>
         <span id="currentMonth" class="month-display"></span>

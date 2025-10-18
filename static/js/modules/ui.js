@@ -167,7 +167,7 @@ export const TimeRecorderUI = {
             return;
         }
         
-        // 按开始时间倒序排列
+        // 按开始时间倒序排列（最新的在前）
         const sortedRecords = [...records].sort((a, b) => {
             if (!a || !a.startTime || !b || !b.startTime) return 0;
             return new Date(b.startTime) - new Date(a.startTime);

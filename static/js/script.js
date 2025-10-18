@@ -232,6 +232,9 @@ window.showActivitySelectionModal = function() {
     title.textContent = '选择活动';
     title.style.textAlign = 'center';
     title.style.marginBottom = '20px';
+    title.style.color = '#333';
+    title.style.fontSize = '24px';
+    title.style.fontWeight = '600';
     
     // 创建活动按钮容器
     const activitiesContainer = document.createElement('div');
@@ -251,10 +254,7 @@ window.showActivitySelectionModal = function() {
                 categoryTitle.textContent = category.name;
                 categoryBox.appendChild(categoryTitle);
                 
-                // 创建该类别的活动按钮容器
-                const categoryContainer = document.createElement('div');
-                categoryContainer.className = 'activity-category-buttons';
-                
+                // 为每个活动创建按钮并添加到统一容器中
                 category.activities.forEach(activity => {
                     const button = document.createElement('button');
                     button.className = `activity-btn ${TimeRecorderFrontendUtils.getActivityCategoryClass(category.name)}`;
@@ -293,11 +293,8 @@ window.showActivitySelectionModal = function() {
                         document.body.removeChild(modal);
                     });
                     
-                    categoryContainer.appendChild(button);
+                    activitiesContainer.appendChild(button);
                 });
-                
-                categoryBox.appendChild(categoryContainer);
-                activitiesContainer.appendChild(categoryBox);
             }
         });
     }
@@ -315,6 +312,132 @@ window.showActivitySelectionModal = function() {
             document.body.removeChild(modal);
         }
     });
+};
+
+window.showFeishuConfig = async function() {
+    try {
+        // 获取当前飞书配置
+        const response = await fetch('/api/feishu/config');
+        const feishuData = await response.json();
+        
+        // 获取应用配置
+        const appConfigResponse = await fetch('/api/app-config');
+        const appConfigData = await appConfigResponse.json();
+        
+        if (feishuData.success) {
+            // 填充飞书配置信息
+            const appIdElement = document.getElementById('feishuAppId');
+            const appSecretElement = document.getElementById('feishuAppSecret');
+            
+            if (appIdElement) {
+                appIdElement.value = feishuData.config.app_id || '';
+            }
+            
+            if (appSecretElement) {
+                appSecretElement.value = ''; // 不返回secret
+            }
+            
+            // 填充自动同步配置
+            if (appConfigData.success) {
+                const autoSyncEnabled = appConfigData.config.feishu.auto_sync_enabled || false;
+                const autoSyncElement = document.getElementById('feishuAutoSync');
+                if (autoSyncElement) {
+                    autoSyncElement.checked = autoSyncEnabled;
+                }
+            }
+            
+            // 显示模态框
+            const modal = document.getElementById('feishuConfigModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        } else {
+            throw new Error(feishuData.error || '获取飞书配置失败');
+        }
+    } catch (error) {
+        console.error('获取飞书配置失败:', error);
+        alert('获取飞书配置失败: ' + error.message);
+    }
+};
+
+window.closeFeishuConfig = function() {
+    const modal = document.getElementById('feishuConfigModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+window.saveFeishuConfig = async function() {
+    try {
+        const appIdElement = document.getElementById('feishuAppId');
+        const appSecretElement = document.getElementById('feishuAppSecret');
+        const autoSyncElement = document.getElementById('feishuAutoSync');
+        
+        // 检查元素是否存在
+        if (!appIdElement) {
+            throw new Error('找不到App ID输入元素');
+        }
+        
+        const appId = appIdElement.value.trim();
+        const appSecret = appSecretElement ? appSecretElement.value.trim() : '';
+        const autoSyncEnabled = autoSyncElement ? autoSyncElement.checked : false;
+        
+        // 验证输入
+        if (!appId) {
+            alert('请输入App ID');
+            return;
+        }
+        
+        // 如果用户没有输入新的App Secret，则不更新
+        const updateData = {
+            app_id: appId
+        };
+        
+        // 只有当用户输入了新的App Secret时才更新
+        if (appSecret) {
+            updateData.app_secret = appSecret;
+        }
+        
+        // 发送飞书配置更新请求
+        const feishuResponse = await fetch('/api/feishu/config', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+        });
+        
+        const feishuData = await feishuResponse.json();
+        
+        if (!feishuData.success) {
+            throw new Error(feishuData.error || '保存飞书配置失败');
+        }
+        
+        // 发送应用配置更新请求
+        const appConfigResponse = await fetch('/api/app-config', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                feishu: {
+                    auto_sync_enabled: autoSyncEnabled
+                }
+            })
+        });
+        
+        const appConfigData = await appConfigResponse.json();
+        
+        if (appConfigData.success) {
+            alert('飞书配置保存成功');
+            window.closeFeishuConfig();
+        } else {
+            throw new Error(appConfigData.error || '保存应用配置失败');
+        }
+    } catch (error) {
+        console.error('保存飞书配置失败:', error);
+        alert('保存飞书配置失败: ' + error.message);
+    }
 };
 
 // 页面加载完成后初始化

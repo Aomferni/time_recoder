@@ -1080,6 +1080,19 @@ export const TimeRecorderRecordDetail = {
                     // 刷新所有页面的数据显示
                     this.refreshAllPages();
                     
+                    // 清除可能的浏览器自动填充搜索值
+                    if (window.location.pathname === '/records') {
+                        const searchInput = document.getElementById('searchInput');
+                        if (searchInput) {
+                            // 检查搜索值是否为浏览器自动生成的客户端ID，如果是则清空
+                            const searchValue = searchInput.value;
+                            if (searchValue && searchValue.startsWith('cli_') && searchValue.length === 17) {
+                                console.log('[保存记录] 清除浏览器自动生成的客户端ID:', searchValue);
+                                searchInput.value = '';
+                            }
+                        }
+                    }
+                    
                     // 如果在首页且有正在运行的计时器，显示快速情绪记录区域
                     if (window.location.pathname === '/' && window.TimeRecorderConfig && window.TimeRecorderConfig.timerInterval) {
                         const quickEmotionSection = document.getElementById('quickEmotionSection');
@@ -1095,6 +1108,37 @@ export const TimeRecorderRecordDetail = {
             .catch(error => {
                 console.error('[保存记录] 更新记录失败:', error);
                 alert('更新记录失败，请查看控制台了解详情');
+            });
+    },
+    
+    /**
+     * 删除记录
+     */
+    deleteRecord: function(recordId) {
+        if (!confirm('确定要删除这条记录吗？')) {
+            return;
+        }
+        
+        TimeRecorderAPI.deleteRecord(recordId)
+            .then(data => {
+                if (data && data.success) {
+                    this.closeRecordDetailModal();
+                    // 刷新情绪墙和活动墙
+                    this.refreshMoodAndActivityWalls();
+                    
+                    // 刷新所有页面的数据显示
+                    this.refreshAllPages();
+                    
+                    // 显示删除成功消息
+                    alert('记录删除成功');
+                } else {
+                    console.error('[删除记录] 删除记录失败:', data.error || '未知错误');
+                    alert('删除记录失败: ' + (data.error || '未知错误'));
+                }
+            })
+            .catch(error => {
+                console.error('[删除记录] 删除记录失败:', error);
+                alert('删除记录失败，请查看控制台了解详情');
             });
     },
     
@@ -1122,7 +1166,9 @@ export const TimeRecorderRecordDetail = {
         } else if (window.location.pathname === '/records') {
             // 刷新历史记录页面
             if (window.timeRecorderRecords && typeof window.timeRecorderRecords.loadRecords === 'function') {
-                window.timeRecorderRecords.loadRecords();
+                // 获取当前页码并重新加载，确保分页状态正确
+                const currentPage = window.timeRecorderRecords.currentPage || 1;
+                window.timeRecorderRecords.loadRecords(currentPage);
             }
         } else if (window.location.pathname === '/') {
             // 刷新首页

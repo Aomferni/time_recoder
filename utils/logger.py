@@ -7,10 +7,9 @@ import os
 import json
 import threading
 from datetime import datetime, timedelta
-from collections import deque
 
 # 日志存储文件路径
-LOG_FILE = os.path.join('data', 'logs.json')
+LOG_FILE = os.path.join('data', 'logs.txt')
 LOG_RETENTION_HOURS = 2  # 保留2小时内的日志
 
 # 使用线程锁确保线程安全
@@ -25,10 +24,14 @@ class TimeRecorderLogger:
         try:
             if os.path.exists(LOG_FILE):
                 with open(LOG_FILE, 'r', encoding='utf-8') as f:
-                    logs = json.load(f)
-                    # 确保返回的是列表
-                    if isinstance(logs, list):
-                        return logs
+                    # 读取所有日志行
+                    lines = f.readlines()
+                    logs = []
+                    for line in lines:
+                        # 解析日志行
+                        if line.strip():
+                            logs.append(line.strip())
+                    return logs
             return []
         except Exception as e:
             print(f"读取日志文件失败: {e}")
@@ -45,7 +48,8 @@ class TimeRecorderLogger:
             logs = TimeRecorderLogger._cleanup_old_logs(logs)
             
             with open(LOG_FILE, 'w', encoding='utf-8') as f:
-                json.dump(logs, f, ensure_ascii=False, indent=2)
+                for log in logs:
+                    f.write(log + '\n')
         except Exception as e:
             print(f"保存日志文件失败: {e}")
     
@@ -58,10 +62,15 @@ class TimeRecorderLogger:
         filtered_logs = []
         for log in logs:
             try:
-                # 解析时间戳
-                log_time = datetime.fromisoformat(log['timestamp'].replace('Z', '+00:00'))
-                if log_time >= cutoff_time:
-                    filtered_logs.append(log)
+                # 从日志行中提取时间戳
+                # 格式: [2025-10-19T05:35:07.091058] [INFO] [test_module] 验证日志清理功能
+                if log.startswith('['):
+                    end_timestamp = log.find(']')
+                    if end_timestamp > 0:
+                        timestamp_str = log[1:end_timestamp]
+                        log_time = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                        if log_time >= cutoff_time:
+                            filtered_logs.append(log)
             except Exception:
                 # 如果时间戳解析失败，保留该日志
                 filtered_logs.append(log)
@@ -78,25 +87,21 @@ class TimeRecorderLogger:
         :param data: 附加数据（可选）
         """
         # 创建日志条目
-        log_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'level': level,
-            'module': module,
-            'message': message
-        }
+        timestamp = datetime.now().isoformat()
+        log_entry = f"[{timestamp}] [{level.upper()}] [{module}] {message}"
         
         # 如果有附加数据，添加到日志条目中
         if data is not None:
-            # 确保数据可以被JSON序列化
             try:
-                json.dumps(data)  # 测试是否可以序列化
-                log_entry['data'] = data
+                # 尝试将数据转换为JSON格式
+                data_str = json.dumps(data, ensure_ascii=False)
+                log_entry += f" {data_str}"
             except Exception:
                 # 如果不能序列化，转换为字符串
-                log_entry['data'] = str(data)
+                log_entry += f" {str(data)}"
         
         # 输出到控制台
-        console_message = f"[{log_entry['timestamp']}] [{level.upper()}] [{module}] {message}"
+        console_message = log_entry
         if level == 'error':
             print(f"ERROR: {console_message}")
         elif level == 'warn':
@@ -151,10 +156,12 @@ class TimeRecorderLogger:
     def get_logs_by_module(module):
         """获取指定模块的日志"""
         logs = TimeRecorderLogger.get_logs()
-        return [log for log in logs if log.get('module') == module]
+        # 在文本日志中查找包含模块名的日志
+        return [log for log in logs if f"[{module}]" in log]
     
     @staticmethod
     def get_logs_by_level(level):
         """获取指定级别的日志"""
         logs = TimeRecorderLogger.get_logs()
-        return [log for log in logs if log.get('level') == level]
+        # 在文本日志中查找包含级别名的日志
+        return [log for log in logs if f"[{level.upper()}]" in log]

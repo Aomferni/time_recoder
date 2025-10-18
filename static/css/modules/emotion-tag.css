@@ -1,23 +1,36 @@
-/* 情绪标签样式 */
+/* 字节风情绪标签样式优化 */
+
 .emotion-tag {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-full);
     color: white;
-    font-size: 12px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    animation: emotionFloat 3s infinite;
-}
-
-@keyframes emotionFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
+    font-size: var(--byte-font-size-xs);
+    font-weight: var(--byte-font-weight-medium);
+    margin-right: var(--byte-spacing-1);
+    margin-bottom: var(--byte-spacing-1);
+    box-shadow: var(--byte-shadow-1);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .emotion-tag:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: var(--byte-shadow-2);
+}
+
+.emotion-tag::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.emotion-tag:hover::after {
+    left: 100%;
 }

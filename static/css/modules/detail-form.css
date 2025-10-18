@@ -1,29 +1,30 @@
-/* 详情表单样式 */
+/* 字节风表单样式优化 */
+
 .detail-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--byte-spacing-5);
     height: 100%;
-    min-height: 400px; /* 确保表单最小高度 */
+    min-height: 400px;
 }
 
 .detail-form label {
-    font-weight: 600;
-    color: #555;
+    font-weight: var(--byte-font-weight-semibold);
+    color: var(--byte-gray-8);
     display: block;
-    margin-bottom: 8px;
-    font-size: 0.85rem; /* 缩小字体 */
+    margin-bottom: var(--byte-spacing-2);
+    font-size: var(--byte-font-size-sm);
 }
 
 .detail-form input, 
 .detail-form select, 
 .detail-form textarea {
-    padding: 10px 12px; /* 调整内边距 */
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 0.85rem; /* 缩小字体 */
+    padding: var(--byte-spacing-3);
+    border: 1px solid var(--byte-gray-3);
+    border-radius: var(--byte-border-radius-medium);
+    font-size: var(--byte-font-size-sm);
     width: 100%;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     background-color: #fff;
 }
 
@@ -31,42 +32,37 @@
 .detail-form select:focus, 
 .detail-form textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: var(--byte-primary-color);
+    box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
+}
+
+.detail-form input:hover,
+.detail-form select:hover,
+.detail-form textarea:hover {
+    border-color: var(--byte-gray-4);
 }
 
 .duration-input {
-    font-size: 1.1rem; /* 调整字体大小 */
-    font-weight: 700;
-    color: #2E7D32;
+    font-size: var(--byte-font-size-lg);
+    font-weight: var(--byte-font-weight-bold);
+    color: var(--byte-success-color);
     text-align: center;
-    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%) !important;
-    border: 2px solid #4CAF50 !important;
-    border-radius: 8px;
-    padding: 10px; /* 调整内边距 */
-    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
-    animation: durationPulse 3s infinite;
-    transition: all 0.3s ease;
+    background: var(--byte-gray-1) !important;
+    border: 1px solid var(--byte-success-color) !important;
+    border-radius: var(--byte-border-radius-medium);
+    padding: var(--byte-spacing-3);
+    box-shadow: var(--byte-shadow-1);
+    transition: all 0.2s ease;
 }
 
-@keyframes durationPulse {
-    0% { 
-        box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
-        transform: scale(1);
-    }
-    50% { 
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-        transform: scale(1.02);
-    }
-    100% { 
-        box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
-        transform: scale(1);
-    }
+.duration-input:focus {
+    border-color: var(--byte-success-color);
+    box-shadow: 0 0 0 2px rgba(0, 180, 42, 0.2);
 }
 
 .duration-input:hover {
     transform: scale(1.02);
-    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+    box-shadow: var(--byte-shadow-2);
 }
 
 .detail-form .full-width {
@@ -75,124 +71,68 @@
 
 .detail-form .emotion-checkboxes {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* 调整网格 */
-    gap: 12px; /* 调整间距 */
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 15px; /* 调整内边距 */
-    border-radius: 8px;
-    border: 2px solid #dee2e6;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    animation: emotionContainerGlow 4s infinite;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--byte-spacing-3);
+    background: #fff;
+    padding: var(--byte-spacing-4);
+    border-radius: var(--byte-border-radius-medium);
+    border: 1px solid var(--byte-gray-3);
+    box-shadow: var(--byte-shadow-1);
     position: relative;
     overflow: hidden;
-    flex-shrink: 0; /* 防止内容被压缩 */
-}
-
-.detail-form .emotion-checkboxes::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: 0.5s;
-}
-
-.detail-form .emotion-checkboxes:hover::after {
-    left: 100%;
-}
-
-@keyframes emotionContainerGlow {
-    0% { 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    50% { 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    100% { 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
+    flex-shrink: 0;
 }
 
 .emotion-checkbox {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px; /* 增加内边距以扩大点击区域 */
-    border-radius: 6px; /* 适度的圆角 */
-    transition: all 0.2s ease; /* 平滑过渡 */
-    border: 2px solid transparent;
+    padding: var(--byte-spacing-3);
+    border-radius: var(--byte-border-radius-medium);
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    min-height: 44px; /* 确保最小触摸目标为44px */
+    min-height: 44px;
     text-align: center;
     color: white;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
     user-select: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 适度的阴影 */
-    font-size: 1rem; /* 标准字体大小 */
-    width: 100%; /* 确保填满容器 */
-    box-sizing: border-box; /* 包含padding和border */
-}
-
-.emotion-checkbox.processing {
-    pointer-events: none;
-}
-
-.emotion-checkbox::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
+    box-shadow: var(--byte-shadow-1);
+    font-size: var(--byte-font-size-sm);
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    transition: 0.5s;
-}
-
-.emotion-checkbox:hover::after {
-    left: 100%;
+    box-sizing: border-box;
 }
 
 .emotion-checkbox:hover {
-    transform: scale(1.05); /* 适度的悬停效果 */
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3); /* 适度的阴影 */
+    transform: scale(1.05);
+    box-shadow: var(--byte-shadow-2);
 }
 
 /* 选中的情绪按钮样式 */
 .emotion-checkbox.selected {
-    transform: scale(1.1); /* 明显的选中效果 */
-    border-color: white; /* 白色边框 */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4); /* 明显的阴影 */
-    filter: brightness(1.2); /* 更亮的效果 */
-    animation: emotionSelectPulse 0.3s ease; /* 选中动画 */
-}
-
-/* 选中动画 */
-@keyframes emotionSelectPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    transform: scale(1.1);
+    border-color: #fff;
+    box-shadow: var(--byte-shadow-2);
+    filter: brightness(1.1);
 }
 
 /* 情绪选中标识 */
 .emotion-checkbox .checkmark {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: #4CAF50;
+    top: -6px;
+    right: -6px;
+    background-color: var(--byte-success-color);
     color: white;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
+    border-radius: var(--byte-border-radius-full);
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    font-size: 12px;
+    font-weight: var(--byte-font-weight-bold);
+    box-shadow: var(--byte-shadow-1);
     transform: scale(0);
     transition: transform 0.2s ease;
     z-index: 2;
@@ -200,13 +140,6 @@
 
 .emotion-checkbox.selected .checkmark {
     transform: scale(1);
-    animation: checkmarkAppear 0.3s ease;
-}
-
-@keyframes checkmarkAppear {
-    0% { transform: scale(0); }
-    70% { transform: scale(1.2); }
-    100% { transform: scale(1); }
 }
 
 .emotion-checkbox input[type="checkbox"] {
@@ -215,13 +148,12 @@
 
 .emotion-checkbox label {
     cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease; /* 平滑过渡 */
-    font-size: 1rem; /* 标准字体大小 */
+    font-weight: var(--byte-font-weight-medium);
+    transition: all 0.2s ease;
+    font-size: var(--byte-font-size-sm);
     width: 100%;
     text-align: center;
     color: inherit;
-    text-shadow: inherit;
     z-index: 1;
     display: flex;
     align-items: center;
@@ -229,259 +161,226 @@
     height: 100%;
 }
 
-.emotion-checkbox:hover label {
-    transform: scale(1.1); /* 适度的悬停效果 */
-}
-
 /* 情绪象限分组 */
 .emotion-quadrant {
-    margin-bottom: 15px; /* 减小间距 */
-    border-radius: 8px;
-    padding: 12px; /* 减小内边距 */
-    background: rgba(248, 249, 250, 0.5);
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: var(--byte-spacing-4);
+    border-radius: var(--byte-border-radius-medium);
+    padding: var(--byte-spacing-3);
+    background: var(--byte-gray-1);
+    border: 1px solid var(--byte-gray-3);
+    box-shadow: var(--byte-shadow-1);
 }
 
 .emotion-quadrant-title {
-    font-weight: 600;
-    margin-bottom: 12px; /* 减小间距 */
-    padding-bottom: 6px; /* 减小内边距 */
-    border-bottom: 2px solid #667eea;
-    color: #495057;
+    font-weight: var(--byte-font-weight-bold);
+    margin-bottom: var(--byte-spacing-3);
+    padding-bottom: var(--byte-spacing-2);
+    border-bottom: 2px solid var(--byte-primary-color);
+    color: var(--byte-gray-9);
     text-align: center;
-    font-size: 1rem; /* 调整标题字体大小 */
+    font-size: var(--byte-font-size-md);
 }
 
 .emotion-quadrant-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* 增大网格项 */
-    gap: 12px; /* 增加间距 */
-    margin-bottom: 5px; /* 添加底部间距 */
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: var(--byte-spacing-3);
+    margin-bottom: var(--byte-spacing-2);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
     .detail-form .emotion-checkboxes {
-        grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); /* 增大网格项 */
-        gap: 8px; /* 增加间距 */
-        padding: 12px; /* 增加内边距 */
+        grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+        gap: var(--byte-spacing-2);
+        padding: var(--byte-spacing-3);
     }
     
     .emotion-checkbox {
-        padding: 8px; /* 增加内边距 */
-        min-height: 40px; /* 确保最小触摸目标 */
-        font-size: 0.85rem; /* 调整字体大小 */
+        padding: var(--byte-spacing-2);
+        min-height: 40px;
+        font-size: var(--byte-font-size-xs);
     }
     
     .emotion-checkbox label {
-        font-size: 0.85rem; /* 调整字体大小 */
+        font-size: var(--byte-font-size-xs);
     }
     
     .emotion-quadrant-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* 增大网格项 */
-        gap: 8px; /* 增加间距 */
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: var(--byte-spacing-2);
     }
     
     .emotion-quadrant {
-        margin-bottom: 15px; /* 增加间距 */
-        padding: 12px; /* 增加内边距 */
+        margin-bottom: var(--byte-spacing-3);
+        padding: var(--byte-spacing-3);
     }
     
     .emotion-quadrant-title {
-        margin-bottom: 12px; /* 增加间距 */
-        padding-bottom: 8px; /* 增加内边距 */
-        font-size: 0.95rem; /* 调整字体大小 */
+        margin-bottom: var(--byte-spacing-3);
+        padding-bottom: var(--byte-spacing-2);
+        font-size: var(--byte-font-size-sm);
     }
 }
 
 .highlight-field {
-    margin-bottom: 15px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    border-left: 4px solid #2196F3;
+    margin-bottom: var(--byte-spacing-4);
+    padding: var(--byte-spacing-4);
+    background-color: #fff;
+    border-radius: var(--byte-border-radius-medium);
+    border-left: 4px solid var(--byte-primary-color);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-    flex-shrink: 0; /* 防止内容被压缩 */
+    box-shadow: var(--byte-shadow-1);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .highlight-field:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transform: translateX(5px);
+    box-shadow: var(--byte-shadow-2);
+    transform: translateX(2px);
 }
 
 .highlight-field label {
-    font-weight: 600;
-    color: #0D47A1;
-    margin-bottom: 8px;
-    font-size: 1rem; /* 调整字体大小 */
+    font-weight: var(--byte-font-weight-semibold);
+    color: var(--byte-primary-color);
+    margin-bottom: var(--byte-spacing-2);
+    font-size: var(--byte-font-size-sm);
 }
 
 .highlight-field input,
 .highlight-field select {
-    font-size: 1rem; /* 调整字体大小 */
-    font-weight: 500;
-    color: #333;
-    padding: 10px 12px; /* 调整内边距 */
+    font-size: var(--byte-font-size-sm);
+    font-weight: var(--byte-font-weight-medium);
+    color: var(--byte-gray-8);
+    padding: var(--byte-spacing-3);
 }
 
 /* 突出显示记录收获部分 */
 #detail-remark-section.highlight-field {
-    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-    border-left: 5px solid #4CAF50;
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
-    animation: remarkSectionGlow 3s infinite;
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    padding: 25px;
-    margin: 20px 0;
-    flex-shrink: 0; /* 防止内容被压缩 */
+    background: var(--byte-gray-1);
+    border-left: 4px solid var(--byte-success-color);
+    box-shadow: var(--byte-shadow-1);
+    border-radius: var(--byte-border-radius-large);
+    padding: var(--byte-spacing-5);
+    margin: var(--byte-spacing-4) 0;
+    flex-shrink: 0;
 }
 
 #detail-remark-section.highlight-field::before {
     content: "🎯";
     position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 24px; /* 调整图标大小 */
-}
-
-@keyframes remarkSectionGlow {
-    0% { 
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
-        transform: scale(1);
-    }
-    50% { 
-        box-shadow: 0 10px 35px rgba(76, 175, 80, 0.5);
-        transform: scale(1.01);
-    }
-    100% { 
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
-        transform: scale(1);
-    }
+    top: var(--byte-spacing-4);
+    right: var(--byte-spacing-5);
+    font-size: var(--byte-font-size-xl);
 }
 
 #detail-remark-section.highlight-field h3 {
-    color: #1B5E20;
-    font-size: 1.3rem; /* 调整标题字体大小 */
+    color: var(--byte-gray-9);
+    font-size: var(--byte-font-size-lg);
     text-align: center;
     display: block;
-    margin-bottom: 20px;
-    font-weight: 700;
-    border-bottom: 2px solid #A5D6A7;
-    padding-bottom: 15px;
+    margin-bottom: var(--byte-spacing-4);
+    font-weight: var(--byte-font-weight-bold);
+    border-bottom: 1px solid var(--byte-gray-3);
+    padding-bottom: var(--byte-spacing-3);
 }
 
 #detail-remark {
     min-height: 200px;
-    font-size: 1rem; /* 调整字体大小 */
+    font-size: var(--byte-font-size-sm);
     line-height: 1.6;
-    padding: 15px; /* 调整内边距 */
-    border: 2px solid #8BC34A;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    padding: var(--byte-spacing-4);
+    border: 1px solid var(--byte-gray-3);
+    border-radius: var(--byte-border-radius-medium);
+    background: #fff;
+    box-shadow: var(--byte-shadow-1);
 }
 
 #detail-remark:focus {
     outline: none;
-    border-color: #388E3C;
-    box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.3), inset 0 2px 5px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
+    border-color: var(--byte-primary-color);
+    box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
 }
 
 .detail-actions {
-    margin-top: 25px;
+    margin-top: var(--byte-spacing-5);
     text-align: right;
     grid-column: span 2;
     display: flex;
     justify-content: flex-end;
-    gap: 15px;
-    padding-top: 25px;
-    border-top: 2px solid #eee;
-    flex-shrink: 0; /* 防止操作按钮被压缩 */
+    gap: var(--byte-spacing-3);
+    padding-top: var(--byte-spacing-5);
+    border-top: 1px solid var(--byte-gray-3);
+    flex-shrink: 0;
     position: sticky;
     bottom: 0;
     background: rgba(255, 255, 255, 0.95);
-    padding-bottom: 20px;
+    padding-bottom: var(--byte-spacing-4);
     z-index: 10;
-    /* 移除动画，使按钮始终可见 */
-}
-
-@keyframes actionsAppear {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .save-btn, .cancel-btn {
-    margin-left: 12px;
-    padding: 10px 20px; /* 调整内边距 */
+    margin-left: var(--byte-spacing-3);
+    padding: var(--byte-spacing-3) var(--byte-spacing-5);
     border: none;
-    border-radius: 8px;
-    font-size: 0.9rem; /* 缩小字体 */
-    font-weight: 600;
+    border-radius: var(--byte-border-radius-medium);
+    font-size: var(--byte-font-size-sm);
+    font-weight: var(--byte-font-weight-semibold);
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    box-shadow: var(--byte-shadow-1);
+    min-width: 100px;
 }
 
 .save-btn {
-    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    background: var(--byte-success-color);
     color: white;
 }
 
 .save-btn:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+    background: var(--byte-success-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--byte-shadow-2);
+}
+
+.save-btn:active {
+    background: var(--byte-success-active);
+    transform: translateY(0);
 }
 
 .cancel-btn {
-    background: linear-gradient(135deg, #9E9E9E 0%, #616161 100%);
-    color: white;
+    background: var(--byte-gray-3);
+    color: var(--byte-gray-8);
 }
 
 .cancel-btn:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 6px 15px rgba(158, 158, 158, 0.4);
+    background: var(--byte-gray-4);
+    transform: translateY(-1px);
+    box-shadow: var(--byte-shadow-2);
+}
+
+.cancel-btn:active {
+    background: var(--byte-gray-5);
+    transform: translateY(0);
 }
 
 /* 保存成功动画 */
 @keyframes saveSuccess {
     0% { 
         transform: scale(1);
-        box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        box-shadow: var(--byte-shadow-2);
     }
     50% { 
-        transform: scale(1.1);
-        box-shadow: 0 10px 25px rgba(76, 175, 80, 0.7);
+        transform: scale(1.05);
+        box-shadow: var(--byte-shadow-3);
     }
     100% { 
         transform: scale(1);
-        box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        box-shadow: var(--byte-shadow-2);
     }
 }
 
 .save-success {
-    animation: saveSuccess 0.5s ease;
-}
-
-/* 保存按钮点击动画 */
-@keyframes saveClick {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-}
-
-.save-btn:active {
-    animation: saveClick 0.2s ease;
+    animation: saveSuccess 0.3s ease;
 }

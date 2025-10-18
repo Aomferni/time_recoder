@@ -9,11 +9,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/layout.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/activity-buttons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/activity-colors.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/timer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/timer-original.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/control-buttons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/detail-modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/activity-selection-optimized.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/detail-form.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/navigation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/navigation-optimized.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/records-table.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/stats.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/labels.css') }}">
@@ -31,12 +32,59 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/mood-wall.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-import.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-config.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/daily-plan-original.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navigation-bar">
+        <div class="nav-container">
+            <a href="/" class="nav-link">首页</a>
+            <a href="/records" class="nav-link">历史记录</a>
+            <a href="/mood-wall" class="nav-link">情绪与活动墙</a>
+            <a href="/project-description" class="nav-link">项目说明</a>
+            <a href="/manage-categories" class="nav-link">管理类别</a>
+            <a href="/logs" class="nav-link">系统日志</a>
+            <button class="nav-link feishu-config-btn" onclick="window.showFeishuConfig()">飞书配置</button>
+        </div>
+    </div>
+    
     <div class="container">
         {% block content %}{% endblock %}
     </div>
+    
+    <!-- 飞书配置模态框 -->
+    <div id="feishuConfigModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="window.closeFeishuConfig()">&times;</span>
+            <h2>飞书配置</h2>
+            <div class="detail-form">
+                <div class="highlight-field">
+                    <label for="feishuAppId">App ID:</label>
+                    <input type="text" id="feishuAppId" placeholder="请输入飞书应用的App ID">
+                </div>
+                <div class="highlight-field">
+                    <label for="feishuAppSecret">App Secret:</label>
+                    <input type="password" id="feishuAppSecret" placeholder="请输入飞书应用的App Secret">
+                </div>
+                <div class="highlight-field">
+                    <label for="feishuAutoSync">
+                        <input type="checkbox" id="feishuAutoSync" style="width: auto; margin-right: 8px;">
+                        自动同步至飞书
+                    </label>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 4px;">
+                        开启后，记录将自动同步到飞书多维表格
+                    </div>
+                </div>
+                <div class="detail-actions">
+                    <button type="button" class="save-btn" onclick="window.saveFeishuConfig()">保存</button>
+                    <button type="button" class="secondary-btn" onclick="window.importFromFeishu()" style="margin-right: 10px;">从飞书导入</button>
+                    <button type="button" class="cancel-btn" onclick="window.closeFeishuConfig()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script type="module" src="{{ url_for('static', filename='js/script.js') }}"></script>
     <!-- 引入飞书客户端 -->
     <script type="module" src="{{ url_for('static', filename='js/modules/feishuClient.js') }}"></script>

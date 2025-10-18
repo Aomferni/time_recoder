@@ -76,6 +76,54 @@ class TimeRecorderRecords {
                     }
                 }
             });
+            
+            // 添加事件委托来处理记录表格中的按钮点击事件
+            const recordsTable = document.querySelector('.records-table');
+            if (recordsTable) {
+                recordsTable.addEventListener('click', (event) => {
+                    const target = event.target;
+                    
+                    // 处理活动标签点击事件（显示记录详情）
+                    if (target.classList.contains('activity-label')) {
+                        const recordId = target.getAttribute('data-record-id');
+                        if (recordId) {
+                            this.showRecordDetail(recordId);
+                        }
+                    }
+                    
+                    // 处理继续按钮点击事件
+                    if (target.classList.contains('continue-btn')) {
+                        const recordId = target.getAttribute('data-record-id');
+                        if (recordId) {
+                            this.continueActivity(recordId);
+                        }
+                    }
+                    
+                    // 处理删除按钮点击事件
+                    if (target.classList.contains('delete-btn')) {
+                        const recordId = target.getAttribute('data-record-id');
+                        if (recordId) {
+                            this.deleteRecord(recordId);
+                        }
+                    }
+                });
+            }
+            
+            // 添加事件委托来处理分页按钮点击事件
+            const paginationEl = document.getElementById('pagination');
+            if (paginationEl) {
+                paginationEl.addEventListener('click', (event) => {
+                    const target = event.target;
+                    
+                    // 处理分页按钮点击事件
+                    if (target.classList.contains('page-btn')) {
+                        const page = parseInt(target.getAttribute('data-page'));
+                        if (!isNaN(page)) {
+                            this.loadRecords(page);
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -93,6 +141,7 @@ class TimeRecorderRecords {
      * 加载记录
      */
     loadRecords(page = 1) {
+        console.log('[加载记录] 开始加载记录，页码:', page);
         this.currentPage = page;
         
         // 获取筛选参数
@@ -102,6 +151,17 @@ class TimeRecorderRecords {
         const emotion = document.getElementById('emotionFilter').value;
         const search = document.getElementById('searchInput').value;
         
+        // 检查搜索值是否为浏览器自动生成的客户端ID，如果是则清空
+        if (search && search.startsWith('cli_') && search.length === 17) {
+            console.log('[加载记录] 检测到浏览器自动生成的客户端ID，清空搜索值:', search);
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        }
+        
+        console.log('[加载记录] 筛选参数:', { dateFrom, dateTo, activity, emotion, search });
+        
         // 构建查询参数
         const params = new URLSearchParams();
         params.append('page', page);
@@ -110,35 +170,68 @@ class TimeRecorderRecords {
         if (dateTo) params.append('date_to', dateTo);
         if (activity) params.append('activity', activity);
         if (emotion) params.append('emotion', emotion);
-        if (search) params.append('search', search);
+        if (search && !(search.startsWith('cli_') && search.length === 17)) params.append('search', search);
+        
+        // 显示加载状态
+        const tbody = document.getElementById('recordsBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">加载中...</td></tr>';
+        }
         
         // 使用模块化的API函数
         if (window.TimeRecorderAPI && typeof window.TimeRecorderAPI.loadAllRecords === 'function') {
+            console.log('[加载记录] 使用模块化API函数');
             // 调用模块化的API函数
             window.TimeRecorderAPI.loadAllRecords(params)
                 .then(data => {
+                    console.log('[加载记录] API返回数据:', data);
                     if (data.success) {
                         this.updateRecordsTable(data.records);
                         this.updatePagination(data.pagination);
                         this.updateActivityFilter(data.records);
+                    } else {
+                        // 处理API返回的错误
+                        console.error('加载记录失败:', data.error);
+                        if (tbody) {
+                            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">加载记录失败: ${data.error}</td></tr>`;
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('加载记录失败:', error);
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">加载记录失败，请查看控制台了解详情</td></tr>`;
+                    }
                 });
         } else {
+            console.log('[加载记录] 使用fetch API');
             // 如果模块化函数不可用，使用原来的实现
             fetch(`/api/all-records?${params.toString()}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('[加载记录] fetch返回数据:', data);
                     if (data.success) {
                         this.updateRecordsTable(data.records);
                         this.updatePagination(data.pagination);
                         this.updateActivityFilter(data.records);
+                    } else {
+                        // 处理API返回的错误
+                        console.error('加载记录失败:', data.error);
+                        if (tbody) {
+                            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">加载记录失败: ${data.error}</td></tr>`;
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('加载记录失败:', error);
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">加载记录失败，请查看控制台了解详情</td></tr>`;
+                    }
                 });
         }
     }
@@ -147,10 +240,31 @@ class TimeRecorderRecords {
      * 更新记录表格
      */
     updateRecordsTable(records) {
+        console.log('[更新记录表格] 开始更新记录表格，记录数:', records ? records.length : 0);
         const tbody = document.getElementById('recordsBody');
+        if (!tbody) {
+            console.error('找不到记录表格主体元素');
+            return;
+        }
+        
         tbody.innerHTML = '';
         
-        records.forEach((record) => {
+        if (!records || records.length === 0) {
+            // 显示无数据提示
+            console.log('[更新记录表格] 无记录数据，显示"暂无记录"');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">暂无记录</td></tr>';
+            return;
+        }
+        
+        // 确保记录按开始时间倒序排列（最新的在前）
+        const sortedRecords = [...records].sort((a, b) => {
+            if (!a || !a.startTime || !b || !b.startTime) return 0;
+            return new Date(b.startTime) - new Date(a.startTime);
+        });
+        
+        console.log('[更新记录表格] 开始渲染记录');
+        sortedRecords.forEach((record, index) => {
+            console.log(`[更新记录表格] 渲染记录 ${index}:`, record);
             const activityClass = TimeRecorderFrontendUtils.getActivityClass(record.activity, record.activityCategory);
             
             // 处理情绪显示，添加颜色
@@ -175,17 +289,18 @@ class TimeRecorderRecords {
             // 只显示指定字段：日期、活动名称、开始时间、专注时长、备注信息、情绪
             row.innerHTML = `
                 <td>${record.date || (record.startTime ? record.startTime.substring(0, 10).replace(/-/g, '/') : '')}</td>
-                <td><span class="activity-label ${activityClass}" onclick="timeRecorderRecords.showRecordDetail('${record.id}')">${record.activity}</span></td>
+                <td><span class="activity-label ${activityClass}" data-record-id="${record.id}">${record.activity}</span></td>
                 <td>${TimeRecorderFrontendUtils.formatTime(new Date(record.startTime))}</td>
                 <td>${TimeRecorderFrontendUtils.formatDuration(totalDuration)}</td>
                 <td class="remark-cell" title="${record.remark || ''}">${record.remark || ''}</td>
                 <td>${emotionDisplay}</td>
                 <td>
-                    <button class="continue-btn" onclick="timeRecorderRecords.continueActivity('${record.id}')">继续</button>
-                    <button class="delete-btn" onclick="timeRecorderRecords.deleteRecord('${record.id}')">删除</button>
+                    <button class="continue-btn" data-record-id="${record.id}">继续</button>
+                    <button class="delete-btn" data-record-id="${record.id}">删除</button>
                 </td>
             `;
         });
+        console.log('[更新记录表格] 记录表格更新完成');
     }
 
     /**
@@ -233,14 +348,32 @@ class TimeRecorderRecords {
      * 更新分页控件
      */
     updatePagination(pagination) {
+        console.log('[更新分页] 开始更新分页控件:', pagination);
         this.totalPages = pagination.pages;
         const paginationEl = document.getElementById('pagination');
+        
+        if (!paginationEl) {
+            console.error('找不到分页控件元素');
+            return;
+        }
+        
+        // 如果当前页超出总页数且总页数大于0，调整到最后一页
+        if (this.currentPage > this.totalPages && this.totalPages > 0) {
+            console.log('[更新分页] 当前页超出总页数，调整到最后一页');
+            this.currentPage = this.totalPages;
+        }
+        
+        // 如果当前页小于1，调整到第一页
+        if (this.currentPage < 1) {
+            console.log('[更新分页] 当前页小于1，调整到第一页');
+            this.currentPage = 1;
+        }
         
         let paginationHTML = '';
         
         // 上一页按钮
         if (this.currentPage > 1) {
-            paginationHTML += `<button onclick="timeRecorderRecords.loadRecords(${this.currentPage - 1})">上一页</button>`;
+            paginationHTML += `<button class="page-btn" data-page="${this.currentPage - 1}">上一页</button>`;
         }
         
         // 页码按钮
@@ -251,33 +384,43 @@ class TimeRecorderRecords {
             if (i === this.currentPage) {
                 paginationHTML += `<button class="active">${i}</button>`;
             } else {
-                paginationHTML += `<button onclick="timeRecorderRecords.loadRecords(${i})">${i}</button>`;
+                paginationHTML += `<button class="page-btn" data-page="${i}">${i}</button>`;
             }
         }
         
         // 下一页按钮
         if (this.currentPage < this.totalPages) {
-            paginationHTML += `<button onclick="timeRecorderRecords.loadRecords(${this.currentPage + 1})">下一页</button>`;
+            paginationHTML += `<button class="page-btn" data-page="${this.currentPage + 1}">下一页</button>`;
         }
         
         paginationEl.innerHTML = paginationHTML;
+        console.log('[更新分页] 分页控件更新完成');
     }
 
     /**
      * 更新活动筛选下拉框
      */
     updateActivityFilter(records) {
-        records.forEach(record => {
-            this.allActivities.add(record.activity);
-        });
-        
         const activityFilter = document.getElementById('activityFilter');
+        if (!activityFilter) {
+            console.error('找不到活动筛选下拉框元素');
+            return;
+        }
+        
         const currentSelection = activityFilter.value;
         
         // 清空现有选项（保留第一个"全部活动"选项）
         while (activityFilter.options.length > 1) {
             activityFilter.remove(1);
         }
+        
+        // 重新收集所有活动
+        this.allActivities.clear();
+        records.forEach(record => {
+            if (record.activity) {
+                this.allActivities.add(record.activity);
+            }
+        });
         
         // 添加所有活动选项
         this.allActivities.forEach(activity => {
@@ -302,11 +445,18 @@ class TimeRecorderRecords {
      * 重置筛选条件
      */
     resetFilters() {
-        document.getElementById('dateFrom').value = '';
-        document.getElementById('dateTo').value = '';
-        document.getElementById('activityFilter').value = '';
-        document.getElementById('emotionFilter').value = '';
-        document.getElementById('searchInput').value = '';
+        const dateFrom = document.getElementById('dateFrom');
+        const dateTo = document.getElementById('dateTo');
+        const activityFilter = document.getElementById('activityFilter');
+        const emotionFilter = document.getElementById('emotionFilter');
+        const searchInput = document.getElementById('searchInput');
+        
+        if (dateFrom) dateFrom.value = '';
+        if (dateTo) dateTo.value = '';
+        if (activityFilter) activityFilter.value = '';
+        if (emotionFilter) emotionFilter.value = '';
+        if (searchInput) searchInput.value = '';
+        
         this.loadRecords(1);
     }
 
@@ -321,10 +471,37 @@ class TimeRecorderRecords {
         fetch(`/api/records/${recordId}`, {
             method: 'DELETE'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                this.loadRecords(this.currentPage);
+                console.log('[删除记录] 删除成功，准备刷新页面');
+                // 删除成功后重新加载当前页面数据
+                // 如果当前页面没有数据了且不是第一页，加载前一页
+                const tbody = document.getElementById('recordsBody');
+                console.log('[删除记录] 当前tbody行数:', tbody ? tbody.rows.length : 'tbody不存在');
+                
+                if (tbody && tbody.rows.length <= 1) { // 只有表头或没有数据行
+                    console.log('[删除记录] 当前页面无数据，尝试加载前一页');
+                    if (this.currentPage > 1) {
+                        console.log('[删除记录] 加载前一页:', this.currentPage - 1);
+                        this.loadRecords(this.currentPage - 1);
+                    } else {
+                        console.log('[删除记录] 当前为第一页，重新加载第一页');
+                        this.loadRecords(1);
+                    }
+                } else {
+                    console.log('[删除记录] 当前页面有数据，重新加载当前页:', this.currentPage);
+                    this.loadRecords(this.currentPage);
+                }
+                
+                // 发送刷新信号给其他页面
+                console.log('[删除记录] 发送刷新信号给其他页面');
+                this.sendRefreshSignal();
             } else {
                 alert('删除记录失败: ' + data.error);
             }
@@ -405,9 +582,15 @@ class TimeRecorderRecords {
             if (data.success) {
                 this.showImportStatus(`导入成功！共导入 ${data.imported_count} 条记录`, 'success');
                 // 清空文件选择
-                document.getElementById('recordFileInput').value = '';
+                const fileInput = document.getElementById('recordFileInput');
+                if (fileInput) {
+                    fileInput.value = '';
+                }
                 // 重新加载记录
                 this.loadRecords();
+                
+                // 发送刷新信号给其他页面
+                this.sendRefreshSignal();
             } else {
                 this.showImportStatus(`导入失败: ${data.error}`, 'error');
             }
@@ -416,6 +599,26 @@ class TimeRecorderRecords {
             console.error('导入记录失败:', error);
             this.showImportStatus('导入失败，请查看控制台了解详情', 'error');
         });
+    }
+    
+    /**
+     * 发送刷新信号给其他页面
+     */
+    sendRefreshSignal() {
+        // 通过localStorage传递刷新信号
+        // 使用时间戳确保唯一性
+        const refreshSignal = {
+            timestamp: Date.now(),
+            sourcePage: window.location.pathname
+        };
+        
+        // 存储刷新信号到localStorage
+        localStorage.setItem('timeRecorderRefreshSignal', JSON.stringify(refreshSignal));
+        
+        // 设置一个定时器，在一段时间后清除刷新信号
+        setTimeout(() => {
+            localStorage.removeItem('timeRecorderRefreshSignal');
+        }, 5000);
     }
     
     /**
@@ -480,54 +683,120 @@ class TimeRecorderRecords {
     }
     
     /**
-     * 从飞书多维表格同步记录
+     * 从飞书同步记录（与飞书配置页的导入功能保持一致）
      */
-    syncRecordsFromFeishu() {
+    async syncRecordsFromFeishu() {
         if (!confirm('确定要从飞书多维表格同步记录到本地吗？')) {
             return;
         }
         
-        this.showImportStatus('正在从飞书同步记录...', 'info');
+        try {
+            // 显示导入状态
+            this.showImportStatus('正在从飞书同步记录...', 'info');
+            
+            // 调用后端API从飞书同步活动记录
+            const recordsResponse = await fetch('/api/init/sync-records', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const recordsData = await recordsResponse.json();
+            
+            if (!recordsData.success) {
+                throw new Error(recordsData.error || '从飞书同步活动记录失败');
+            }
+            
+            // 从飞书同步今日计划
+            const plansResponse = await fetch('/api/feishu/sync-plans', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const plansData = await plansResponse.json();
+            
+            if (!plansData.success) {
+                throw new Error(plansData.error || '从飞书同步今日计划失败');
+            }
+            
+            this.showImportStatus(`同步成功：活动记录和今日计划已更新`, 'success');
+            
+            // 重新加载记录
+            await this.loadRecords();
+        } catch (error) {
+            console.error('从飞书同步记录失败:', error);
+            this.showImportStatus(`同步失败: ${error.message}`, 'error');
+        }
+    }
+
+    /**
+     * 从飞书导入信息（统一实现）
+     */
+    importFromFeishu() {
+        if (!confirm('确定要从飞书多维表格导入信息到本地吗？这将同步records.json和plans.json文件。')) {
+            return;
+        }
         
-        // 调用后端API从飞书同步记录
-        fetch('/api/feishu/sync-records', {
+        this.showImportStatus('正在从飞书导入信息...', 'info');
+        
+        // 调用后端API从飞书同步活动记录
+        fetch('/api/init/sync-records', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                this.showImportStatus(data.message, 'success');
-                // 重新加载记录
-                this.loadRecords();
-            } else {
-                throw new Error(data.error || '同步失败');
+        .then(recordsData => {
+            if (!recordsData.success) {
+                throw new Error(recordsData.error || '从飞书同步活动记录失败');
             }
+            
+            // 从飞书同步今日计划
+            return fetch('/api/feishu/sync-plans', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json());
+        })
+        .then(plansData => {
+            if (!plansData.success) {
+                throw new Error(plansData.error || '从飞书同步今日计划失败');
+            }
+            
+            this.showImportStatus(`导入成功：活动记录和今日计划已同步`, 'success');
+            // 重新加载记录
+            this.loadRecords();
+            
+            // 发送刷新信号给其他页面
+            this.sendRefreshSignal();
         })
         .catch(error => {
-            console.error('从飞书同步记录失败:', error);
-            this.showImportStatus(`同步失败: ${error.message}`, 'error');
+            console.error('从飞书导入信息失败:', error);
+            this.showImportStatus(`导入失败: ${error.message}`, 'error');
         });
     }
-    
+
     /**
      * 显示导入状态
      */
     showImportStatus(message, type) {
         const importStatus = document.getElementById('importStatus');
-        if (!importStatus) return;
-        
-        importStatus.textContent = message;
-        importStatus.className = 'import-status ' + type;
-        
-        // 3秒后自动清除状态信息
-        if (type === 'success' || type === 'error') {
-            setTimeout(() => {
-                importStatus.textContent = '';
-                importStatus.className = 'import-status';
-            }, 3000);
+        if (importStatus) {
+            importStatus.textContent = message;
+            importStatus.className = `import-status ${type}`;
+            importStatus.style.display = 'block';
+            
+            // 3秒后自动隐藏成功消息
+            if (type === 'success') {
+                setTimeout(() => {
+                    importStatus.style.display = 'none';
+                }, 3000);
+            }
         }
     }
 }

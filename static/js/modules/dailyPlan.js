@@ -619,10 +619,12 @@ export const DailyPlanModule = {
     syncToFeishuSilently: function() {
         // 使用当前编辑的日期而不是强制切换到当前日期
         const currentDate = this.currentPlanDate || new Date().toISOString().split('T')[0];
+        console.log('[飞书同步] 开始静默同步到飞书，日期:', currentDate);
         
         // 延迟一下确保保存完成
         setTimeout(() => {
             // 先同步今日计划到飞书
+            console.log('[飞书同步] 调用同步今日计划到飞书API');
             TimeRecorderAPI.syncDailyPlanToFeishu(currentDate)
                 .then(result => {
                     console.log('飞书同步API返回:', result);
@@ -650,12 +652,15 @@ export const DailyPlanModule = {
      * 同步计时记录到飞书
      */
     syncRecordsToFeishu: function() {
+        console.log('[飞书同步] 开始同步计时记录到飞书');
         // 获取今天的记录并同步到飞书
         TimeRecorderAPI.loadRecords()
             .then(records => {
+                console.log('[飞书同步] 获取到记录数量:', records ? records.length : 0);
                 // 如果有记录，则导出到飞书
                 if (records && records.length > 0) {
                     // 发送到飞书多维表格
+                    console.log('[飞书同步] 发送记录到飞书多维表格');
                     return fetch('/api/feishu/import-records', {
                         method: 'POST',
                         headers: {
@@ -663,10 +668,13 @@ export const DailyPlanModule = {
                         },
                         body: JSON.stringify({ records: records })
                     });
+                } else {
+                    console.log('[飞书同步] 没有记录需要同步');
                 }
             })
             .then(response => {
                 if (response) {
+                    console.log('[飞书同步] 飞书导入记录API响应状态:', response.status);
                     return response.json();
                 }
             })
@@ -686,14 +694,17 @@ export const DailyPlanModule = {
      * 同步到飞书（带用户提示）
      */
     syncToFeishu: function() {
+        console.log('[飞书同步] 开始同步到飞书（带用户提示）');
         // 使用当前编辑的日期而不是强制切换到当前日期
         const currentDate = this.currentPlanDate || new Date().toISOString().split('T')[0];
+        console.log('[飞书同步] 当前同步日期:', currentDate);
         
         // 先保存当前数据
         this.savePlan();
         
         // 延迟一下确保保存完成
         setTimeout(() => {
+            console.log('[飞书同步] 调用同步今日计划到飞书API');
             TimeRecorderAPI.syncDailyPlanToFeishu(currentDate)
                 .then(result => {
                     console.log('飞书同步API返回:', result);
@@ -708,10 +719,7 @@ export const DailyPlanModule = {
                 })
                 .catch(error => {
                     console.error('同步到飞书失败 - 详细错误:', error);
-                    console.error('错误类型:', error.name);
-                    console.error('错误消息:', error.message);
-                    console.error('错误堆栈:', error.stack);
-                    alert('同步失败，请检查飞书配置\n错误详情: ' + error.message);
+                    alert('同步到飞书失败: ' + error.message);
                 });
         }, 500);
     },

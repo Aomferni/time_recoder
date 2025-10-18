@@ -6,6 +6,22 @@
 const LOG_STORAGE_KEY = 'timeRecorderLogs';
 const LOG_RETENTION_HOURS = 2; // 保留2小时内的日志
 
+// 添加发送日志到后端的函数
+function sendLogToBackend(logText) {
+    // 创建一个隐藏的表单来发送日志到后端
+    const formData = new FormData();
+    formData.append('log', logText);
+    
+    // 发送到后端API
+    fetch('/api/logs/frontend', {
+        method: 'POST',
+        body: formData
+    }).catch(err => {
+        // 静默处理错误，避免影响用户体验
+        console.debug('发送前端日志到后端失败:', err);
+    });
+}
+
 export const TimeRecorderLogger = {
     /**
      * 记录日志
@@ -43,8 +59,26 @@ export const TimeRecorderLogger = {
                 console.log(consoleMessage, data || '');
         }
         
+        // 格式化日志文本
+        let logText = `[${timestamp}] [${level.toUpperCase()}] [${module}] ${message}`;
+        
+        // 如果有附加数据，添加到日志条目中
+        if (data !== null) {
+            try {
+                // 尝试将数据转换为JSON格式
+                const dataStr = JSON.stringify(data);
+                logText += ` ${dataStr}`;
+            } catch (e) {
+                // 如果不能序列化，转换为字符串
+                logText += ` ${String(data)}`;
+            }
+        }
+        
         // 保存到本地存储
-        this._saveLog(logEntry);
+        this._saveLog(logText);
+        
+        // 发送到后端
+        sendLogToBackend(logText);
     },
     
     /**
@@ -104,6 +138,9 @@ export const TimeRecorderLogger = {
             
             // 保存到本地存储
             localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(logs));
+            
+            // 同时发送到后端保存到文件
+            this._sendLogToBackend(logEntry);
         } catch (e) {
             console.error('保存日志失败:', e);
         }
@@ -178,9 +215,6 @@ export const TimeRecorderLogger = {
      */
     exportLogs: function() {
         const logs = this._getLogs();
-        return logs.map(log => {
-            const dataStr = log.data ? JSON.stringify(log.data) : '';
-            return `[${log.timestamp}] [${log.level.toUpperCase()}] [${log.module}] ${log.message} ${dataStr}`;
-        }).join('\n');
+        return logs.join('\n');
     }
 };

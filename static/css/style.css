@@ -1,3 +1,6 @@
+@import url('./modules/byte-design-system.css');
+
+/* 全局样式优化 */
 * {
     margin: 0;
     padding: 0;
@@ -197,28 +200,15 @@ h1::after {
     background: linear-gradient(135deg, #455A64 0%, #212529 100%); 
 }
 
-
-
-
-
-.control-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin: 25px 0;
-}
-
-
-
 /* 保存和取消按钮样式 */
 /* 活动标签样式 */
 .activity-label {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     color: white;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: var(--byte-font-size-sm);
+    font-weight: var(--byte-font-weight-semibold);
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -282,10 +272,10 @@ h1::after {
     background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     cursor: pointer;
-    font-size: 12px;
+    font-size: var(--byte-font-size-sm);
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -303,12 +293,12 @@ h1::after {
     background-color: #FF9800;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     cursor: pointer;
-    font-size: 12px;
+    font-size: var(--byte-font-size-sm);
     transition: background-color 0.3s;
-    margin-right: 5px;
+    margin-right: var(--byte-spacing-1);
 }
 
 .continue-btn:hover {
@@ -341,8 +331,8 @@ h1::after {
 
 .stat-card {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 20px;
-    border-radius: 10px;
+    padding: var(--byte-spacing-4);
+    border-radius: var(--byte-border-radius-large);
     text-align: center;
     box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
@@ -382,33 +372,33 @@ h1::after {
 
 .stat-card h3 {
     color: #666;
-    font-size: 16px;
-    margin-bottom: 10px;
-    font-weight: 500;
+    font-size: var(--byte-font-size-base);
+    margin-bottom: var(--byte-spacing-2);
+    font-weight: var(--byte-font-weight-medium);
 }
 
 .stat-card p {
-    font-size: 26px;
-    font-weight: 700;
-    color: #333;
+    font-size: var(--byte-font-size-2xl);
+    font-weight: var(--byte-font-weight-bold);
+    color: var(--byte-gray-10);
 }
 
 /* 分类标签样式 */
 .category-label {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 8px;
-    font-weight: bold;
+    font-size: var(--byte-font-size-sm);
+    color: var(--byte-gray-7);
+    margin-bottom: var(--byte-spacing-2);
+    font-weight: var(--byte-font-weight-bold);
 }
 
 /* 活动标签样式 */
 .activity-label {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     color: white;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: var(--byte-font-size-sm);
+    font-weight: var(--byte-font-weight-semibold);
     cursor: pointer;
 }
 
@@ -444,67 +434,67 @@ h1::after {
 .category-item {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: var(--byte-border-radius-large);
+    padding: var(--byte-spacing-5);
+    margin-bottom: var(--byte-spacing-5);
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .category-header {
     display: flex;
-    gap: 15px;
+    gap: var(--byte-spacing-4);
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
+    margin-bottom: var(--byte-spacing-4);
+    padding-bottom: var(--byte-spacing-4);
     border-bottom: 1px solid #dee2e6;
 }
 
 .category-name {
     flex: 1;
-    padding: 8px 12px;
+    padding: var(--byte-spacing-2) var(--byte-spacing-3);
     border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-base);
 }
 
 .category-color {
-    padding: 8px 12px;
+    padding: var(--byte-spacing-2) var(--byte-spacing-3);
     border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-sm);
 }
 
 .activities-container {
-    margin-left: 20px;
+    margin-left: var(--byte-spacing-4);
 }
 
 .activities-list {
-    margin-bottom: 15px;
+    margin-bottom: var(--byte-spacing-4);
 }
 
 .activity-item {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: var(--byte-spacing-2);
+    margin-bottom: var(--byte-spacing-2);
     align-items: center;
 }
 
 .activity-name {
     flex: 1;
-    padding: 6px 10px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
     border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-sm);
 }
 
 .add-activity-btn {
     background-color: #28a745;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--byte-font-size-sm);
     transition: background-color 0.3s;
 }
 
@@ -513,18 +503,18 @@ h1::after {
 }
 
 .add-activity-btn.small {
-    padding: 4px 8px;
-    font-size: 12px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    font-size: var(--byte-font-size-xs);
 }
 
 .delete-btn {
     background-color: #dc3545;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--byte-font-size-sm);
     transition: background-color 0.3s;
 }
 
@@ -533,16 +523,16 @@ h1::after {
 }
 
 .delete-btn.small {
-    padding: 4px 8px;
-    font-size: 12px;
-    border-radius: 3px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    font-size: var(--byte-font-size-xs);
+    border-radius: var(--byte-border-radius-small);
 }
 
 .control-buttons {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin: 25px 0;
+    gap: var(--byte-spacing-5);
+    margin: var(--byte-spacing-5) 0;
 }
 
 .save-btn {
@@ -559,12 +549,12 @@ h1::after {
     background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-2) var(--byte-spacing-4);
+    border-radius: var(--byte-border-radius-small);
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--byte-font-size-base);
     transition: all 0.3s ease;
-    font-weight: 500;
+    font-weight: var(--byte-font-weight-semibold);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
@@ -581,25 +571,25 @@ h1::after {
 
 /* 导航链接样式 */
 .records-header {
-    margin-bottom: 20px;
+    margin-bottom: var(--byte-spacing-4);
     display: flex;
     justify-content: flex-end;
 }
 
 .navigation {
-    margin-bottom: 20px;
+    margin-bottom: var(--byte-spacing-4);
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--byte-spacing-2);
 }
 
 .nav-link {
     color: #2196F3;
     text-decoration: none;
-    font-weight: 500;
-    padding: 12px 20px;
+    font-weight: var(--byte-font-weight-semibold);
+    padding: var(--byte-spacing-3) var(--byte-spacing-4);
     border: 1px solid #2196F3;
-    border-radius: 6px;
+    border-radius: var(--byte-border-radius-large);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -638,22 +628,22 @@ h1::after {
 
 /* 记录控制区域 */
 .records-controls {
-    margin-bottom: 20px;
+    margin-bottom: var(--byte-spacing-4);
     background: white;
-    padding: 15px;
-    border-radius: 8px;
+    padding: var(--byte-spacing-3);
+    border-radius: var(--byte-border-radius-large);
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .filter-section {
-    margin-bottom: 15px;
+    margin-bottom: var(--byte-spacing-4);
 }
 
 .filter-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 10px;
+    gap: var(--byte-spacing-3);
+    margin-bottom: var(--byte-spacing-2);
     align-items: end;
 }
 
@@ -664,22 +654,22 @@ h1::after {
 }
 
 .filter-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #555;
+    font-weight: var(--byte-font-weight-bold);
+    margin-bottom: var(--byte-spacing-1);
+    color: var(--byte-gray-7);
 }
 
 .filter-group input,
 .filter-group select {
-    padding: 8px;
+    padding: var(--byte-spacing-2);
     border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-sm);
 }
 
 .filter-actions {
     display: flex;
-    gap: 10px;
+    gap: var(--byte-spacing-2);
     align-self: end;
 }
 
@@ -696,24 +686,24 @@ h1::after {
 /* 记录表格容器 */
 .records-table-container {
     overflow-x: auto;
-    margin-bottom: 20px;
+    margin-bottom: var(--byte-spacing-4);
 }
 
 /* 分页样式 */
 .pagination {
     display: flex;
     justify-content: center;
-    gap: 5px;
-    margin-top: 20px;
+    gap: var(--byte-spacing-1);
+    margin-top: var(--byte-spacing-4);
 }
 
 .pagination button {
-    padding: 8px 12px;
+    padding: var(--byte-spacing-2) var(--byte-spacing-3);
     border: 1px solid #ddd;
     background-color: white;
-    color: #333;
+    color: var(--byte-gray-7);
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: var(--byte-border-radius-small);
     transition: all 0.3s;
 }
 
@@ -729,7 +719,7 @@ h1::after {
 
 .pagination button:disabled {
     background-color: #f5f5f5;
-    color: #999;
+    color: var(--byte-gray-5);
     cursor: not-allowed;
 }
 
@@ -737,31 +727,31 @@ h1::after {
     background-color: #FF9800;
     color: white;
     border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     cursor: pointer;
-    font-size: 12px;
-    margin-left: 5px;
+    font-size: var(--byte-font-size-sm);
+    margin-left: var(--byte-spacing-1);
 }
 
 .duration-edit {
     display: flex;
-    gap: 5px;
+    gap: var(--byte-spacing-1);
 }
 
 .duration-edit .small {
-    padding: 2px 6px;
-    font-size: 12px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    font-size: var(--byte-font-size-sm);
 }
 
 .emotion-tag {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-large);
     color: white;
-    font-size: 12px;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    font-size: var(--byte-font-size-sm);
+    margin-right: var(--byte-spacing-1);
+    margin-bottom: var(--byte-spacing-1);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
 }
@@ -773,8 +763,8 @@ h1::after {
 
 .segments-display {
     border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 15px;
+    border-radius: var(--byte-border-radius-large);
+    padding: var(--byte-spacing-4);
     background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
     max-height: 300px;
     overflow-y: auto;
@@ -789,13 +779,13 @@ h1::after {
 .segment-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: var(--byte-spacing-2) 0;
     border-bottom: 1px solid #eee;
     align-items: center;
     transition: all 0.3s ease;
-    border-radius: 4px;
-    padding: 8px;
-    margin: 5px 0;
+    border-radius: var(--byte-border-radius-small);
+    padding: var(--byte-spacing-2);
+    margin: var(--byte-spacing-1) 0;
 }
 
 .segment-row:hover {
@@ -809,10 +799,10 @@ h1::after {
 }
 
 .segment-row input[type="datetime-local"] {
-    padding: 2px 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
     border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 12px;
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-sm);
     width: auto;
     transition: all 0.3s ease;
     background-color: #fff;
@@ -827,7 +817,7 @@ h1::after {
 .segment-row span {
     flex: 1;
     text-align: left;
-    margin: 0 5px;
+    margin: 0 var(--byte-spacing-1);
 }
 
 .segment-row span:first-child {
@@ -836,15 +826,15 @@ h1::after {
 
 .segment-row span:last-child {
     text-align: right;
-    color: #666;
+    color: var(--byte-gray-7);
 }
 
 /* 段落统计信息样式 */
 .segment-summary {
-    margin-top: 15px;
-    padding: 15px;
+    margin-top: var(--byte-spacing-4);
+    padding: var(--byte-spacing-4);
     background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    border-radius: 6px;
+    border-radius: var(--byte-border-radius-large);
     border-left: 4px solid #2196F3;
     box-shadow: 0 2px 5px rgba(33, 150, 243, 0.1);
     transition: all 0.3s ease;
@@ -856,9 +846,9 @@ h1::after {
 }
 
 .segment-summary p {
-    margin: 5px 0;
-    font-weight: 500;
-    color: #333;
+    margin: var(--byte-spacing-1) 0;
+    font-weight: var(--byte-font-weight-medium);
+    color: var(--byte-gray-7);
     display: flex;
     justify-content: space-between;
 }
@@ -867,7 +857,7 @@ h1::after {
     content: '';
     flex: 1;
     border-bottom: 1px dashed #2196F3;
-    margin: 0 10px;
+    margin: 0 var(--byte-spacing-2);
 }
 
 /* 选中记录的样式 */
@@ -900,9 +890,9 @@ h1::after {
 /* 详情页分段样式 */
 .detail-section {
     border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+    border-radius: var(--byte-border-radius-large);
+    padding: var(--byte-spacing-4);
+    margin-bottom: var(--byte-spacing-4);
     background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
@@ -973,10 +963,10 @@ h1::after {
 }
 
 .highlight-field {
-    margin-bottom: 15px;
-    padding: 10px;
+    margin-bottom: var(--byte-spacing-4);
+    padding: var(--byte-spacing-2);
     background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 6px;
+    border-radius: var(--byte-border-radius-large);
     border-left: 3px solid #2196F3;
     transition: all 0.3s ease;
     display: flex;
@@ -1009,8 +999,8 @@ h1::after {
 .highlight-field label {
     font-weight: bold;
     color: #0D47A1;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
+    margin-bottom: var(--byte-spacing-1);
+    font-size: var(--byte-font-size-sm);
     transition: all 0.3s ease;
 }
 
@@ -1021,12 +1011,12 @@ h1::after {
 
 .highlight-field input,
 .highlight-field select {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #333;
-    padding: 8px 12px;
+    font-size: var(--byte-font-size-base);
+    font-weight: var(--byte-font-weight-medium);
+    color: var(--byte-gray-7);
+    padding: var(--byte-spacing-2) var(--byte-spacing-3);
     border: 1px solid #bbdefb;
-    border-radius: 4px;
+    border-radius: var(--byte-border-radius-small);
     transition: all 0.3s ease;
 }
 
@@ -1039,14 +1029,14 @@ h1::after {
 }
 
 .duration-input {
-    font-size: 1.2rem;
+    font-size: var(--byte-font-size-lg);
     font-weight: bold;
     color: #2E7D32;
     text-align: center;
     background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%) !important;
     border: 1px solid #4CAF50 !important;
-    border-radius: 6px;
-    padding: 10px;
+    border-radius: var(--byte-border-radius-large);
+    padding: var(--byte-spacing-3);
     box-shadow: 0 2px 5px rgba(76, 175, 80, 0.1);
     animation: durationPulse 2s infinite;
     transition: all 0.3s ease;
@@ -1076,10 +1066,10 @@ h1::after {
 .emotion-checkboxes {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
+    gap: var(--byte-spacing-2);
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 15px;
-    border-radius: 8px;
+    padding: var(--byte-spacing-4);
+    border-radius: var(--byte-border-radius-large);
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     animation: emotionContainerGlow 4s infinite;
@@ -1117,8 +1107,8 @@ h1::after {
 .emotion-checkbox {
     display: flex;
     align-items: center;
-    padding: 8px;
-    border-radius: 4px;
+    padding: var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid transparent;
@@ -1149,14 +1139,14 @@ h1::after {
 }
 
 .emotion-checkbox input[type="checkbox"] {
-    margin-right: 8px;
+    margin-right: var(--byte-spacing-2);
     transform: scale(1.3);
     cursor: pointer;
 }
 
 .emotion-checkbox label {
     cursor: pointer;
-    font-weight: 500;
+    font-weight: var(--byte-font-weight-medium);
     transition: all 0.3s ease;
 }
 
@@ -1167,12 +1157,12 @@ h1::after {
 /* 收获记录区域特殊样式 */
 #detail-remark {
     min-height: 150px;
-    padding: 20px;
-    font-size: 1.1rem;
+    padding: var(--byte-spacing-4);
+    font-size: var(--byte-font-size-base);
     line-height: 1.6;
     background: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%);
     border: 2px solid #8BC34A;
-    border-radius: 10px;
+    border-radius: var(--byte-border-radius-large);
     box-shadow: 0 4px 15px rgba(139, 195, 74, 0.2);
     transition: all 0.3s ease;
     animation: remarkGlow 4s infinite;
@@ -1208,10 +1198,10 @@ h1::after {
 
 /* 活动类别选择框特殊样式 */
 #detail-activity-category {
-    font-size: 1.1rem;
-    padding: 12px;
+    font-size: var(--byte-font-size-base);
+    padding: var(--byte-spacing-3);
     border: 2px solid #bbdefb;
-    border-radius: 6px;
+    border-radius: var(--byte-border-radius-large);
     background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
     box-shadow: 0 2px 5px rgba(33, 150, 243, 0.1);
     transition: all 0.3s ease;
@@ -1249,12 +1239,12 @@ h1::after {
 /* 情绪标签样式 */
 .emotion-tag {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-large);
     color: white;
-    font-size: 12px;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    font-size: var(--byte-font-size-sm);
+    margin-right: var(--byte-spacing-1);
+    margin-bottom: var(--byte-spacing-1);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     animation: emotionFloat 3s infinite;
@@ -1273,8 +1263,8 @@ h1::after {
 /* 段落详情样式 */
 .segments-display {
     border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
+    border-radius: var(--byte-border-radius-small);
+    padding: var(--byte-spacing-2);
     background: #f9f9f9;
     max-height: 200px;
     overflow-y: auto;
@@ -1284,17 +1274,17 @@ h1::after {
 .segment-row {
     display: flex;
     justify-content: space-between;
-    padding: 6px 0;
+    padding: var(--byte-spacing-1) 0;
     border-bottom: 1px solid #eee;
     align-items: center;
 }
 
 /* 段落输入框特殊样式 */
 .segment-row input[type="datetime-local"] {
-    padding: 2px 4px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
     border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 12px;
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-sm);
     width: auto;
 }
 
@@ -1303,12 +1293,12 @@ h1::after {
     background: #667eea;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: var(--byte-spacing-1) var(--byte-spacing-2);
+    border-radius: var(--byte-border-radius-small);
+    font-size: var(--byte-font-size-sm);
     cursor: pointer;
-    font-weight: 500;
-    margin-top: 10px;
+    font-weight: var(--byte-font-weight-semibold);
+    margin-top: var(--byte-spacing-3);
 }
 
 .control-btn:hover {
@@ -1318,16 +1308,16 @@ h1::after {
 /* 收获记录区域特殊样式 */
 #detail-remark {
     min-height: 150px;
-    padding: 15px;
-    font-size: 1.1rem;
+    padding: var(--byte-spacing-4);
+    font-size: var(--byte-font-size-base);
     line-height: 1.6;
     background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
     border: 2px solid #4CAF50;
-    border-radius: 8px;
+    border-radius: var(--byte-border-radius-large);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
     transition: all 0.3s ease;
-    font-weight: 500;
+    font-weight: var(--byte-font-weight-semibold);
 }
 
 #detail-remark:focus {
@@ -1344,17 +1334,17 @@ h1::after {
 
 /* 段落统计信息样式 */
 .segment-summary {
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: var(--byte-spacing-3);
+    padding: var(--byte-spacing-2);
     background: #e3f2fd;
-    border-radius: 4px;
+    border-radius: var(--byte-border-radius-small);
     border-left: 3px solid #2196F3;
 }
 
 .segment-summary p {
-    margin: 3px 0;
-    font-weight: 500;
-    color: #333;
+    margin: var(--byte-spacing-1) 0;
+    font-weight: var(--byte-font-weight-medium);
+    color: var(--byte-gray-7);
     display: flex;
     justify-content: space-between;
 }
@@ -1392,37 +1382,37 @@ h1::after {
 /* 活动名称字段特殊样式 */
 #detail-activity {
     font-weight: bold;
-    font-size: 1.2rem;
-    color: #333;
+    font-size: var(--byte-font-size-lg);
+    color: var(--byte-gray-7);
     text-align: center;
     background: #e3f2fd;
     border: 1px solid #2196F3;
-    border-radius: 4px;
-    padding: 8px;
+    border-radius: var(--byte-border-radius-small);
+    padding: var(--byte-spacing-2);
 }
 
 /* 计时时长字段特殊样式 */
 #detail-duration {
-    font-size: 1.3rem;
+    font-size: var(--byte-font-size-xl);
     font-weight: bold;
     color: #2E7D32;
     text-align: center;
     background: #E8F5E9;
     border: 1px solid #4CAF50;
-    border-radius: 4px;
-    padding: 10px;
+    border-radius: var(--byte-border-radius-small);
+    padding: var(--byte-spacing-3);
 }
 
 /* 暂停次数字段特殊样式 */
 #detail-pause-count {
-    font-size: 1.1rem;
+    font-size: var(--byte-font-size-base);
     font-weight: bold;
     color: #FF9800;
     text-align: center;
     background: #FFF3E0;
     border: 1px solid #FF9800;
-    border-radius: 4px;
-    padding: 8px;
+    border-radius: var(--byte-border-radius-small);
+    padding: var(--byte-spacing-2);
 }
 
 /* 保存成功动画 */

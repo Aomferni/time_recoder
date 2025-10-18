@@ -1,185 +1,3 @@
-{% extends "base.html" %}
-
-{% block title %}初始化配置 - 时间追踪器{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/user-section.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-config.css') }}">
-<style>
-    .init-container {
-        max-width: 600px;
-        margin: 50px auto;
-        padding: 30px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    
-    .init-title {
-        color: #333;
-        margin-bottom: 30px;
-        font-size: 2rem;
-    }
-    
-    .init-step {
-        margin-bottom: 20px;
-        padding: 20px;
-        border-radius: 8px;
-        background: #f8f9fa;
-        text-align: left;
-    }
-    
-    .step-title {
-        font-weight: bold;
-        color: #007bff;
-        margin-bottom: 10px;
-        font-size: 1.2rem;
-    }
-    
-    .step-content {
-        margin-left: 20px;
-    }
-    
-    .init-actions {
-        margin-top: 30px;
-        text-align: center;
-    }
-    
-    .control-btn {
-        padding: 12px 24px;
-        font-size: 1rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin: 0 10px;
-    }
-    
-    .primary-btn {
-        background: linear-gradient(135deg, #0066ff 0%, #00b900 100%);
-        color: white;
-    }
-    
-    .primary-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
-    }
-    
-    .secondary-btn {
-        background: #6c757d;
-        color: white;
-    }
-    
-    .secondary-btn:hover {
-        background: #5a6268;
-    }
-    
-    .sync-progress {
-        margin-top: 20px;
-        display: none;
-    }
-    
-    .progress-bar {
-        width: 100%;
-        height: 20px;
-        background: #e9ecef;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
-    
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #0066ff, #00b900);
-        width: 0%;
-        transition: width 0.3s ease;
-    }
-    
-    .progress-text {
-        font-size: 0.9rem;
-        color: #666;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="init-container">
-    <h1 class="init-title">⏱️ 时间追踪器初始化配置</h1>
-    
-    <div class="init-step">
-        <div class="step-title">第一步：配置飞书集成</div>
-        <div class="step-content">
-            <p>为了更好地使用时间追踪器，我们需要您配置飞书集成。这将允许：</p>
-            <ul>
-                <li>从飞书多维表格同步您的历史活动记录</li>
-                <li>将您的时间数据同步回飞书多维表格</li>
-                <li>实现数据的双向同步和备份</li>
-            </ul>
-            <p>请确保您已经在飞书开放平台创建了应用，并获得了App ID和App Secret。</p>
-        </div>
-    </div>
-    
-    <div class="init-step">
-        <div class="step-title">第二步：数据同步</div>
-        <div class="step-content">
-            <p>配置完成后，系统将自动从飞书多维表格同步以下数据：</p>
-            <ul>
-                <li>所有历史活动记录</li>
-                <li>所有日期的今日计划数据</li>
-            </ul>
-            <p>同步过程可能需要一些时间，请耐心等待。</p>
-        </div>
-    </div>
-    
-    <div class="init-step">
-        <div class="step-title">第三步：开始使用</div>
-        <div class="step-content">
-            <p>数据同步完成后，您就可以开始使用时间追踪器了：</p>
-            <ul>
-                <li>记录您的日常活动和时间</li>
-                <li>查看情绪和活动的可视化分析</li>
-                <li>制定和跟踪今日计划</li>
-                <li>所有数据将自动同步到飞书</li>
-            </ul>
-        </div>
-    </div>
-    
-    <div class="init-actions">
-        <button class="control-btn primary-btn" onclick="startInitialization()">开始配置</button>
-        <button class="control-btn secondary-btn" onclick="skipInitialization()">跳过配置（不推荐）</button>
-    </div>
-    
-    <div class="sync-progress" id="syncProgress">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-text" id="progressText">准备开始同步...</div>
-    </div>
-</div>
-
-<!-- 飞书配置模态框 -->
-<div id="feishuConfigModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" onclick="closeFeishuConfig()">&times;</span>
-        <h2>飞书配置</h2>
-        <div class="detail-form">
-            <div class="highlight-field">
-                <label for="feishuAppId">App ID:</label>
-                <input type="text" id="feishuAppId" placeholder="请输入飞书应用的App ID">
-            </div>
-            <div class="highlight-field">
-                <label for="feishuAppSecret">App Secret:</label>
-                <input type="password" id="feishuAppSecret" placeholder="请输入飞书应用的App Secret">
-            </div>
-            <div class="detail-actions">
-                <button type="button" class="save-btn" onclick="saveFeishuConfig()">保存并继续</button>
-                <button type="button" class="cancel-btn" onclick="closeFeishuConfig()">取消</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
     function startInitialization() {
         // 显示飞书配置模态框
@@ -209,11 +27,50 @@
     }
     
     function showFeishuConfig() {
-        // 显示模态框
-        const modal = document.getElementById('feishuConfigModal');
-        if (modal) {
-            modal.style.display = 'block';
-        }
+        // 获取当前飞书配置
+        fetch('/api/feishu/config')
+        .then(response => response.json())
+        .then(feishuData => {
+            // 获取应用配置
+            return fetch('/api/app-config')
+            .then(response => response.json())
+            .then(appConfigData => {
+                if (feishuData.success) {
+                    // 填充飞书配置信息
+                    const appIdElement = document.getElementById('feishuAppId');
+                    const appSecretElement = document.getElementById('feishuAppSecret');
+                    
+                    if (appIdElement) {
+                        appIdElement.value = feishuData.config.app_id || '';
+                    }
+                    
+                    if (appSecretElement) {
+                        appSecretElement.value = ''; // 不返回secret
+                    }
+                    
+                    // 填充自动同步配置
+                    if (appConfigData.success) {
+                        const autoSyncEnabled = appConfigData.config.feishu.auto_sync_enabled || false;
+                        const autoSyncElement = document.getElementById('feishuAutoSync');
+                        if (autoSyncElement) {
+                            autoSyncElement.checked = autoSyncEnabled;
+                        }
+                    }
+                    
+                    // 显示模态框
+                    const modal = document.getElementById('feishuConfigModal');
+                    if (modal) {
+                        modal.style.display = 'block';
+                    }
+                } else {
+                    throw new Error(feishuData.error || '获取飞书配置失败');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('获取飞书配置失败:', error);
+            alert('获取飞书配置失败: ' + error.message);
+        });
     }
     
     function closeFeishuConfig() {
@@ -224,8 +81,19 @@
     }
     
     function saveFeishuConfig() {
-        const appId = document.getElementById('feishuAppId').value.trim();
-        const appSecret = document.getElementById('feishuAppSecret').value.trim();
+        const appIdElement = document.getElementById('feishuAppId');
+        const appSecretElement = document.getElementById('feishuAppSecret');
+        const autoSyncElement = document.getElementById('feishuAutoSync');
+        
+        // 检查元素是否存在
+        if (!appIdElement) {
+            alert('找不到App ID输入元素');
+            return;
+        }
+        
+        const appId = appIdElement.value.trim();
+        const appSecret = appSecretElement ? appSecretElement.value.trim() : '';
+        const autoSyncEnabled = autoSyncElement ? autoSyncElement.checked : false;
         
         // 验证输入
         if (!appId) {
@@ -243,7 +111,7 @@
         document.getElementById('syncProgress').style.display = 'block';
         updateProgress(10, '正在保存飞书配置...');
         
-        // 发送更新请求
+        // 发送飞书配置更新请求
         fetch('/api/feishu/config', {
             method: 'POST',
             headers: {
@@ -252,13 +120,32 @@
             body: JSON.stringify(updateData)
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateProgress(30, '飞书配置保存成功，开始同步数据...');
-                // 开始数据同步
-                startDataSync();
+        .then(feishuData => {
+            if (feishuData.success) {
+                // 发送应用配置更新请求
+                return fetch('/api/app-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        feishu: {
+                            auto_sync_enabled: autoSyncEnabled
+                        }
+                    })
+                })
+                .then(response => response.json())
+                .then(appConfigData => {
+                    if (appConfigData.success) {
+                        updateProgress(30, '飞书配置保存成功，开始同步数据...');
+                        // 开始数据同步
+                        startDataSync();
+                    } else {
+                        throw new Error(appConfigData.error || '保存应用配置失败');
+                    }
+                });
             } else {
-                throw new Error(data.error || '保存飞书配置失败');
+                throw new Error(feishuData.error || '保存飞书配置失败');
             }
         })
         .catch(error => {
@@ -286,35 +173,37 @@
                 updateProgress(70, '活动记录同步完成，正在同步今日计划数据...');
                 
                 // 同步今日计划
-                return fetch('/api/init/sync-plans', {
-                    method: 'POST'
-                }).then(response => response.json());
+                async function syncPlansFromFeishu() {
+                    try {
+                        showInitStatus('正在从飞书同步今日计划...', 'info');
+                        
+                        const response = await fetch('/api/feishu/sync-plans', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showInitStatus(`同步成功：${data.message}`, 'success');
+                            // 延迟2秒后继续初始化流程
+                            setTimeout(() => {
+                                showStep(4);
+                            }, 2000);
+                        } else {
+                            throw new Error(data.error || '从飞书同步今日计划失败');
+                        }
+                    } catch (error) {
+                        console.error('从飞书同步今日计划失败:', error);
+                        showInitStatus(`同步失败: ${error.message}`, 'error');
+                    }
+                }
+
+                syncPlansFromFeishu();
             } else {
                 throw new Error(data.error || '同步活动记录失败');
-            }
-        })
-        .then(data => {
-            if (data.success) {
-                updateProgress(90, '今日计划数据同步完成，正在完成初始化...');
-                
-                // 完成初始化
-                return fetch('/api/init/complete', {
-                    method: 'POST'
-                }).then(response => response.json());
-            } else {
-                throw new Error(data.error || '同步今日计划数据失败');
-            }
-        })
-        .then(data => {
-            if (data.success) {
-                updateProgress(100, '初始化完成！即将跳转到主页...');
-                
-                // 延迟跳转到主页
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 2000);
-            } else {
-                throw new Error(data.error || '完成初始化失败');
             }
         })
         .catch(error => {
@@ -336,5 +225,15 @@
             progressText.textContent = text;
         }
     }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 添加模态框外部点击关闭功能
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('feishuConfigModal');
+            if (event.target === modal) {
+                closeFeishuConfig();
+            }
+        });
+    });
 </script>
-{% endblock %}

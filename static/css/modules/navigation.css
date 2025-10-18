@@ -1,25 +1,26 @@
-/* 导航链接样式 */
+/* 字节风导航链接样式优化 */
+
 .records-header {
-    margin-bottom: 20px;
+    margin-bottom: var(--byte-spacing-5);
     display: flex;
     justify-content: flex-end;
 }
 
 .navigation {
-    margin-bottom: 20px;
+    margin-bottom: var(--byte-spacing-5);
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--byte-spacing-3);
 }
 
 .nav-link {
-    color: #2196F3;
+    color: var(--byte-gray-8);
     text-decoration: none;
-    font-weight: 600;
-    padding: 12px 20px;
-    border: 2px solid #2196F3;
-    border-radius: 50px; /* 圆角按钮 */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更流畅的过渡 */
+    font-weight: var(--byte-font-weight-semibold);
+    padding: var(--byte-spacing-3) var(--byte-spacing-5);
+    border: 1px solid var(--byte-gray-3);
+    border-radius: var(--byte-border-radius-full);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     display: inline-flex;
@@ -27,100 +28,82 @@
     justify-content: center;
     min-width: auto;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
-    font-size: 15px;
-    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-    letter-spacing: 0.5px; /* 字符间距 */
+    box-shadow: var(--byte-shadow-1);
+    font-size: var(--byte-font-size-sm);
+    background: #fff;
+    letter-spacing: 0.5px;
 }
 
-/* 按钮内的光泽效果 */
-.nav-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: 0.5s;
-}
-
-.nav-link:hover::before {
-    left: 100%;
-}
-
-/* 悬停效果 */
 .nav-link:hover {
-    background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+    background: var(--byte-primary-color);
     color: white;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
+    transform: translateY(-1px);
+    box-shadow: var(--byte-shadow-2);
+    border-color: var(--byte-primary-color);
 }
 
-/* 按下效果 */
 .nav-link:active {
-    transform: translateY(-1px) scale(1.02);
-    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+    transform: translateY(0);
+    box-shadow: var(--byte-shadow-1);
 }
 
 /* 为不同功能的按钮添加不同的颜色主题 */
 .nav-link[href="/records"] {
-    border-color: #4CAF50;
-    color: #4CAF50;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+    border-color: var(--byte-success-color);
+    color: var(--byte-success-color);
 }
 
 .nav-link[href="/records"]:hover {
-    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    background: var(--byte-success-color);
+    box-shadow: var(--byte-shadow-2);
 }
 
 .nav-link[href="/mood-wall"] {
-    border-color: #FF9800;
-    color: #FF9800;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+    border-color: var(--byte-warning-color);
+    color: var(--byte-warning-color);
 }
 
 .nav-link[href="/mood-wall"]:hover {
-    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+    background: var(--byte-warning-color);
+    box-shadow: var(--byte-shadow-2);
 }
 
 .nav-link[href="/project-description"] {
-    border-color: #9C27B0;
-    color: #9C27B0;
-    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+    border-color: var(--byte-gray-6);
+    color: var(--byte-gray-6);
 }
 
 .nav-link[href="/project-description"]:hover {
-    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
-    box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);
+    background: var(--byte-gray-6);
+    box-shadow: var(--byte-shadow-2);
 }
 
 .nav-link[href="/manage-categories"] {
-    border-color: #00BCD4;
-    color: #00BCD4;
-    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.2);
+    border-color: var(--byte-gray-6);
+    color: var(--byte-gray-6);
 }
 
 .nav-link[href="/manage-categories"]:hover {
-    background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
-    box-shadow: 0 8px 25px rgba(0, 188, 212, 0.4);
+    background: var(--byte-gray-6);
+    box-shadow: var(--byte-shadow-2);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
     .nav-link {
-        padding: 10px 16px;
-        font-size: 14px;
-        min-width: auto;
+        padding: var(--byte-spacing-2) var(--byte-spacing-4);
+        font-size: var(--byte-font-size-xs);
     }
 }
 
 @media (max-width: 480px) {
     .nav-link {
-        padding: 8px 14px;
-        font-size: 13px;
+        padding: var(--byte-spacing-2) var(--byte-spacing-3);
+        font-size: var(--byte-font-size-xs);
         border-width: 1px;
+    }
+    
+    .navigation {
+        gap: var(--byte-spacing-2);
     }
 }

@@ -2,7 +2,8 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/user-section.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/daily-plan.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/daily-plan-original.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/timer-original.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-config.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/detail-modal.css') }}">
 {% endblock %}
@@ -10,15 +11,7 @@
 {% block content %}
 <h1>时间追踪器</h1>
 
-<div class="user-section">
-    <div class="top-navigation">
-        <a href="/records" class="nav-link">查看历史记录</a>
-        <a href="/mood-wall" class="nav-link">情绪与活动墙</a>
-        <a href="/project-description" class="nav-link">项目说明</a>
-        <a href="/manage-categories" class="nav-link">管理类别</a>
-        <button class="control-btn feishu-config-btn" onclick="window.showFeishuConfig()">飞书配置</button>
-    </div>
-</div>
+
 
 <!-- 今日计划区域 -->
 <div class="daily-plan-section">
@@ -284,27 +277,7 @@
     </div>
 </div>
 
-<!-- 飞书配置模态框 -->
-<div id="feishuConfigModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" onclick="window.closeFeishuConfig()">&times;</span>
-        <h2>飞书配置</h2>
-        <div class="detail-form">
-            <div class="highlight-field">
-                <label for="feishuAppId">App ID:</label>
-                <input type="text" id="feishuAppId" placeholder="请输入飞书应用的App ID">
-            </div>
-            <div class="highlight-field">
-                <label for="feishuAppSecret">App Secret:</label>
-                <input type="password" id="feishuAppSecret" placeholder="请输入飞书应用的App Secret">
-            </div>
-            <div class="detail-actions">
-                <button type="button" class="save-btn" onclick="window.saveFeishuConfig()">保存</button>
-                <button type="button" class="cancel-btn" onclick="window.closeFeishuConfig()">取消</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- 活动详情浮窗 -->
 <div id="recordDetailModal" class="modal" style="display: none;">

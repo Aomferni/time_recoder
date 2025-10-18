@@ -3,10 +3,12 @@
 {% block content %}
 <h1>管理活动类别</h1>
 
-<!-- 添加导航区域 -->
-<div class="manage-categories-nav">
-    <a href="/" class="manage-categories-nav-btn">← 返回首页</a>
-</div>
+<style>
+    /* 隐藏页面内的导航链接，因为顶部导航栏已经提供了导航 */
+    .manage-categories-container .navigation {
+        display: none;
+    }
+</style>
 
 <div class="manage-categories-container">
     <div class="section">

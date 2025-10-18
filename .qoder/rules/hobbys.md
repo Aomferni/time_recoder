@@ -2,8 +2,10 @@
 trigger: manual
 ---
 **【先计划，再执行，要验证，再总结结论】**
-开始任务前，先查看PRD.md 和 structure.md文件，
-并根据任务描述，调整PRD.md文件，提前设计测试思路，
+开始任务前，
+1. 记录Prompt至 ./rules/prompts.md 文件中
+2. 查看PRD.md 和 structure.md文件，
+3. 根据任务描述，调整PRD.md文件，提前设计测试思路，
 
 代码修改的原则如下：
 1. 优先复用和优化原接口和已有代码，

@@ -295,6 +295,7 @@ export const TimeRecorderAPI = {
      * 同步今日计划到飞书
      */
     syncDailyPlanToFeishu: function(date) {
+        console.log('[API调用] 同步今日计划到飞书，日期:', date);
         return fetch('/api/daily-plan/sync-feishu', {
             method: 'POST',
             headers: {
