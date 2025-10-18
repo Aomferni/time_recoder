@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}日志查看 - 时间追踪器{% endblock %}
+
+{% block head %}
+<style>
+.log-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.log-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.log-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.log-table th,
+.log-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.log-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.log-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.log-level-debug {
+    color: #6c757d;
+}
+
+.log-level-info {
+    color: #17a2b8;
+}
+
+.log-level-warn {
+    color: #ffc107;
+}
+
+.log-level-error {
+    color: #dc3545;
+}
+
+.log-message {
+    word-break: break-all;
+}
+
+.log-data {
+    font-family: monospace;
+    font-size: 12px;
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 4px;
+    max-width: 300px;
+    overflow-x: auto;
+}
+
+.log-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.clear-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.clear-btn:hover {
+    background: #c82333;
+}
+
+.export-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.export-btn:hover {
+    background: #218838;
+}
+
+.refresh-btn {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.refresh-btn:hover {
+    background: #138496;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="log-container">
+    <div class="log-header">
+        <h1>系统日志</h1>
+        <div class="log-controls">
+            <button class="refresh-btn" onclick="refreshLogs()">刷新</button>
+            <button class="export-btn" onclick="exportLogs()">导出</button>
+            <button class="clear-btn" onclick="clearLogs()">清空日志</button>
+        </div>
+    </div>
+    
+    <div class="log-filter">
+        <div class="filter-group">
+            <label>模块:</label>
+            <select id="moduleFilter" onchange="filterLogs()">
+                <option value="">全部模块</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>级别:</label>
+            <select id="levelFilter" onchange="filterLogs()">
+                <option value="">全部级别</option>
+                <option value="debug">Debug</option>
+                <option value="info">Info</option>
+                <option value="warn">Warn</option>
+                <option value="error">Error</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>搜索:</label>
+            <input type="text" id="searchFilter" placeholder="搜索消息..." oninput="filterLogs()">
+        </div>
+    </div>
+    
+    <table class="log-table">
+        <thead>
+            <tr>
+                <th>时间</th>
+                <th>级别</th>
+                <th>模块</th>
+                <th>消息</th>
+                <th>数据</th>
+            </tr>
+        </thead>
+        <tbody id="logTableBody">
+            <!-- 日志内容将通过JavaScript动态填充 -->
+        </tbody>
+    </table>
+    
+    <div class="log-pagination">
+        <button class="pagination-btn" id="prevPageBtn" onclick="previousPage()" disabled>上一页</button>
+        <span id="pageInfo">第 1 页</span>
+        <button class="pagination-btn" id="nextPageBtn" onclick="nextPage()">下一页</button>
+    </div>
+</div>
+
+<script>
+// 日志数据和分页信息
+let allLogs = [];
+let filteredLogs = [];
+let currentPage = 1;
+let logsPerPage = 50;
+let modules = new Set();
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    loadLogs();
+});
+
+// 加载日志数据
+function loadLogs() {
+    try {
+        const logsStr = localStorage.getItem('timeRecorderLogs');
+        allLogs = logsStr ? JSON.parse(logsStr) : [];
+        
+        // 按时间倒序排列（最新的在前面）
+        allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // 收集所有模块
+        modules.clear();
+        allLogs.forEach(log => {
+            if (log.module) {
+                modules.add(log.module);
+            }
+        });
+        
+        // 更新模块筛选下拉框
+        updateModuleFilter();
+        
+        // 应用当前筛选条件
+        filterLogs();
+    } catch (e) {
+        console.error('加载日志失败:', e);
+        alert('加载日志失败: ' + e.message);
+    }
+}
+
+// 更新模块筛选下拉框
+function updateModuleFilter() {
+    const moduleFilter = document.getElementById('moduleFilter');
+    // 保存当前选择
+    const currentValue = moduleFilter.value;
+    
+    // 清空选项
+    moduleFilter.innerHTML = '<option value="">全部模块</option>';
+    
+    // 添加模块选项
+    Array.from(modules).sort().forEach(module => {
+        const option = document.createElement('option');
+        option.value = module;
+        option.textContent = module;
+        moduleFilter.appendChild(option);
+    });
+    
+    // 恢复当前选择
+    moduleFilter.value = currentValue;
+}
+
+// 筛选日志
+function filterLogs() {
+    const moduleFilter = document.getElementById('moduleFilter').value;
+    const levelFilter = document.getElementById('levelFilter').value;
+    const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+    
+    filteredLogs = allLogs.filter(log => {
+        // 模块筛选
+        if (moduleFilter && log.module !== moduleFilter) {
+            return false;
+        }
+        
+        // 级别筛选
+        if (levelFilter && log.level !== levelFilter) {
+            return false;
+        }
+        
+        // 搜索筛选
+        if (searchFilter && !log.message.toLowerCase().includes(searchFilter)) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // 重置到第一页
+    currentPage = 1;
+    
+    // 渲染日志表格
+    renderLogs();
+}
+
+// 渲染日志表格
+function renderLogs() {
+    const tbody = document.getElementById('logTableBody');
+    tbody.innerHTML = '';
+    
+    // 计算分页
+    const startIndex = (currentPage - 1) * logsPerPage;
+    const endIndex = startIndex + logsPerPage;
+    const pageLogs = filteredLogs.slice(startIndex, endIndex);
+    
+    // 更新分页按钮状态
+    document.getElementById('prevPageBtn').disabled = currentPage === 1;
+    document.getElementById('nextPageBtn').disabled = endIndex >= filteredLogs.length;
+    document.getElementById('pageInfo').textContent = `第 ${currentPage} 页，共 ${Math.ceil(filteredLogs.length / logsPerPage)} 页`;
+    
+    // 渲染日志行
+    pageLogs.forEach(log => {
+        const row = document.createElement('tr');
+        
+        // 格式化时间
+        const time = new Date(log.timestamp).toLocaleString('zh-CN');
+        
+        // 创建数据列
+        row.innerHTML = `
+            <td>${time}</td>
+            <td class="log-level-${log.level}">${log.level.toUpperCase()}</td>
+            <td>${log.module || ''}</td>
+            <td class="log-message">${log.message || ''}</td>
+            <td>${log.data ? '<div class="log-data">' + JSON.stringify(log.data, null, 2) + '</div>' : ''}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    // 如果没有日志，显示提示信息
+    if (pageLogs.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="5" style="text-align: center; padding: 20px;">暂无日志数据</td>';
+        tbody.appendChild(row);
+    }
+}
+
+// 上一页
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderLogs();
+    }
+}
+
+// 下一页
+function nextPage() {
+    const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderLogs();
+    }
+}
+
+// 刷新日志
+function refreshLogs() {
+    loadLogs();
+}
+
+// 导出日志
+function exportLogs() {
+    try {
+        const logsStr = localStorage.getItem('timeRecorderLogs');
+        if (!logsStr) {
+            alert('没有日志数据可导出');
+            return;
+        }
+        
+        const logs = JSON.parse(logsStr);
+        const exportStr = logs.map(log => {
+            const dataStr = log.data ? JSON.stringify(log.data) : '';
+            return `[${log.timestamp}] [${log.level.toUpperCase()}] [${log.module}] ${log.message} ${dataStr}`;
+        }).join('\n');
+        
+        // 创建下载链接
+        const blob = new Blob([exportStr], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `time_recorder_logs_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error('导出日志失败:', e);
+        alert('导出日志失败: ' + e.message);
+    }
+}
+
+// 清空日志
+function clearLogs() {
+    if (confirm('确定要清空所有日志吗？此操作不可恢复。')) {
+        try {
+            localStorage.removeItem('timeRecorderLogs');
+            allLogs = [];
+            filteredLogs = [];
+            modules.clear();
+            updateModuleFilter();
+            renderLogs();
+            alert('日志已清空');
+        } catch (e) {
+            console.error('清空日志失败:', e);
+            alert('清空日志失败: ' + e.message);
+        }
+    }
+}
+</script>
+{% endblock %}

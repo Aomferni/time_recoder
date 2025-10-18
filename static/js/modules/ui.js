@@ -593,25 +593,19 @@ export const TimeRecorderUI = {
                     if (index !== -1) {
                         records[index] = {...records[index], ...data.record};
                     }
-                    
-                    // 触发保存成功动画
-                    // 确保只选择当前模态框中的保存按钮
-                    const modal = document.getElementById('recordDetailModal');
-                    if (modal) {
-                        const saveBtn = modal.querySelector('.save-btn');
-                        if (saveBtn) {
-                            saveBtn.classList.add('save-success');
-                            setTimeout(() => {
-                                if (saveBtn.classList.contains('save-success')) {
-                                    saveBtn.classList.remove('save-success');
-                                }
-                            }, 500);
-                        }
-                    }
-                    
-                    TimeRecorderUI.closeRecordDetailModal();
                     TimeRecorderUI.updateRecordsTable();
-                    TimeRecorderUI.updateStats();
+                    
+                    // 开始计时器
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                    }
+                    setTimerInterval(setInterval(TimeRecorderTimer.updateTimer, 1000));
+                    
+                    // 显示快速情绪记录区域
+                    const quickEmotionSection = document.getElementById('quickEmotionSection');
+                    if (quickEmotionSection) {
+                        quickEmotionSection.style.display = 'block';
+                    }
                 } else {
                     alert('更新记录失败: ' + (data.error || '未知错误'));
                 }
@@ -642,8 +636,9 @@ export const TimeRecorderUI = {
         setCurrentActivity(record.activity);
         const currentActivityElement = document.getElementById('currentActivity');
         if (currentActivityElement) {
-            currentActivityElement.textContent = `当前活动：${record.activity}`;
-            currentActivityElement.contentEditable = "true";
+            currentActivityElement.textContent = record.activity;
+            // 保存活动类别信息到data属性
+            currentActivityElement.setAttribute('data-category', record.activityCategory || '');
         }
         
         // 2. 将计时时长同步在【请选择活动】处
@@ -669,6 +664,34 @@ export const TimeRecorderUI = {
         const toggleBtn = document.getElementById('toggleBtn');
         if (toggleBtn) {
             toggleBtn.textContent = '停止';
+        }
+        
+        // 更新计时器区域的颜色
+        const focusTimerSection = document.getElementById('focusTimerSection');
+        if (focusTimerSection && record.activityCategory) {
+            // 移除所有类别颜色类
+            const colorClasses = ['btn-work-output', 'btn-charge', 'btn-rest', 'btn-create', 'btn-gap', 'btn-entertainment'];
+            colorClasses.forEach(cls => {
+                focusTimerSection.classList.remove(cls);
+            });
+            
+            // 添加新的类别颜色类
+            const categoryClass = TimeRecorderFrontendUtils.getActivityCategoryClass(record.activityCategory);
+            focusTimerSection.classList.add(categoryClass);
+            
+            // 更新计时器中的类别显示
+            // 查找或创建类别显示元素
+            let categoryElement = focusTimerSection.querySelector('.focus-category');
+            if (!categoryElement) {
+                categoryElement = document.createElement('div');
+                categoryElement.className = 'focus-category';
+                // 插入到timer-display之后
+                const timerDisplay = focusTimerSection.querySelector('.timer-display');
+                if (timerDisplay) {
+                    timerDisplay.parentNode.insertBefore(categoryElement, timerDisplay.nextSibling);
+                }
+            }
+            categoryElement.textContent = record.activityCategory;
         }
         
         // 3. 新增一个segment开始时间
@@ -705,6 +728,12 @@ export const TimeRecorderUI = {
                         clearInterval(timerInterval);
                     }
                     setTimerInterval(setInterval(TimeRecorderTimer.updateTimer, 1000));
+                    
+                    // 显示快速情绪记录区域
+                    const quickEmotionSection = document.getElementById('quickEmotionSection');
+                    if (quickEmotionSection) {
+                        quickEmotionSection.style.display = 'block';
+                    }
                 } else {
                     alert('更新记录失败: ' + (data.error || '未知错误'));
                 }
@@ -751,23 +780,11 @@ export const TimeRecorderUI = {
      * 更新统计信息
      */
     updateStats: function() {
+        // 今日累计时长部分已移除，不再更新相关元素
         TimeRecorderAPI.getStats()
             .then(stats => {
-                const totalTimeElement = document.getElementById('totalTime');
-                const toyTotalTimeElement = document.getElementById('toyTotalTime');
-                const activityCountElement = document.getElementById('activityCount');
-                
-                if (totalTimeElement) {
-                    totalTimeElement.textContent = `${stats.totalHours || 0}小时${stats.totalMinutes || 0}分`;
-                }
-                
-                if (toyTotalTimeElement) {
-                    toyTotalTimeElement.textContent = `${stats.toyTotalHours || 0}小时${stats.toyTotalMinutes || 0}分`;
-                }
-                
-                if (activityCountElement) {
-                    activityCountElement.textContent = `${stats.activityCount || 0}次`;
-                }
+                // 不再更新已删除的统计元素
+                console.log('统计信息已更新:', stats);
             })
             .catch(error => {
                 console.error('加载统计信息失败:', error);

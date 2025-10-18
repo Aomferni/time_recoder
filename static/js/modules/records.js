@@ -1,6 +1,8 @@
 /**
  * 历史记录页面的JavaScript模块
  */
+import { FeishuConfigModule } from './feishuConfig.js';
+
 class TimeRecorderRecords {
     constructor() {
         this.currentPage = 1;
@@ -55,6 +57,25 @@ class TimeRecorderRecords {
                     }
                 });
             }
+            
+            // 监听其他页面的刷新信号
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'timeRecorderRefreshSignal') {
+                    // 当检测到刷新信号时，重新加载数据
+                    if (e.newValue) {
+                        try {
+                            const signal = JSON.parse(e.newValue);
+                            // 检查信号是否来自其他页面（避免自己刷新自己）
+                            if (signal.sourcePage !== window.location.pathname) {
+                                console.log('检测到其他页面的刷新信号，正在刷新当前页面数据...');
+                                this.loadRecords();
+                            }
+                        } catch (error) {
+                            console.error('解析刷新信号失败:', error);
+                        }
+                    }
+                }
+            });
         });
     }
 
@@ -401,85 +422,24 @@ class TimeRecorderRecords {
      * 显示飞书配置模态框
      */
     async showFeishuConfig() {
-        try {
-            // 获取当前飞书配置
-            const response = await fetch('/api/feishu/config');
-            const data = await response.json();
-            
-            if (data.success) {
-                // 填充配置信息
-                document.getElementById('feishuAppId').value = data.config.app_id || '';
-                document.getElementById('feishuAppSecret').value = ''; // 不返回secret
-                
-                // 显示模态框
-                const modal = document.getElementById('feishuConfigModal');
-                if (modal) {
-                    modal.style.display = 'block';
-                }
-            } else {
-                throw new Error(data.error || '获取飞书配置失败');
-            }
-        } catch (error) {
-            console.error('获取飞书配置失败:', error);
-            alert('获取飞书配置失败: ' + error.message);
-        }
+        // 复用飞书配置模块
+        return FeishuConfigModule.showFeishuConfig();
     }
     
     /**
      * 关闭飞书配置模态框
      */
     closeFeishuConfigModal() {
-        const modal = document.getElementById('feishuConfigModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
+        // 复用飞书配置模块
+        return FeishuConfigModule.closeFeishuConfig();
     }
     
     /**
      * 保存飞书配置
      */
     async saveFeishuConfig() {
-        try {
-            const appId = document.getElementById('feishuAppId').value.trim();
-            const appSecret = document.getElementById('feishuAppSecret').value.trim();
-            
-            // 验证输入
-            if (!appId) {
-                alert('请输入App ID');
-                return;
-            }
-            
-            // 如果用户没有输入新的App Secret，则不更新
-            const updateData = {
-                app_id: appId
-            };
-            
-            // 只有当用户输入了新的App Secret时才更新
-            if (appSecret) {
-                updateData.app_secret = appSecret;
-            }
-            
-            // 发送更新请求
-            const response = await fetch('/api/feishu/config', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updateData)
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                alert('飞书配置保存成功');
-                this.closeFeishuConfigModal();
-            } else {
-                throw new Error(data.error || '保存飞书配置失败');
-            }
-        } catch (error) {
-            console.error('保存飞书配置失败:', error);
-            alert('保存飞书配置失败: ' + error.message);
-        }
+        // 复用飞书配置模块
+        return FeishuConfigModule.saveFeishuConfig();
     }
     
     /**

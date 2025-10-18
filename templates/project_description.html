@@ -424,19 +424,21 @@
         }
     }
 </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/conclusion.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="project-description">
     <div class="page-header">
-        <h1>时间追踪器项目说明 (V1.1)</h1>
+        <h1>时间追踪器项目说明 (V1.2.10)</h1>
         <p>一个基于Python Flask的时间追踪Web应用，帮助用户记录和管理日常活动时间</p>
     </div>
     
     <div class="navigation">
         <a href="/" class="nav-link">返回首页</a>
         <a href="/records" class="nav-link secondary">查看记录</a>
-        <a href="/mood_wall" class="nav-link secondary">情绪与活动墙</a>
+        <a href="/mood-wall" class="nav-link secondary">情绪与活动墙</a>
+        <a href="/conclusion" class="nav-link secondary">项目结论</a>
     </div>
     
     <div class="section user-focused">
@@ -450,6 +452,8 @@
             <li><strong>记录管理</strong> - 添加、编辑和删除时间记录，查看历史记录，支持情绪标签</li>
             <li><strong>数据统计</strong> - 今日时间统计，活动次数统计，情绪和活动类型可视化</li>
             <li><strong>数据可视化</strong> - 情绪墙和活动类型墙展示，关键词词云分析</li>
+            <li><strong>今日计划</strong> - 帮助用户规划和回顾每一天，支持自动保存和飞书同步</li>
+            <li><strong>飞书集成</strong> - 支持与飞书多维表格集成，实现数据同步</li>
         </ul>
     </div>
     
@@ -633,6 +637,12 @@
                     <li><code>delete_record(record_id)</code> - 删除记录</li>
                     <li><code>get_all_records()</code> - 获取所有记录</li>
                     <li><code>get_stats()</code> - 获取统计信息</li>
+                    <li><code>get_mood_wall_data()</code> - 获取情绪墙数据</li>
+                    <li><code>get_activity_wall_data()</code> - 获取活动墙数据</li>
+                    <li><code>get_keyword_cloud_data()</code> - 获取关键词词云数据</li>
+                    <li><code>load_daily_plan()</code> - 加载今日计划</li>
+                    <li><code>save_daily_plan()</code> - 保存今日计划</li>
+                    <li><code>sync_daily_plan_to_feishu()</code> - 同步今日计划到飞书</li>
                 </ul>
             </div>
             
@@ -683,6 +693,11 @@
                     <li><code>getRecord()</code> - 获取单个记录</li>
                     <li><code>getStats()</code> - 获取统计信息</li>
                     <li><code>loadAllRecords()</code> - 加载所有记录（带筛选和分页）</li>
+                    <li><code>loadMoodWallData()</code> - 加载情绪墙数据</li>
+                    <li><code>loadActivityWallData()</code> - 加载活动墙数据</li>
+                    <li><code>loadDailyPlan()</code> - 加载今日计划</li>
+                    <li><code>saveDailyPlan()</code> - 保存今日计划</li>
+                    <li><code>syncDailyPlanToFeishu()</code> - 同步今日计划到飞书</li>
                 </ul>
             </div>
             
@@ -722,6 +737,18 @@
             </div>
             
             <div class="function-card">
+                <h4>今日计划模块 (dailyPlan.js)</h4>
+                <ul>
+                    <li><code>init()</code> - 初始化今日计划模块</li>
+                    <li><code>loadTodayPlan()</code> - 加载今日计划</li>
+                    <li><code>loadDailyPlan()</code> - 加载指定日期计划</li>
+                    <li><code>savePlan()</code> - 保存计划</li>
+                    <li><code>startAutoSave()</code> - 开始自动保存</li>
+                    <li><code>syncToFeishu()</code> - 同步到飞书</li>
+                </ul>
+            </div>
+            
+            <div class="function-card">
                 <h4>主模块 (main.js)</h4>
                 <ul>
                     <li>应用初始化</li>
@@ -742,8 +769,14 @@ GET  /api/all-records      # 获取所有记录（支持筛选和分页）<br>
 GET  /api/stats            # 获取统计信息<br>
 POST /api/set-username     # 设置用户名并迁移记录<br>
 GET  /api/activity-categories # 获取活动类别配置<br>
-GET  /api/mood-data        # 获取情绪墙数据<br>
-GET  /api/activity-data    # 获取活动类型墙数据
+GET  /api/mood-wall        # 获取情绪墙数据<br>
+GET  /api/activity-wall    # 获取活动类型墙数据<br>
+GET  /api/keyword-cloud    # 获取关键词词云数据<br>
+GET  /api/daily-plan       # 获取今日计划<br>
+POST /api/daily-plan       # 保存今日计划<br>
+POST /api/daily-plan/sync-feishu # 同步今日计划到飞书<br>
+GET  /api/feishu/config    # 获取飞书配置<br>
+POST /api/feishu/config    # 保存飞书配置
         </div>
         
         <h3>项目结构</h3>
@@ -752,11 +785,14 @@ time_recoder/<br>
 ├── app.py              # Flask应用主文件<br>
 ├── requirements.txt    # 项目依赖<br>
 ├── README.md           # 项目说明文档<br>
+├── PRD.md              # 产品需求文档<br>
 ├── structure.md        # 架构设计文档<br>
-├── VERSION.md          # 版本更新记录 (当前版本: V1.1)<br>
+├── VERSIONS.md         # 版本更新记录 (当前版本: V1.2.10)<br>
 ├── data/               # 数据存储目录<br>
-│   └── {username}/     # 用户数据目录<br>
-│       └── records_{username}.json  # 用户记录文件<br>
+│   ├── records.json    # 所有用户记录文件<br>
+│   ├── activity_categories.json # 活动类别配置文件<br>
+│   └── daily_plans/    # 今日计划目录<br>
+│       └── plans.json  # 今日计划索引文件<br>
 ├── templates/          # HTML模板目录<br>
 │   ├── base.html       # 基础模板<br>
 │   ├── index.html      # 主页面模板<br>
@@ -794,7 +830,8 @@ time_recoder/<br>
     │       ├── start-time.css        # 开始时间模块<br>
     │       ├── emotion-tag.css       # 情绪标签模块<br>
     │       ├── mood-wall.css         # 情绪墙模块<br>
-    │       └── control-btn.css       # 控制按钮特殊样式<br>
+    │       ├── control-btn.css       # 控制按钮特殊样式<br>
+    │       └── feishu-config.css     # 飞书配置模块<br>
     └── js/<br>
         ├── script.js   # JavaScript主文件（模块入口）<br>
         └── modules/    # JavaScript模块目录<br>
@@ -804,6 +841,9 @@ time_recoder/<br>
             ├── ui.js           # UI模块<br>
             ├── timer.js        # 计时器模块<br>
             ├── recordDetail.js # 记录详情模块<br>
+            ├── records.js      # 记录列表模块<br>
+            ├── dailyPlan.js    # 今日计划模块<br>
+            ├── feishuConfig.js # 飞书配置模块<br>
             └── main.js         # 主模块
         </div>
     </div>
@@ -827,7 +867,10 @@ flowchart TD
         E4[UI模块] --> E
         E5[计时器模块] --> E
         E6[记录详情模块] --> E
-        E7[主模块] --> E
+        E7[记录列表模块] --> E
+        E8[今日计划模块] --> E
+        E9[飞书配置模块] --> E
+        E10[主模块] --> E
     end
             </pre>
         </div>
@@ -878,7 +921,7 @@ flowchart TD
     <div class="navigation">
         <a href="/" class="nav-link">返回首页</a>
         <a href="/records" class="nav-link secondary">查看记录</a>
-        <a href="/mood_wall" class="nav-link secondary">情绪与活动墙</a>
+        <a href="/mood-wall" class="nav-link secondary">情绪与活动墙</a>
     </div>
 </div>
 

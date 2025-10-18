@@ -180,13 +180,13 @@
 /* 情绪选中标识 */
 .emotion-checkbox .checkmark {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -8px;
+    right: -8px;
     background-color: #4CAF50;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;

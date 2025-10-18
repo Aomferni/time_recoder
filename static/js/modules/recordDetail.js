@@ -5,6 +5,7 @@
 
 import { TimeRecorderFrontendUtils } from './utils.js';
 import { TimeRecorderAPI } from './api.js';
+import { TimeRecorderLogger } from './logger.js';
 
 /**
  * 记录详情模块 - 处理记录详情显示和编辑功能
@@ -16,23 +17,29 @@ export const TimeRecorderRecordDetail = {
      * @param {boolean} useSimpleDetail - 是否使用简化版详情
      */
     showRecordDetail: function(recordIdOrRecord, useSimpleDetail = false) {
+        TimeRecorderLogger.info('RecordDetail', '显示记录详情浮窗', { useSimpleDetail: useSimpleDetail });
         // 检查参数类型，如果是ID则需要获取记录详情
         if (typeof recordIdOrRecord === 'string') {
             const recordId = recordIdOrRecord;
+            TimeRecorderLogger.debug('RecordDetail', '通过API获取记录详情', { recordId: recordId });
             // 从当前记录中查找或通过API获取
             TimeRecorderAPI.getRecord(recordId)
                 .then(data => {
                     if (data && data.success) {
+                        TimeRecorderLogger.info('RecordDetail', '记录详情获取成功', { recordId: recordId });
                         this._renderRecordDetail(data.record, useSimpleDetail);
                     } else {
+                        TimeRecorderLogger.error('RecordDetail', '加载记录详情失败', data ? data.error : '未知错误');
                         console.error('加载记录详情失败:', data ? data.error : '未知错误');
                     }
                 })
                 .catch(error => {
+                    TimeRecorderLogger.error('RecordDetail', '加载记录详情异常', error);
                     console.error('加载记录详情失败:', error);
                 });
         } else {
             // 直接渲染记录详情
+            TimeRecorderLogger.debug('RecordDetail', '直接渲染记录详情');
             this._renderRecordDetail(recordIdOrRecord, useSimpleDetail);
         }
     },
@@ -308,10 +315,10 @@ export const TimeRecorderRecordDetail = {
                         ${(() => {
                             // 按象限分组情绪选项
                             const emotionGroups = {
-                                '正向+专注': { emotions: ['惊奇', '兴奋', '高兴', '愉悦'], color: '#4CAF50' },
+                                '正向+专注': { emotions: ['惊奇', '兴奋', '高兴', '愉悦'], color: '#9C27B0' },
                                 '正向+松弛': { emotions: ['安逸', '安心', '满足', '宁静', '放松'], color: '#00BCD4' },
-                                '负面+松弛': { emotions: ['悲伤', '伤心', '沮丧', '疲惫'], color: '#9E9E9E' },
-                                '负面+专注': { emotions: ['惊恐', '紧张', '愤怒', '苦恼'], color: '#F44336' }
+                                '负面+松弛': { emotions: ['悲伤', '伤心', '沮丧', '疲惫'], color: '#546E7A' },
+                                '负面+专注': { emotions: ['惊恐', '紧张', '愤怒', '苦恼'], color: '#424242' }
                             };
                             
                             return Object.entries(emotionGroups).map(([groupName, groupData]) => `
@@ -320,13 +327,17 @@ export const TimeRecorderRecordDetail = {
                                     <div class="emotion-quadrant-grid">
                                         ${groupData.emotions.map(emotion => {
                                             const isSelected = record.emotion && record.emotion.includes(emotion);
+                                            // 使用工具类获取情绪颜色
+                                            const emotionColor = TimeRecorderFrontendUtils.getEmotionColor(emotion);
+                                            // 获取情绪对应的emoji
+                                            const emotionEmoji = TimeRecorderFrontendUtils.getEmotionEmoji(emotion);
                                             return `
                                             <div class="emotion-checkbox ${isSelected ? 'selected' : ''}" 
                                                 data-emotion="${emotion}" 
-                                                style="background-color: ${TimeRecorderFrontendUtils.getEmotionColor(emotion)};">
+                                                style="background-color: ${emotionColor};">
                                                 <input type="checkbox" id="emotion-${emotion}" value="${emotion}" 
                                                     ${isSelected ? 'checked' : ''}>
-                                                <label for="emotion-${emotion}">${emotion}</label>
+                                                <label for="emotion-${emotion}">${emotionEmoji} ${emotion}</label>
                                                 ${isSelected ? '<div class="checkmark">✓</div>' : ''}
                                             </div>
                                         `}).join('')}
@@ -355,13 +366,7 @@ export const TimeRecorderRecordDetail = {
                     <div class="highlight-field" style="display: none;">
                         <label>活动类别:</label>
                         <select id="detail-activity-category" class="${activityClass}">
-                            <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
-                            <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
-                            <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
-                            <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
-                            <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
-                            <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
-                            <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
+                            <!-- 活动类别选项将动态加载 -->
                         </select>
                     </div>
                     
@@ -439,11 +444,56 @@ export const TimeRecorderRecordDetail = {
             });
         }
         
-        // 绑定活动类别更改事件，更新活动输入框的样式
+        // 动态加载活动类别并填充下拉框
         const categoryElement = document.getElementById('detail-activity-category');
         const activityElement = document.getElementById('detail-activity');
         
-        if (categoryElement && activityElement) {
+        if (categoryElement) {
+            // 加载活动类别配置
+            TimeRecorderAPI.loadActivityCategories()
+                .then(categories => {
+                    // 清空现有选项
+                    categoryElement.innerHTML = '';
+                    
+                    // 添加默认选项
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '请选择活动类别';
+                    categoryElement.appendChild(defaultOption);
+                    
+                    // 为每个类别添加选项
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = category.name;
+                        option.selected = record.activityCategory === category.name;
+                        categoryElement.appendChild(option);
+                    });
+                    
+                    // 如果记录已经有活动类别但不在选项中，添加它
+                    if (record.activityCategory && !categories.some(cat => cat.name === record.activityCategory)) {
+                        const option = document.createElement('option');
+                        option.value = record.activityCategory;
+                        option.textContent = record.activityCategory;
+                        option.selected = true;
+                        categoryElement.appendChild(option);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载活动类别失败:', error);
+                    // 如果加载失败，使用默认选项
+                    categoryElement.innerHTML = `
+                        <option value="工作输出" ${record.activityCategory === '工作输出' ? 'selected' : ''}>工作输出</option>
+                        <option value="大脑充电" ${record.activityCategory === '大脑充电' ? 'selected' : ''}>大脑充电</option>
+                        <option value="身体充电" ${record.activityCategory === '身体充电' ? 'selected' : ''}>身体充电</option>
+                        <option value="修养生息" ${record.activityCategory === '修养生息' ? 'selected' : ''}>修养生息</option>
+                        <option value="暂停一下" ${record.activityCategory === '暂停一下' ? 'selected' : ''}>暂停一下</option>
+                        <option value="输出创作" ${record.activityCategory === '输出创作' ? 'selected' : ''}>输出创作</option>
+                        <option value="纯属娱乐" ${record.activityCategory === '纯属娱乐' ? 'selected' : ''}>纯属娱乐</option>
+                    `;
+                });
+            
+            // 绑定活动类别更改事件，更新活动输入框的样式
             categoryElement.addEventListener('change', function() {
                 const selectedCategory = this.value;
                 const activityClass = TimeRecorderFrontendUtils.getActivityCategoryClass(selectedCategory);
@@ -456,15 +506,41 @@ export const TimeRecorderRecordDetail = {
                 }
                 
                 // 添加新的类别类
-                activityElement.classList.add(activityClass);
+                if (activityElement && activityClass) {
+                    activityElement.classList.add(activityClass);
+                }
             });
         }
+    },
+    
+    /**
+     * 记录当前选中的所有情绪
+     */
+    _logSelectedEmotions: function() {
+        const emotionCheckboxes = document.querySelectorAll('#detail-emotion input[type="checkbox"]:checked');
+        const emotions = Array.from(emotionCheckboxes).map(cb => cb.value);
+        console.log('[情绪选择] 当前选中的情绪:', emotions);
+        
+        // 同时也记录通过selected类选中的情绪
+        const selectedEmotions = document.querySelectorAll('#detail-emotion .emotion-checkbox.selected');
+        const selectedEmotionNames = Array.from(selectedEmotions).map(el => el.getAttribute('data-emotion'));
+        console.log('[情绪选择] 通过selected类选中的情绪:', selectedEmotionNames);
+        
+        // 同时也记录所有情绪元素的状态，用于调试
+        const allEmotionElements = document.querySelectorAll('#detail-emotion .emotion-checkbox');
+        const allEmotionStates = Array.from(allEmotionElements).map(el => ({
+            emotion: el.getAttribute('data-emotion'),
+            selected: el.classList.contains('selected'),
+            checked: el.querySelector('input[type="checkbox"]')?.checked
+        }));
+        console.log('[情绪选择] 所有情绪元素状态:', allEmotionStates);
     },
     
     /**
      * 关闭记录详情浮窗
      */
     closeRecordDetailModal: function() {
+        console.log('[记录详情] 关闭记录详情浮窗');
         const modal = document.getElementById('recordDetailModal');
         if (modal) {
             // 添加关闭动画效果
@@ -633,24 +709,74 @@ export const TimeRecorderRecordDetail = {
     _bindEmotionClickEvents: function() {
         const emotionContainer = document.getElementById('detail-emotion');
         if (emotionContainer) {
+            console.log('[情绪选择] 绑定情绪按钮点击事件');
             // 使用事件委托处理情绪按钮点击
             emotionContainer.addEventListener('click', (event) => {
+                console.log('[情绪选择] 情绪按钮被点击, 事件目标:', event.target);
+                
+                // 防止事件重复处理
+                if (event.hasOwnProperty('_emotionHandled')) {
+                    console.log('[情绪选择] 事件已被处理，忽略重复处理');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                
+                // 标记事件已被处理
+                event._emotionHandled = true;
+                
                 // 查找被点击的元素或其父元素是否为情绪按钮
                 let emotionElement = event.target.closest('.emotion-checkbox');
                 
-                // 如果没有找到情绪按钮元素，直接返回
-                if (!emotionElement) return;
+                // 如果没有找到情绪按钮元素，检查是否点击了label元素
+                if (!emotionElement) {
+                    // 检查是否点击了label元素
+                    if (event.target.tagName === 'LABEL' && event.target.htmlFor) {
+                        const checkboxId = event.target.htmlFor;
+                        const checkbox = document.getElementById(checkboxId);
+                        if (checkbox) {
+                            const emotionName = checkboxId.replace('emotion-', '');
+                            emotionElement = document.querySelector(`.emotion-checkbox[data-emotion="${emotionName}"]`);
+                        }
+                    }
+                }
+                
+                // 如果仍然没有找到情绪按钮元素，检查是否点击了checkbox元素
+                if (!emotionElement) {
+                    // 检查是否点击了checkbox元素
+                    if (event.target.tagName === 'INPUT' && event.target.type === 'checkbox' && event.target.id) {
+                        const emotionName = event.target.id.replace('emotion-', '');
+                        emotionElement = document.querySelector(`.emotion-checkbox[data-emotion="${emotionName}"]`);
+                    }
+                }
+                
+                // 如果仍然没有找到情绪按钮元素，直接返回
+                if (!emotionElement) {
+                    console.log('[情绪选择] 点击的不是情绪按钮');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                
+                // 阻止事件冒泡和默认行为，防止重复触发
+                event.preventDefault();
+                event.stopPropagation();
                 
                 // 获取情绪名称
                 const emotion = emotionElement.getAttribute('data-emotion');
+                console.log('[情绪选择] 点击的情绪:', emotion);
                 if (emotion) {
-                    // 防止重复点击
-                    if (emotionElement.classList.contains('processing')) return;
-                    
+                    // 移除点击间隔限制，允许用户快速选择情绪
                     // 添加处理标记，防止重复点击
+                    if (emotionElement.classList.contains('processing')) {
+                        console.log('[情绪选择] 正在处理中，忽略重复点击');
+                        return;
+                    }
+                    
+                    // 添加处理标记
                     emotionElement.classList.add('processing');
                     
-                    // 调用切换情绪函数
+                    // 调用选择或取消选择情绪函数
                     this.toggleEmotion(emotion);
                     
                     // 移除处理标记
@@ -658,45 +784,83 @@ export const TimeRecorderRecordDetail = {
                         if (emotionElement && emotionElement.classList.contains('processing')) {
                             emotionElement.classList.remove('processing');
                         }
-                    }, 100);
+                    }, 300);
                 }
             });
         }
     },
     
     /**
-     * 切换情绪选择
+     * 选择或取消选择情绪
      */
     toggleEmotion: function(emotion) {
+        TimeRecorderLogger.info('RecordDetail', '选择或取消选择情绪', { emotion: emotion });
         const emotionElement = document.querySelector(`.emotion-checkbox[data-emotion="${emotion}"]`);
         const checkbox = document.getElementById(`emotion-${emotion}`);
+        
+        console.log('[情绪选择] 选择或取消选择情绪:', emotion);
+        console.log('[情绪选择] 找到情绪元素:', !!emotionElement);
+        console.log('[情绪选择] 找到复选框:', !!checkbox);
         
         if (emotionElement && checkbox) {
             // 切换选中状态
             const isSelected = emotionElement.classList.contains('selected');
+            TimeRecorderLogger.debug('RecordDetail', '当前情绪选中状态', { emotion: emotion, isSelected: isSelected });
+            console.log('[情绪选择] 当前选中状态:', isSelected);
             
             if (isSelected) {
+                console.log('[情绪选择] 取消选择情绪:', emotion);
                 emotionElement.classList.remove('selected');
                 checkbox.checked = false;
                 // 移除选中标识
                 const checkmark = emotionElement.querySelector('.checkmark');
                 if (checkmark) {
-                    checkmark.remove();
+                    console.log('[情绪选择] 移除checkmark元素');
+                    // 使用动画移除checkmark元素
+                    checkmark.style.transform = 'scale(0)';
+                    setTimeout(() => {
+                        if (checkmark && checkmark.parentNode === emotionElement) {
+                            emotionElement.removeChild(checkmark);
+                        }
+                    }, 200);
                 }
+                TimeRecorderLogger.debug('RecordDetail', '取消选择情绪', { emotion: emotion });
             } else {
+                console.log('[情绪选择] 选择情绪:', emotion);
                 emotionElement.classList.add('selected');
                 checkbox.checked = true;
                 
                 // 添加选中标识
-                const checkmark = document.createElement('div');
-                checkmark.className = 'checkmark';
-                checkmark.innerHTML = '✓';
-                emotionElement.appendChild(checkmark);
+                // 首先检查是否已存在checkmark元素
+                let checkmark = emotionElement.querySelector('.checkmark');
+                if (!checkmark) {
+                    console.log('[情绪选择] 创建新的checkmark元素');
+                    checkmark = document.createElement('div');
+                    checkmark.className = 'checkmark';
+                    checkmark.innerHTML = '✓';
+                    // 确保checkmark元素在正确的位置
+                    emotionElement.appendChild(checkmark);
+                } else {
+                    console.log('[情绪选择] 使用现有的checkmark元素');
+                }
+                // 确保checkmark元素显示并触发动画
+                checkmark.style.display = 'flex';
+                // 强制重绘以确保动画生效
+                checkmark.offsetHeight;
+                checkmark.style.transform = 'scale(1)';
+                console.log('[情绪选择] checkmark元素已显示');
                 
                 // 添加触觉反馈（如果设备支持）
                 if (navigator.vibrate) {
                     navigator.vibrate(50);
                 }
+                TimeRecorderLogger.debug('RecordDetail', '选中情绪', { emotion: emotion });
+            }
+            
+            // 立即移除processing类，允许用户进行下一次点击
+            if (emotionElement.classList.contains('processing')) {
+                console.log('[情绪选择] 移除processing类');
+                emotionElement.classList.remove('processing');
             }
             
             // 触发自定义事件，便于其他组件监听
@@ -704,6 +868,17 @@ export const TimeRecorderRecordDetail = {
                 detail: { emotion: emotion, selected: !isSelected }
             });
             document.dispatchEvent(event);
+            
+            // 显示当前选中的所有情绪
+            this._logSelectedEmotions();
+        } else {
+            TimeRecorderLogger.error('RecordDetail', '找不到情绪元素', { emotion: emotion });
+            console.error('[情绪选择] 找不到情绪元素或复选框', { emotion: emotion, emotionElement: emotionElement, checkbox: checkbox });
+            
+            // 如果找不到元素，也要确保移除processing类
+            if (emotionElement && emotionElement.classList.contains('processing')) {
+                emotionElement.classList.remove('processing');
+            }
         }
     },
     
@@ -711,6 +886,7 @@ export const TimeRecorderRecordDetail = {
      * 保存记录详情
      */
     saveRecordDetail: function(recordId) {
+        console.log('[保存记录] 开始保存记录详情, 记录ID:', recordId);
         // 安全地获取表单元素的值
         const activityElement = document.getElementById('detail-activity');
         const activityCategoryElement = document.getElementById('detail-activity-category');
@@ -763,9 +939,17 @@ export const TimeRecorderRecordDetail = {
         const remark = remarkElement.value;
         const pauseCount = pauseCountElement.value;
         
+        // 验证活动类别不为空
+        if (!activityCategory) {
+            alert('请选择活动类别');
+            activityCategoryElement.focus();
+            return;
+        }
+        
         // 获取选中的情绪
         const emotionCheckboxes = document.querySelectorAll('#detail-emotion input[type="checkbox"]:checked');
         const emotions = Array.from(emotionCheckboxes).map(cb => cb.value).join(', ');
+        console.log('[保存记录] 选中的情绪:', emotions);
         
         // 获取段落信息
         const segmentRows = document.querySelectorAll('.segment-row[data-segment-index]');
@@ -817,6 +1001,8 @@ export const TimeRecorderRecordDetail = {
             segments: segments
         };
         
+        console.log('[保存记录] 准备更新的数据:', updateData);
+        
         // 更新时间字段
         if (segments.length > 0) {
             // 根据规范，startTime应为第一个段落的开始时间
@@ -863,7 +1049,9 @@ export const TimeRecorderRecordDetail = {
         // 发送到后端更新
         TimeRecorderAPI.updateRecord(recordId, updateData)
             .then(data => {
+                console.log('[保存记录] 后端响应数据:', data);
                 if (data && data.success) {
+                    console.log('[保存记录] 记录更新成功');
                     // 触发保存成功动画
                     // 确保只选择当前模态框中的保存按钮
                     const modal = document.getElementById('recordDetailModal');
@@ -888,14 +1076,92 @@ export const TimeRecorderRecordDetail = {
                     
                     // 刷新情绪墙和活动墙
                     this.refreshMoodAndActivityWalls();
+                    
+                    // 刷新所有页面的数据显示
+                    this.refreshAllPages();
+                    
+                    // 如果在首页且有正在运行的计时器，显示快速情绪记录区域
+                    if (window.location.pathname === '/' && window.TimeRecorderConfig && window.TimeRecorderConfig.timerInterval) {
+                        const quickEmotionSection = document.getElementById('quickEmotionSection');
+                        if (quickEmotionSection) {
+                            quickEmotionSection.style.display = 'block';
+                        }
+                    }
                 } else {
+                    console.error('[保存记录] 更新记录失败:', data.error || '未知错误');
                     alert('更新记录失败: ' + (data.error || '未知错误'));
                 }
             })
             .catch(error => {
-                console.error('更新记录失败:', error);
+                console.error('[保存记录] 更新记录失败:', error);
                 alert('更新记录失败，请查看控制台了解详情');
             });
+    },
+    
+    /**
+     * 刷新所有页面的数据显示
+     */
+    refreshAllPages: function() {
+        // 刷新当前页面
+        this.refreshCurrentPage();
+        
+        // 尝试刷新其他页面
+        this.refreshOtherPages();
+    },
+    
+    /**
+     * 刷新当前页面的数据显示
+     */
+    refreshCurrentPage: function() {
+        // 检查当前页面并刷新相应数据
+        if (window.location.pathname === '/mood_wall') {
+            // 刷新情绪墙页面
+            if (typeof loadWallData === 'function') {
+                loadWallData();
+            }
+        } else if (window.location.pathname === '/records') {
+            // 刷新历史记录页面
+            if (window.timeRecorderRecords && typeof window.timeRecorderRecords.loadRecords === 'function') {
+                window.timeRecorderRecords.loadRecords();
+            }
+        } else if (window.location.pathname === '/') {
+            // 刷新首页
+            if (window.TimeRecorderUI && typeof window.TimeRecorderUI.loadRecords === 'function') {
+                window.TimeRecorderUI.loadRecords();
+            }
+            if (window.TimeRecorderUI && typeof window.TimeRecorderUI.updateStats === 'function') {
+                window.TimeRecorderUI.updateStats();
+            }
+            // 刷新今日计划模块
+            if (window.DailyPlanModule && typeof window.DailyPlanModule.refreshStats === 'function') {
+                window.DailyPlanModule.refreshStats();
+            }
+        } else if (window.location.pathname === '/manage_categories') {
+            // 刷新活动类别管理页面
+            if (typeof loadActivityCategories === 'function') {
+                loadActivityCategories();
+            }
+        }
+    },
+    
+    /**
+     * 尝试刷新其他页面的数据显示
+     */
+    refreshOtherPages: function() {
+        // 通过localStorage或sessionStorage传递刷新信号
+        // 使用时间戳确保唯一性
+        const refreshSignal = {
+            timestamp: Date.now(),
+            sourcePage: window.location.pathname
+        };
+        
+        // 存储刷新信号到localStorage
+        localStorage.setItem('timeRecorderRefreshSignal', JSON.stringify(refreshSignal));
+        
+        // 设置一个定时器，在一段时间后清除刷新信号
+        setTimeout(() => {
+            localStorage.removeItem('timeRecorderRefreshSignal');
+        }, 5000);
     },
     
     /**

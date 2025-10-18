@@ -5,6 +5,11 @@ import uuid
 import glob
 import re
 from flask import Flask, render_template, request, jsonify
+import requests
+import time
+
+# 导入日志模块
+from utils.logger import TimeRecorderLogger
 
 # 设置北京时区
 BEIJING_TZ = timezone(timedelta(hours=8))
@@ -17,6 +22,9 @@ app.config['DATA_FOLDER'] = DATA_FOLDER
 
 # 确保目录存在
 os.makedirs(DATA_FOLDER, exist_ok=True)
+
+# 添加初始化状态文件路径
+INIT_STATUS_FILE = os.path.join('config', 'init_status.json')
 
 
 class TimeRecorderUtils:
@@ -319,20 +327,22 @@ class TimeRecorderUtils:
         # 创建活动到类别的映射
         activity_to_category = {}
         category_colors = {}
+        # 将颜色名称转换为十六进制颜色值
+        color_map = {
+            'blue': '#2196F3',
+            'green': '#4CAF50',
+            'purple': '#9C27B0',
+            'orange': '#FF9800',
+            'cyan': '#00BCD4',
+            'gray': '#795548'
+        }
+        print(f'[活动墙] 颜色映射表: {color_map}')
         for category in categories:
             category_name = category['name']
             color = category['color']
-            # 将颜色名称转换为十六进制颜色值
-            color_map = {
-                'blue': '#2196F3',
-                'green': '#4CAF50',
-                'purple': '#9C27B0',
-                'orange': '#FF9800',
-                'cyan': '#00BCD4',
-                'gray': '#795548'
-            }
             hex_color = color_map.get(color, '#607D8B')
             category_colors[category_name] = hex_color
+            print(f'[活动墙] 类别 {category_name} 的颜色配置: {color} -> {hex_color}')
             
             for activity in category.get('activities', []):
                 activity_to_category[activity] = category_name
@@ -357,11 +367,15 @@ class TimeRecorderUtils:
         for record in recent_records:
             if 'activity' in record and record['activity']:
                 activity = record['activity']
-                # 获取活动对应的类别（使用更宽松的匹配方式）
-                category = TimeRecorderUtils.get_activity_category_loose_match(activity, activity_to_category)
+                # 直接使用记录中的activityCategory字段，而不是通过匹配函数
+                category = record.get('activityCategory', '')
                 
-                # 获取记录中的活动类别字段
-                record_activity_category = record.get('activityCategory', category)
+                # 过滤掉空的类别
+                if not category:
+                    continue
+                
+                # 获取记录中的活动类别字段（用于前端显示）
+                record_activity_category = category
                 
                 # 计算记录的总时长
                 duration = record.get('duration', 0)
@@ -377,9 +391,11 @@ class TimeRecorderUtils:
                     activity_data[date_str] = []
                     activity_records[date_str] = []
                 
+                color = category_colors.get(category, '#607D8B')
+                print(f'[活动墙] 为活动 {activity} 分配类别 {category}，颜色: {color}')
                 activity_data[date_str].append({
                     'name': category,
-                    'color': category_colors.get(category, '#607D8B'),
+                    'color': color,
                     'duration': duration
                 })
                 activity_records[date_str].append({
@@ -399,9 +415,11 @@ class TimeRecorderUtils:
         
         # 为每个类别创建一个条目
         for category in all_categories:
+            color = category_colors.get(category, '#607D8B')
+            print(f'[活动墙] 创建类别条目: {category}, 颜色: {color}')
             category_info = {
                 'name': category,
-                'color': category_colors.get(category, '#607D8B'),
+                'color': color,
                 'days': []
             }
             
@@ -455,8 +473,8 @@ class TimeRecorderUtils:
             if configured_activity in activity:
                 return activity_to_category[configured_activity]
         
-        # 如果所有匹配都失败，返回"其他"
-        return '其他'
+        # 如果所有匹配都失败，返回空字符串而不是"其他"
+        return ''
     
     @staticmethod
     def get_keyword_cloud_data(days=7):
@@ -524,6 +542,13 @@ class TimeRecorderUtils:
 
 @app.route('/')
 def index():
+    """首页路由"""
+    # 检查是否已完成初始化
+    if not InitUtils.is_initialized():
+        # 未初始化，重定向到初始化页面
+        return render_template('init.html')
+    
+    # 已初始化，正常显示首页
     return render_template('index.html')
 
 @app.route('/records')
@@ -533,6 +558,11 @@ def records_page():
 @app.route('/project-description')
 def project_description():
     return render_template('project_description.html')
+
+@app.route('/conclusion')
+def conclusion():
+    """结论文档页面"""
+    return render_template('conclusion.html')
 
 @app.route('/manage-categories')
 def manage_categories():
@@ -594,8 +624,14 @@ def add_record():
                 'error': f'缺少必要字段: {field}'
             }), 400
     
-    # 获取活动类别
+    # 获取活动类别，确保不为空
     activity_category = data.get('activityCategory', get_activity_category(data['activity']))
+    # 如果活动类别为空，返回错误
+    if not activity_category:
+        return jsonify({
+            'success': False,
+            'error': '活动类别不能为空，请选择一个有效的活动类别'
+        }), 400
     
     # 获取segments信息
     segments = data.get('segments', [])
@@ -732,6 +768,7 @@ def update_record(record_id):
                         beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
                         record['date'] = beijing_time.strftime('%Y/%m/%d')
                     record[key] = value
+                    print(f"[更新记录] 更新字段 {key}: {value}")  # 添加日志
             
             # 根据规范更新时间字段
             if 'segments' in record and record['segments']:
@@ -1101,6 +1138,11 @@ def mood_wall():
     """情绪墙页面"""
     return render_template('mood_wall.html')
 
+@app.route('/logs')
+def logs():
+    """日志查看页面"""
+    return render_template('logs.html')
+
 @app.route('/api/mood-wall', methods=['GET'])
 def api_get_mood_wall_data():
     """获取情绪墙和活动类型墙数据的API"""
@@ -1200,6 +1242,240 @@ def save_activity_categories(data):
         return False
 
 
+# ==================== 初始化配置功能 ====================
+
+class InitUtils:
+    """初始化工具类"""
+    
+    @staticmethod
+    def is_initialized():
+        """检查是否已完成初始化"""
+        # 检查初始化状态文件
+        if os.path.exists(INIT_STATUS_FILE):
+            try:
+                with open(INIT_STATUS_FILE, 'r', encoding='utf-8') as f:
+                    status = json.load(f)
+                    return status.get('initialized', False)
+            except Exception as e:
+                print(f"读取初始化状态文件出错: {e}")
+                return False
+        
+        # 检查飞书配置是否存在且有效
+        feishu_config_file = os.path.join('config', 'feishu_config.json')
+        if os.path.exists(feishu_config_file):
+            try:
+                with open(feishu_config_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    app_id = config.get('app_id', '')
+                    app_secret = config.get('app_secret', '')
+                    # 如果存在有效的app_id和app_secret，认为已初始化
+                    if app_id and app_secret:
+                        # 创建初始化状态文件
+                        InitUtils.mark_as_initialized()
+                        return True
+            except Exception as e:
+                print(f"读取飞书配置文件出错: {e}")
+        
+        return False
+    
+    @staticmethod
+    def mark_as_initialized():
+        """标记为已初始化"""
+        try:
+            # 确保config目录存在
+            os.makedirs('config', exist_ok=True)
+            
+            # 创建或更新初始化状态文件
+            status = {
+                'initialized': True,
+                'initialized_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+            }
+            
+            with open(INIT_STATUS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(status, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"标记初始化状态出错: {e}")
+
+
+@app.route('/api/init/skip', methods=['POST'])
+def skip_init():
+    """跳过初始化"""
+    try:
+        # 标记为已初始化
+        InitUtils.mark_as_initialized()
+        
+        return jsonify({
+            'success': True,
+            'message': '初始化已跳过'
+        })
+    except Exception as e:
+        print(f"跳过初始化出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/init/sync-records', methods=['POST'])
+def init_sync_records_from_feishu():
+    """初始化时从飞书同步活动记录"""
+    try:
+        # 检查飞书配置
+        if not feishu_api.app_id or not feishu_api.app_secret:
+            return jsonify({
+                'success': False,
+                'error': '飞书配置不完整，请先配置App ID和App Secret'
+            }), 400
+        
+        # 从飞书多维表格获取记录
+        result = feishu_api.get_records_from_bitable()
+        
+        if not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', '从飞书获取记录失败')
+            }), 500
+        
+        # 转换飞书记录为本地格式
+        feishu_records = result.get('records', [])
+        local_records = []
+        
+        for feishu_record in feishu_records:
+            fields = feishu_record.get('fields', {})
+            
+            # 提取字段
+            activity = fields.get('activity(活动名称)', '')
+            activity_category = fields.get('activityCategory(活动类型)', '')
+            start_time = fields.get('startTime(开始时间)', '')
+            end_time = fields.get('endTime(结束时间)', '')
+            duration = fields.get('duration(专注时长)', 0)
+            time_span = fields.get('timeSpan(时间跨度)', 0)
+            pause_count = fields.get('pauseCount(暂停次数)', 0)
+            remark = fields.get('remark(备注信息)', '')
+            emotion = fields.get('emotion(情绪)', '')
+            
+            # 处理时间字段
+            start_time_iso = ''
+            end_time_iso = ''
+            if start_time:
+                # 假设飞书时间格式为 "YYYY-MM-DD HH:MM:SS"
+                try:
+                    dt = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+                    # 转换为UTC时间
+                    utc_dt = dt.replace(tzinfo=BEIJING_TZ).astimezone(timezone.utc)
+                    start_time_iso = utc_dt.isoformat().replace('+00:00', 'Z')
+                except Exception as e:
+                    print(f"处理开始时间出错: {e}")
+            
+            if end_time:
+                try:
+                    dt = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+                    # 转换为UTC时间
+                    utc_dt = dt.replace(tzinfo=BEIJING_TZ).astimezone(timezone.utc)
+                    end_time_iso = utc_dt.isoformat().replace('+00:00', 'Z')
+                except Exception as e:
+                    print(f"处理结束时间出错: {e}")
+            
+            # 处理情绪字段
+            emotion_str = ''
+            if isinstance(emotion, list):
+                emotion_str = ', '.join(emotion)
+            elif isinstance(emotion, str):
+                emotion_str = emotion
+            
+            # 创建本地记录
+            local_record = {
+                'id': str(uuid.uuid4()),
+                'username': '',  # 已废弃字段
+                'date': '',  # 将在保存时根据startTime计算
+                'activity': activity,
+                'activityCategory': activity_category,
+                'startTime': start_time_iso,
+                'endTime': end_time_iso,
+                'duration': duration,
+                'timeSpan': time_span,
+                'pauseCount': pause_count,
+                'remark': remark,
+                'emotion': emotion_str,
+                'segments': []  # 简化处理，不处理段落信息
+            }
+            
+            # 根据startTime计算date字段
+            if start_time_iso:
+                try:
+                    utc_time = datetime.fromisoformat(start_time_iso.replace('Z', '+00:00'))
+                    beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
+                    local_record['date'] = beijing_time.strftime('%Y/%m/%d')
+                except Exception as e:
+                    print(f"计算日期字段出错: {e}")
+            
+            local_records.append(local_record)
+        
+        # 保存记录到本地文件
+        if TimeRecorderUtils.save_records(local_records):
+            return jsonify({
+                'success': True,
+                'message': f'成功同步 {len(local_records)} 条活动记录',
+                'count': len(local_records)
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '保存记录到本地文件失败'
+            }), 500
+            
+    except Exception as e:
+        print(f"从飞书同步活动记录出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/init/sync-plans', methods=['POST'])
+def init_sync_plans_from_feishu():
+    """初始化时从飞书同步今日计划"""
+    try:
+        # 检查飞书配置
+        if not feishu_api.app_id or not feishu_api.app_secret:
+            return jsonify({
+                'success': False,
+                'error': '飞书配置不完整，请先配置App ID和App Secret'
+            }), 400
+        
+        # TODO: 实现从飞书同步今日计划的逻辑
+        # 这里需要根据实际的飞书多维表格结构来实现
+        
+        # 暂时返回成功，实际实现时需要替换
+        return jsonify({
+            'success': True,
+            'message': '今日计划同步功能待实现',
+            'count': 0
+        })
+            
+    except Exception as e:
+        print(f"从飞书同步今日计划出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/init/complete', methods=['POST'])
+def complete_init():
+    """完成初始化"""
+    try:
+        # 标记为已初始化
+        InitUtils.mark_as_initialized()
+        
+        return jsonify({
+            'success': True,
+            'message': '初始化完成'
+        })
+    except Exception as e:
+        print(f"完成初始化出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # ==================== 飞书多维表格集成 ====================
 import requests
 import time
@@ -1210,6 +1486,7 @@ class FeishuBitableAPI:
     def __init__(self):
         self.app_id = ""
         self.app_secret = ""
+        self.app_type = "internal"  # 默认为internal类型
         self.tenant_access_token = ""
         self.token_expire_time = 0
         self.load_config()
@@ -1223,6 +1500,7 @@ class FeishuBitableAPI:
                     config = json.load(f)
                     self.app_id = config.get('app_id', '')
                     self.app_secret = config.get('app_secret', '')
+                    self.app_type = config.get('app_type', 'internal')  # 加载应用类型
                     self.tenant_access_token = config.get('tenant_access_token', '')
             except Exception as e:
                 print(f"读取飞书配置文件出错: {e}")
@@ -1234,8 +1512,17 @@ class FeishuBitableAPI:
         if self.tenant_access_token and self.token_expire_time > current_time:
             return self.tenant_access_token
         
+        # 检查App ID和App Secret是否配置
+        if not self.app_id or not self.app_secret:
+            raise Exception("飞书配置不完整: 请先配置App ID和App Secret")
+        
         try:
-            url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+            # 根据应用类型选择不同的端点
+            if self.app_type == "internal":
+                url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+            else:
+                url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token"
+            
             headers = {
                 'Content-Type': 'application/json; charset=utf-8'
             }
@@ -1244,8 +1531,15 @@ class FeishuBitableAPI:
                 "app_secret": self.app_secret
             }
             
+            print(f"[调试] 使用端点: {url}")
+            print(f"[调试] App类型: {self.app_type}")
+            print(f"[调试] App ID: {self.app_id}")
+            print(f"[调试] App Secret: {self.app_secret[:5]}...{self.app_secret[-5:] if len(self.app_secret) > 10 else self.app_secret}")
+            
             response = requests.post(url, json=payload, headers=headers)
             result = response.json()
+            
+            print(f"[调试] 响应结果: {result}")
             
             if result.get('code') == 0:
                 self.tenant_access_token = result.get('tenant_access_token', '')
@@ -1253,7 +1547,14 @@ class FeishuBitableAPI:
                 self.token_expire_time = current_time + result.get('expire', 0) - 300
                 return self.tenant_access_token
             else:
-                raise Exception(f"获取访问令牌失败: {result.get('msg', '未知错误')}")
+                error_msg = result.get('msg', '未知错误')
+                # 提供更明确的错误信息
+                if 'app id not exists' in error_msg.lower():
+                    raise Exception(f"飞书配置错误: App ID在飞书系统中不存在，请检查App ID是否正确并在飞书开放平台创建了对应的应用")
+                elif 'invalid param' in error_msg.lower():
+                    raise Exception(f"飞书配置错误: App ID或App Secret不正确，请检查配置")
+                else:
+                    raise Exception(f"获取访问令牌失败: {error_msg}")
         except Exception as e:
             print(f"获取租户访问令牌出错: {e}")
             raise e
@@ -1395,52 +1696,138 @@ class FeishuBitableAPI:
             
             print(f"准备导入 {len(feishu_records)} 条记录")  # 调试信息
             
-            # 分批处理，飞书API限制每次最多100条记录
-            batch_size = 100
-            results = []
+            # 准备请求头
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json; charset=utf-8'
+            }
             
-            for i in range(0, len(feishu_records), batch_size):
-                batch = feishu_records[i:i + batch_size]
-                url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_create"
-                headers = {
-                    'Authorization': f'Bearer {token}',
-                    'Content-Type': 'application/json; charset=utf-8'
-                }
-                payload = {
-                    "records": batch
-                }
+            # 第一步：查询所有记录是否已存在
+            print("[飞书导出] 第一步：查询已存在的记录...")
+            records_to_create = []  # 需要创建的记录
+            records_to_update = []  # 需要更新的记录（包含record_id和fields）
+            
+            for feishu_record in feishu_records:
+                record_id_value = feishu_record['fields'].get('id(活动唯一标识)', '')
                 
-                print(f"发送请求到: {url}")  # 调试信息
-                print(f"请求头: {{'Authorization': 'Bearer {token[:10]}...', 'Content-Type': 'application/json; charset=utf-8'}}")  # 调试信息
-                print(f"记录数量: {len(batch)}")  # 调试信息
+                if not record_id_value:
+                    # 如果没有ID，直接创建
+                    records_to_create.append(feishu_record)
+                    continue
                 
-                response = requests.post(url, json=payload, headers=headers)
-                print(f"响应状态码: {response.status_code}")  # 调试信息
-                print(f"响应内容: {response.text[:200]}...")  # 调试信息
-                
-                # 检查响应状态码
-                if response.status_code == 403:
-                    print("权限错误：应用可能没有写入多维表格的权限")
-                    print("请检查以下几点：")
-                    print("1. 飞书应用是否具有 bitable:app 权限")
-                    print("2. 应用是否已安装到对应的多维表格")
-                    print("3. 表格所有者是否已将应用添加为协作者")
-                    return {
-                        'success': False,
-                        'error': '权限错误：应用可能没有写入多维表格的权限，请检查飞书应用权限配置'
+                # 查询飞书表格中是否已存在该ID的记录
+                try:
+                    search_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/search"
+                    search_payload = {
+                        "filter": {
+                            "conjunction": "and",
+                            "conditions": [
+                                {
+                                    "field_name": "id(活动唯一标识)",
+                                    "operator": "is",
+                                    "value": [record_id_value]
+                                }
+                            ]
+                        }
                     }
+                    
+                    search_response = requests.post(search_url, json=search_payload, headers=headers)
+                    
+                    if search_response.status_code == 200:
+                        search_result = search_response.json()
+                        if search_result.get('code') == 0:
+                            items = search_result.get('data', {}).get('items', [])
+                            if items:
+                                # 记录已存在，添加到更新列表
+                                existing_record_id = items[0].get('record_id')
+                                records_to_update.append({
+                                    'record_id': existing_record_id,
+                                    'fields': feishu_record['fields']
+                                })
+                                print(f"  - 找到已存在记录: {record_id_value}，将更新")
+                            else:
+                                # 记录不存在，添加到创建列表
+                                records_to_create.append(feishu_record)
+                                print(f"  - 未找到记录: {record_id_value}，将创建")
+                        else:
+                            # 查询失败，默认创建
+                            print(f"  - 查询记录失败: {search_result.get('msg')}，默认创建")
+                            records_to_create.append(feishu_record)
+                    else:
+                        # 查询请求失败，默认创建
+                        print(f"  - 查询请求失败: {search_response.status_code}，默认创建")
+                        records_to_create.append(feishu_record)
+                except Exception as e:
+                    # 查询出错，默认创建
+                    print(f"  - 查询记录时出错: {e}，默认创建")
+                    records_to_create.append(feishu_record)
+            
+            print(f"[飞书导出] 查询完成: {len(records_to_create)} 条需要创建，{len(records_to_update)} 条需要更新")
+            
+            # 第二步：批量创建新记录
+            created_count = 0
+            if records_to_create:
+                print(f"[飞书导出] 第二步：批量创建 {len(records_to_create)} 条新记录...")
+                batch_size = 100
                 
-                result = response.json()
+                for i in range(0, len(records_to_create), batch_size):
+                    batch = records_to_create[i:i + batch_size]
+                    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_create"
+                    payload = {"records": batch}
+                    
+                    response = requests.post(url, json=payload, headers=headers)
+                    print(f"  批次 {i//batch_size + 1}: 状态码 {response.status_code}")
+                    
+                    if response.status_code == 403:
+                        print("权限错误：应用可能没有写入多维表格的权限")
+                        return {
+                            'success': False,
+                            'error': '权限错误：应用可能没有写入多维表格的权限，请检查飞书应用权限配置'
+                        }
+                    
+                    result = response.json()
+                    if result.get('code') != 0:
+                        raise Exception(f"创建记录失败 (批次 {i//batch_size + 1}): {result.get('msg', '未知错误')}")
+                    
+                    created_count += len(batch)
+            
+            # 第三步：逐条更新已存在的记录
+            updated_count = 0
+            if records_to_update:
+                print(f"[飞书导出] 第三步：更新 {len(records_to_update)} 条已存在的记录...")
                 
-                if result.get('code') != 0:
-                    raise Exception(f"导入记录失败 (批次 {i//batch_size + 1}): {result.get('msg', '未知错误')}")
-                
-                results.append(result)
+                for record_info in records_to_update:
+                    update_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/{record_info['record_id']}"
+                    update_response = requests.put(
+                        update_url,
+                        json={"fields": record_info['fields']},
+                        headers=headers
+                    )
+                    
+                    if update_response.status_code == 200:
+                        update_result = update_response.json()
+                        if update_result.get('code') == 0:
+                            updated_count += 1
+                        else:
+                            print(f"  更新记录失败: {update_result.get('msg')}")
+                    else:
+                        print(f"  更新请求失败: {update_response.status_code}")
+            
+            # 构建返回消息
+            messages = []
+            if created_count > 0:
+                messages.append(f"新建 {created_count} 条")
+            if updated_count > 0:
+                messages.append(f"更新 {updated_count} 条")
+            
+            final_message = f"成功导入记录到飞书多维表格（{', '.join(messages)}）" if messages else '导入完成'
             
             return {
                 'success': True,
                 'imported_count': len(feishu_records),
-                'message': f'成功导入 {len(feishu_records)} 条记录到飞书多维表格'
+                'created_count': created_count,
+                'updated_count': updated_count,
+                'message': final_message
             }
         except Exception as e:
             print(f"导入记录到飞书多维表格出错: {e}")
@@ -1504,6 +1891,9 @@ def update_feishu_config():
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(existing_config, f, ensure_ascii=False, indent=2)
         
+        # 重新加载飞书API实例的配置，确保新配置生效
+        feishu_api.load_config()
+        
         return jsonify({
             'success': True,
             'message': '飞书配置更新成功'
@@ -1531,6 +1921,7 @@ def get_feishu_token():
             'success': False,
             'error': str(e)
         }), 500
+
 
 
 @app.route('/api/feishu/import-records', methods=['POST'])
@@ -1735,6 +2126,638 @@ def sync_records_from_feishu():
             }), 500
     except Exception as e:
         print(f"从飞书同步记录出错: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ==================== 今日计划功能 ====================
+
+class DailyPlanUtils:
+    """今日计划工具类"""
+    
+    @staticmethod
+    def get_daily_plan_file_path(date_str):
+        """获取今日计划文件路径（已废弃，仅保留兼容性）"""
+        daily_plans_folder = os.path.join(app.config['DATA_FOLDER'], 'daily_plans')
+        os.makedirs(daily_plans_folder, exist_ok=True)
+        return os.path.join(daily_plans_folder, f'plan_{date_str}.json')
+    
+    @staticmethod
+    def get_plans_index_file_path():
+        """获取计划索引文件路径"""
+        daily_plans_folder = os.path.join(app.config['DATA_FOLDER'], 'daily_plans')
+        os.makedirs(daily_plans_folder, exist_ok=True)
+        return os.path.join(daily_plans_folder, 'plans.json')
+    
+    @staticmethod
+    def load_daily_plan(date_str=None):
+        """加载指定日期的今日计划（使用北京时间）"""
+        # 如果没有提供日期，使用当前北京时间
+        if date_str is None:
+            date_str = datetime.now(BEIJING_TZ).strftime('%Y-%m-%d')
+        
+        # 从统一的plans.json文件中加载计划
+        index_file = DailyPlanUtils.get_plans_index_file_path()
+        
+        if os.path.exists(index_file):
+            try:
+                with open(index_file, 'r', encoding='utf-8') as f:
+                    plans_index = json.load(f)
+                    # 查找指定日期的计划
+                    for plan_id, plan in plans_index.items():
+                        if plan.get('date') == date_str:
+                            return plan
+            except Exception as e:
+                print(f"读取今日计划索引文件出错: {e}")
+        
+        # 如果计划不存在，创建新的计划
+        new_plan = DailyPlanUtils.create_new_daily_plan(date_str)
+        # 保存新创建的计划
+        DailyPlanUtils.save_daily_plan(new_plan)
+        return new_plan
+    
+    @staticmethod
+    def create_new_daily_plan(date_str):
+        """创建新的今日计划（使用北京时间日期）"""
+        new_plan = {
+            'id': str(uuid.uuid4()),
+            'date': date_str,
+            'importantThings': ['', '', ''],
+            'tryThings': ['', '', ''],
+            'otherMatters': '',
+            'reading': '',
+            'score': '',
+            'scoreReason': '',
+            'activities': [],
+            'emotions': [],
+            'activityCategories': [],  # 新增：今日的活动类型集合
+            'totalDuration': 0,
+            'creationDuration': 0,
+            'createdAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+            'updatedAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+            'syncedToFeishu': False,
+            'lastFeishuSyncAt': None,
+            'feishuRecordId': None  # 新增：飞书多维表格的记录ID
+        }
+        return new_plan
+    
+    @staticmethod
+    def save_daily_plan(plan):
+        """保存今日计划到统一的索引文件"""
+        date_str = plan.get('date')
+        if not date_str:
+            return False
+        
+        plan['updatedAt'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+        
+        # 确保计划有ID
+        if 'id' not in plan:
+            plan['id'] = str(uuid.uuid4())
+        
+        try:
+            # 更新计划索引文件
+            DailyPlanUtils.update_plans_index(plan)
+            return True
+        except Exception as e:
+            print(f"保存今日计划文件出错: {e}")
+            return False
+    
+    @staticmethod
+    def update_plans_index(plan):
+        """更新计划索引文件，存储完整的计划数据"""
+        try:
+            index_file = DailyPlanUtils.get_plans_index_file_path()
+            plans_index = {}
+            
+            # 如果索引文件存在，先读取现有内容
+            if os.path.exists(index_file):
+                with open(index_file, 'r', encoding='utf-8') as f:
+                    plans_index = json.load(f)
+            
+            # 更新索引，存储完整的计划数据
+            plan_id = plan.get('id')
+            plan_date = plan.get('date')
+            if plan_id and plan_date:
+                plans_index[plan_id] = plan
+                
+                # 保存索引文件
+                with open(index_file, 'w', encoding='utf-8') as f:
+                    json.dump(plans_index, f, ensure_ascii=False, indent=2)
+                print(f"[调试] 更新计划索引文件成功: {index_file}")
+            else:
+                print(f"[调试] 计划缺少ID或日期，无法更新索引")
+        except Exception as e:
+            print(f"更新计划索引文件出错: {e}")
+    
+    @staticmethod
+    def update_plan_from_records(plan):
+        """根据活动记录更新今日计划的统计数据"""
+        date_str = plan.get('date')
+        if not date_str:
+            return plan
+        
+        # 加载当天的记录
+        all_records = TimeRecorderUtils.load_records()
+        today_records = [r for r in all_records if r.get('date', '').replace('/', '-') == date_str]
+        
+        # 更新活动列表
+        activities = []
+        emotions = set()
+        activity_categories = set()  # 新增：收集活动类型
+        total_duration = 0
+        creation_duration = 0
+        
+        for record in today_records:
+            # 计算准确的段落总时间
+            accurate_duration = TimeRecorderUtils.calculate_segments_total_time(record.get('segments', []))
+            print(f"[调试] 记录ID: {record.get('id', 'N/A')}, 活动: {record.get('activity', '')}")
+            print(f"[调试] 记录duration字段: {record.get('duration', 0)}ms, 准确计算时长: {accurate_duration}ms")
+            
+            # 添加活动
+            activity_info = {
+                'activity': record.get('activity', ''),
+                'category': record.get('activityCategory', ''),
+                'duration': accurate_duration,
+                'startTime': record.get('startTime', ''),
+                'segments': record.get('segments', [])
+            }
+            activities.append(activity_info)
+            
+            # 收集活动类型
+            category = record.get('activityCategory', '')
+            # 过滤掉"其他"类别，确保只显示明确的活动类别
+            if category and category != '其他':
+                activity_categories.add(category)
+            
+            # 收集情绪
+            emotion_str = record.get('emotion', '')
+            if emotion_str:
+                for emotion in emotion_str.split(', '):
+                    if emotion.strip():
+                        emotions.add(emotion.strip())
+            
+            # 累计时长（使用准确计算的时长）
+            total_duration += accurate_duration
+            
+            # 判断是否是创作类活动
+            category = record.get('activityCategory', '')
+            is_creation = category == '输出创作'
+            if is_creation:
+                creation_duration += accurate_duration
+        
+        # 更新计划
+        plan['activities'] = activities
+        plan['emotions'] = list(emotions)
+        plan['activityCategories'] = list(activity_categories)  # 新增：更新活动类型集合
+        plan['totalDuration'] = total_duration
+        plan['creationDuration'] = creation_duration
+        
+        print(f"[调试] 今日计划统计数据更新:")
+        print(f"[调试]   总专注时长: {total_duration}ms ({total_duration/1000/60:.1f}分钟)")
+        print(f"[调试]   创作时长: {creation_duration}ms ({creation_duration/1000/60:.1f}分钟)")
+        print(f"[调试]   活动数量: {len(activities)}")
+        
+        return plan
+
+
+@app.route('/api/daily-plan', methods=['GET'])
+def get_daily_plan():
+    """获取今日计划"""
+    date_str = request.args.get('date', datetime.now(BEIJING_TZ).strftime('%Y-%m-%d'))
+    
+    try:
+        plan = DailyPlanUtils.load_daily_plan(date_str)
+        # 更新统计数据
+        plan = DailyPlanUtils.update_plan_from_records(plan)
+        
+        return jsonify({
+            'success': True,
+            'plan': plan
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/daily-plan', methods=['POST'])
+def save_daily_plan():
+    """保存今日计划"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': '没有提供计划数据'
+            }), 400
+        
+        # 确保有日期字段
+        if 'date' not in data:
+            data['date'] = datetime.now(BEIJING_TZ).strftime('%Y-%m-%d')
+        
+        # 加载现有计划（如果存在）
+        existing_plan = DailyPlanUtils.load_daily_plan(data['date'])
+        
+        # 合并数据
+        for key, value in data.items():
+            if key not in ['id', 'createdAt']:  # 不覆盖这些字段
+                existing_plan[key] = value
+        
+        # 更新统计数据
+        existing_plan = DailyPlanUtils.update_plan_from_records(existing_plan)
+        
+        # 保存计划
+        if DailyPlanUtils.save_daily_plan(existing_plan):
+            return jsonify({
+                'success': True,
+                'plan': existing_plan
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '保存计划失败'
+            }), 500
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/daily-plan/sync-feishu', methods=['POST'])
+def sync_daily_plan_to_feishu():
+    """同步今日计划到飞书"""
+    try:
+        data = request.get_json()
+        date_str = data.get('date', datetime.now(BEIJING_TZ).strftime('%Y-%m-%d'))
+        
+        print(f"[飞书同步] 开始同步今日计划: {date_str}")
+        
+        # 首先获取表格字段信息以确定正确的字段名
+        app_token = "BKCLblwCmajwm9sFmo4cyJxJnON"
+        table_id = "tbl6bujbIMxBHqb3"
+        
+        # 字段映射字典，用于存储飞书表格的实际字段名
+        field_mapping = {}
+        
+        try:
+            token = feishu_api.get_tenant_access_token()
+            fields_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/fields"
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json; charset=utf-8'
+            }
+            
+            print(f"[飞书同步] 获取表格字段信息...")
+            fields_response = requests.get(fields_url, headers=headers)
+            print(f"[飞书同步] 字段API响应状态: {fields_response.status_code}")
+            
+            if fields_response.status_code == 200:
+                fields_data = fields_response.json()
+                print(f"[飞书同步] 表格字段信息:")
+                print(json.dumps(fields_data, ensure_ascii=False, indent=2))
+                
+                # 提取字段名称并建立映射
+                if fields_data.get('code') == 0 and 'data' in fields_data:
+                    field_items = fields_data['data'].get('items', [])
+                    print(f"\n[飞书同步] 可用字段列表:")
+                    for field in field_items:
+                        field_name = field.get('field_name', '')
+                        field_type = field.get('type', '')
+                        print(f"  - {field_name} (type: {field_type})")
+                        # 建立简化名到完整名的映射
+                        # 尝试从字段名中提取关键词
+                        # 优化：支持更灵活的字段名匹配
+                        if '今天是' in field_name or '日期' in field_name or 'date' in field_name.lower():
+                            field_mapping['date'] = field_name
+                        elif '重要' in field_name or 'important' in field_name.lower():
+                            field_mapping['importantThings'] = field_name
+                        elif '尝试' in field_name or 'try' in field_name.lower():
+                            field_mapping['tryThings'] = field_name
+                        elif '其他' in field_name or 'other' in field_name.lower():
+                            field_mapping['otherMatters'] = field_name
+                        elif '充电' in field_name or '阅读' in field_name or 'reading' in field_name.lower():
+                            field_mapping['reading'] = field_name
+                        elif ('打分' in field_name or '评分' in field_name or '给今天打个分' in field_name) and '原因' not in field_name and '为什么' not in field_name:
+                            field_mapping['score'] = field_name
+                        elif '为什么' in field_name or '原因' in field_name or 'reason' in field_name.lower():
+                            field_mapping['scoreReason'] = field_name
+                        elif '活动' in field_name and ('明细' in field_name or '事项' in field_name):
+                            field_mapping['activities'] = field_name
+                        elif '情绪' in field_name or 'emotion' in field_name.lower():
+                            field_mapping['emotions'] = field_name
+                        elif ('专注' in field_name and '总' in field_name) or ('今日专注时长' in field_name):
+                            field_mapping['totalDuration'] = field_name
+                        elif ('创作' in field_name or 'creation' in field_name.lower()) and '时长' in field_name:
+                            field_mapping['creationDuration'] = field_name
+                        elif '活动类型' in field_name:
+                            field_mapping['activityCategories'] = field_name
+                    
+                    print(f"\n[飞书同步] 字段映射结果:")
+                    print(json.dumps(field_mapping, ensure_ascii=False, indent=2))
+            else:
+                print(f"[飞书同步] 获取字段信息失败: {fields_response.text}")
+                # 如果无法获取字段信息，使用默认字段名
+                return jsonify({
+                    'success': False,
+                    'error': f'无法获取飞书表格字段信息: {fields_response.text}'
+                }), 500
+        except Exception as e:
+            print(f"[飞书同步] 获取字段信息异常: {e}")
+            return jsonify({
+                'success': False,
+                'error': f'获取飞书表格字段信息时出错: {str(e)}'
+            }), 500
+        
+        # 加载计划 - 修复：使用指定日期加载计划，而不是总是加载当日计划
+        plan = DailyPlanUtils.load_daily_plan(date_str)
+        plan = DailyPlanUtils.update_plan_from_records(plan)
+            
+        # 确保计划的日期与请求的日期一致
+        # 如果不一致，更新计划的日期字段
+        if plan.get('date') != date_str:
+            print(f"[飞书同步] 计划日期与请求日期不一致，更新计划日期: {date_str}")
+            plan['date'] = date_str
+        
+        print(f"[飞书同步] 计划数据: {json.dumps(plan, ensure_ascii=False, indent=2)[:500]}...")
+        
+        # 准备飞书数据格式
+        # 转换日期为时间戳
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        timestamp_value = int(date_obj.timestamp() * 1000)
+        
+        # 格式化时长
+        def format_duration(ms):
+            total_seconds = int(ms / 1000)
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            
+            if hours > 0:
+                return f"{hours}小时{minutes}分钟{seconds}秒"
+            elif minutes > 0:
+                return f"{minutes}分钟{seconds}秒"
+            else:
+                return f"{seconds}秒"
+        
+        # 格式化活动列表
+        activities_text = '\n'.join([
+            f"- {a['activity']} ({a['category']}) - {format_duration(a['duration'])}"
+            for a in plan.get('activities', [])
+        ])
+        
+        # 获取活动类型列表（去重）
+        activity_categories = list(set([a['category'] for a in plan.get('activities', [])]))
+        
+        # 使用映射后的字段名构建飞书记录
+        # 如果字段映射为空，说明无法获取字段信息，已在前面返回错误
+        if not field_mapping:
+            return jsonify({
+                'success': False,
+                'error': '无法建立字段映射，请检查飞书表格配置'
+            }), 500
+        
+        feishu_record = {
+            "fields": {}
+        }
+        
+        # 根据字段映射填充数据
+        if 'date' in field_mapping:
+            feishu_record['fields'][field_mapping['date']] = timestamp_value
+        if 'importantThings' in field_mapping:
+            feishu_record['fields'][field_mapping['importantThings']] = '\n'.join(plan.get('importantThings', []))
+        if 'tryThings' in field_mapping:
+            feishu_record['fields'][field_mapping['tryThings']] = '\n'.join(plan.get('tryThings', []))
+        if 'otherMatters' in field_mapping:
+            feishu_record['fields'][field_mapping['otherMatters']] = plan.get('otherMatters', '')
+        if 'reading' in field_mapping:
+            feishu_record['fields'][field_mapping['reading']] = plan.get('reading', '')
+        if 'score' in field_mapping:
+            feishu_record['fields'][field_mapping['score']] = plan.get('score', '')
+        if 'scoreReason' in field_mapping:
+            feishu_record['fields'][field_mapping['scoreReason']] = plan.get('scoreReason', '')
+        if 'activities' in field_mapping:
+            feishu_record['fields'][field_mapping['activities']] = activities_text
+        if 'emotions' in field_mapping:
+            feishu_record['fields'][field_mapping['emotions']] = plan.get('emotions', [])
+        if 'totalDuration' in field_mapping:
+            feishu_record['fields'][field_mapping['totalDuration']] = format_duration(plan.get('totalDuration', 0))
+        if 'creationDuration' in field_mapping:
+            feishu_record['fields'][field_mapping['creationDuration']] = format_duration(plan.get('creationDuration', 0))
+        if 'activityCategories' in field_mapping:
+            feishu_record['fields'][field_mapping['activityCategories']] = activity_categories
+        
+        print(f"[飞书同步] 飞书记录数据: {json.dumps(feishu_record, ensure_ascii=False, indent=2)[:500]}...")
+        
+        # 1. 先查询是否已存在当天日期的记录
+        print(f"[飞书同步] 查询是否已存在日期为 {date_str} 的记录...")
+        existing_record_id = None
+        
+        try:
+            # 获取日期字段名（用于筛选）
+            date_field_name = field_mapping.get('date', '')
+            if date_field_name:
+                # 由于飞书DateTime字段对筛选操作符支持有限，我们采用查询所有记录然后本地过滤的方式
+                search_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/search"
+                
+                # 不使用filter，查询所有记录
+                search_payload = {
+                    "page_size": 500  # 最多获取500条记录
+                }
+                
+                print(f"[飞书同步] 查询参数:")
+                print(f"  - 日期字段名: {date_field_name}")
+                print(f"  - 日期字符串: {date_str}")
+                print(f"  - 目标时间戳: {timestamp_value}")
+                print(f"  - 查询策略: 查询所有记录后本地过滤")
+                
+                search_response = requests.post(
+                    search_url,
+                    json=search_payload,
+                    headers=headers
+                )
+                
+                print(f"[飞书同步] 查询API响应状态: {search_response.status_code}")
+                
+                if search_response.status_code == 200:
+                    search_result = search_response.json()
+                    if search_result.get('code') == 0:
+                        items = search_result.get('data', {}).get('items', [])
+                        print(f"[飞书同步] 查询到 {len(items)} 条记录，开始本地过滤...")
+                        
+                        # 本地过滤：查找日期字段匹配的记录
+                        for item in items:
+                            fields = item.get('fields', {})
+                            record_date_value = fields.get(date_field_name)
+                            
+                            print(f"[飞书同步] 检查记录: record_id={item.get('record_id')}, 日期值={record_date_value}")
+                            
+                            # 比较日期：允许一定的误差范围（同一天内）
+                            if record_date_value:
+                                # 计算时间差（毫秒）
+                                time_diff = abs(record_date_value - timestamp_value)
+                                # 如果差异小于24小时，认为是同一天
+                                if time_diff < 24 * 60 * 60 * 1000:
+                                    existing_record_id = item.get('record_id')
+                                    print(f"[飞书同步] 找到匹配记录! record_id={existing_record_id}, 时间差={time_diff}ms")
+                                    break
+                        
+                        if existing_record_id:
+                            print(f"[飞书同步] 最终找到已存在的记录，record_id: {existing_record_id}")
+                        else:
+                            print(f"[飞书同步] 未找到匹配记录，将创建新记录")
+                    else:
+                        print(f"[飞书同步] 查询失败: {search_result.get('msg')}")
+                        print(f"[飞书同步] 失败详情: {json.dumps(search_result, ensure_ascii=False, indent=2)}")
+                else:
+                    print(f"[飞书同步] 查询请求失败: {search_response.text}")
+            else:
+                print(f"[飞书同步] 警告：未找到日期字段映射，无法查询已存在记录")
+        except Exception as e:
+            print(f"[飞书同步] 查询记录时出错: {e}")
+            import traceback
+            traceback.print_exc()
+            # 继续执行，默认创建新记录
+        
+        # 2. 根据是否存在记录，调用不同的API
+        if existing_record_id:
+            # 更新已存在的记录
+            print(f"[飞书同步] 更新已存在的记录...")
+            update_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/{existing_record_id}"
+            update_response = requests.put(
+                update_url,
+                json={"fields": feishu_record['fields']},
+                headers=headers
+            )
+            
+            print(f"[飞书同步] 更新API响应状态: {update_response.status_code}")
+            print(f"[飞书同步] 更新API响应: {update_response.text[:200]}...")
+            
+            if update_response.status_code == 200:
+                update_result = update_response.json()
+                if update_result.get('code') == 0:
+                    result = {
+                        'success': True,
+                        'updated': True,
+                        'record_id': existing_record_id,
+                        'message': '成功更新飞书多维表格中的记录'
+                    }
+                else:
+                    result = {
+                        'success': False,
+                        'error': f"更新记录失败: {update_result.get('msg', '未知错误')}"
+                    }
+            else:
+                result = {
+                    'success': False,
+                    'error': f"更新记录请求失败，状态码: {update_response.status_code}"
+                }
+        else:
+            # 创建新记录
+            print(f"[飞书同步] 创建新记录...")
+            # 直接调用飞书API创建，避免调用import_records_to_bitable导致重复查询
+            create_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_create"
+            create_response = requests.post(
+                create_url,
+                json={"records": [feishu_record]},
+                headers=headers
+            )
+            
+            print(f"[飞书同步] 创建API响应状态: {create_response.status_code}")
+            print(f"[飞书同步] 创建API响应: {create_response.text[:200]}...")
+            
+            if create_response.status_code == 200:
+                create_result = create_response.json()
+                if create_result.get('code') == 0:
+                    result = {
+                        'success': True,
+                        'created': True,
+                        'message': '成功创建飞书多维表格中的记录'
+                    }
+                else:
+                    result = {
+                        'success': False,
+                        'error': f"创建记录失败: {create_result.get('msg', '未知错误')}"
+                    }
+            else:
+                result = {
+                    'success': False,
+                    'error': f"创建记录请求失败，状态码: {create_response.status_code}"
+                }
+        
+        print(f"[飞书同步] 飞书API返回结果: {json.dumps(result, ensure_ascii=False, indent=2)}")
+        
+        if result.get('success'):
+            # 更新同步状态
+            plan['syncedToFeishu'] = True
+            plan['lastFeishuSyncAt'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+            DailyPlanUtils.save_daily_plan(plan)
+            
+            # 根据是更新还是创建返回不同的消息
+            if result.get('updated'):
+                print(f"[飞书同步] 更新成功")
+                message = f'同步到飞书成功（已更新日期 {date_str} 的记录）'
+            elif result.get('created'):
+                print(f"[飞书同步] 创建成功")
+                message = f'同步到飞书成功（已创建日期 {date_str} 的新记录）'
+            else:
+                print(f"[飞书同步] 同步成功")
+                message = '同步到飞书成功'
+            
+            return jsonify({
+                'success': True,
+                'message': message,
+                'updated': result.get('updated', False),
+                'created': result.get('created', False)
+            })
+        else:
+            error_msg = result.get('error', '同步失败')
+            print(f"[飞书同步] 同步失败: {error_msg}")
+            return jsonify({
+                'success': False,
+                'error': error_msg
+            }), 500
+    except Exception as e:
+        error_msg = str(e)
+        print(f"[飞书同步] 异常错误: {error_msg}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': error_msg
+        }), 500
+
+
+@app.route('/api/logs', methods=['GET'])
+def get_logs():
+    """获取日志数据的API端点"""
+    try:
+        logs = TimeRecorderLogger.get_logs()
+        return jsonify({
+            'success': True,
+            'logs': logs
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/logs/clear', methods=['POST'])
+def clear_logs():
+    """清空日志数据的API端点"""
+    try:
+        TimeRecorderLogger.clear_logs()
+        return jsonify({
+            'success': True,
+            'message': '日志已清空'
+        })
+    except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)

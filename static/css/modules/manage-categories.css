@@ -12,7 +12,7 @@
     padding: 0 20px;
 }
 
-.nav-btn {
+.manage-categories-nav-btn {
     display: inline-block;
     padding: 10px 20px;
     background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
@@ -27,13 +27,13 @@
     font-size: 16px;
 }
 
-.nav-btn:hover {
+.manage-categories-nav-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3);
     background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
 }
 
-.nav-btn:active {
+.manage-categories-nav-btn:active {
     transform: translateY(-1px);
 }
 

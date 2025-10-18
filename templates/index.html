@@ -2,6 +2,9 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/user-section.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/daily-plan.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/feishu-config.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/detail-modal.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -13,31 +16,258 @@
         <a href="/mood-wall" class="nav-link">情绪与活动墙</a>
         <a href="/project-description" class="nav-link">项目说明</a>
         <a href="/manage-categories" class="nav-link">管理类别</a>
+        <button class="control-btn feishu-config-btn" onclick="window.showFeishuConfig()">飞书配置</button>
+    </div>
+</div>
+
+<!-- 今日计划区域 -->
+<div class="daily-plan-section">
+    <div class="daily-plan-header">
+        <h2 class="daily-plan-title">
+            📝 今日计划
+            <span class="daily-plan-date">今天是——</span>
+        </h2>
+        <button id="plan-toggle-btn" class="daily-plan-toggle">展开</button>
+    </div>
+    
+    <!-- 折叠时显示的简要视图 -->
+    <div class="daily-plan-summary" id="daily-plan-summary" style="display: block;">
+        <div class="summary-section">
+            <div class="summary-title">🎯 今天重要的三件事：</div>
+            <ol class="summary-list" id="summary-important-things">
+                <li class="summary-item-empty">还未填写</li>
+            </ol>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-title">✨ 今天要尝试的三件事：</div>
+            <ol class="summary-list" id="summary-try-things">
+                <li class="summary-item-empty">还未填写</li>
+            </ol>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-title">😊 今日的情绪集合：</div>
+            <div class="summary-emotions" id="summary-emotions">
+                <span class="summary-item-empty">还未记录</span>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-title">🎯 今日的活动类型集合：</div>
+            <div class="summary-categories" id="summary-categories">
+                <span class="summary-item-empty">还未记录</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增：今日统计数据（全宽显示） -->
+    <div class="daily-plan-stats-full-width" id="daily-plan-stats-full-width" style="display: block; margin-top: 15px;">
+        <div class="daily-plan-stats-content">
+            <div class="daily-plan-stats-title">📊 今日统计</div>
+            <div class="summary-stats">
+                <div class="summary-stat-item">
+                    <div class="stat-label">专注时长</div>
+                    <div class="stat-value" id="summary-total-duration">0小时0分</div>
+                </div>
+                <div class="summary-stat-item">
+                    <div class="stat-label">创作时长</div>
+                    <div class="stat-value" id="summary-creation-duration">0小时0分</div>
+                </div>
+                <div class="summary-stat-item">
+                    <div class="stat-label">活动次数</div>
+                    <div class="stat-value" id="summary-activity-count">0次</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="daily-plan-content" style="display: none;">
+        <!-- 重要的三件事 -->
+        <div class="plan-group">
+            <div class="plan-group-title">🎯 今天重要的三件事</div>
+            <input type="text" class="plan-input" id="important-1" placeholder="重要事项 1">
+            <input type="text" class="plan-input" id="important-2" placeholder="重要事项 2">
+            <input type="text" class="plan-input" id="important-3" placeholder="重要事项 3">
+        </div>
+        
+        <!-- 要尝试的三件事 -->
+        <div class="plan-group">
+            <div class="plan-group-title">✨ 今天要尝试的三件事</div>
+            <input type="text" class="plan-input" id="try-1" placeholder="尝试事项 1">
+            <input type="text" class="plan-input" id="try-2" placeholder="尝试事项 2">
+            <input type="text" class="plan-input" id="try-3" placeholder="尝试事项 3">
+        </div>
+        
+        <!-- 其他事项 -->
+        <div class="plan-group">
+            <div class="plan-group-title">📝 其他事项</div>
+            <textarea class="plan-textarea" id="other-matters" placeholder="其他需要处理的事项..."></textarea>
+        </div>
+        
+        <!-- 今日充电 -->
+        <div class="plan-group">
+            <div class="plan-group-title">📖 今日充电（要阅读）</div>
+            <textarea class="plan-textarea" id="reading" placeholder="今天计划阅读的内容..."></textarea>
+        </div>
+        
+        <!-- 给今天打个分 -->
+        <div class="plan-group">
+            <div class="plan-group-title">⭐ 给今天打个分</div>
+            <div class="score-options">
+                <button class="score-option" data-score="优秀">🌟 优秀</button>
+                <button class="score-option" data-score="良好">😊 良好</button>
+                <button class="score-option" data-score="一般">😐 一般</button>
+                <button class="score-option" data-score="较差">😔 较差</button>
+                <button class="score-option" data-score="很差">😢 很差</button>
+            </div>
+        </div>
+        
+        <!-- 为什么？ -->
+        <div class="plan-group">
+            <div class="plan-group-title">🤔 为什么？</div>
+            <textarea class="plan-textarea" id="score-reason" placeholder="为什么这样打分？"></textarea>
+        </div>
+        
+        <!-- 自动更新区域 -->
+        <div class="auto-update-section">
+            <div class="auto-update-title">📊 今日统计（自动更新）</div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">专注时长</div>
+                    <div class="stat-value" id="plan-total-duration">0小时0分</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">创作时长</div>
+                    <div class="stat-value" id="plan-creation-duration">0小时0分</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">活动次数</div>
+                    <div class="stat-value" id="plan-activity-count">0</div>
+                </div>
+            </div>
+            
+            <div class="plan-group-title" style="margin-top: 15px;">🎯 今日做过的活动</div>
+            <div class="activities-list" id="plan-activities-list">
+                <div style="text-align:center; padding:20px; opacity:0.7;">暂无活动记录</div>
+            </div>
+            
+            <div class="plan-group-title" style="margin-top: 15px;">😊 今日的情绪集合</div>
+            <div class="emotions-grid" id="plan-emotions-grid">
+                <div style="opacity:0.7;">暂无情绪记录</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="daily-plan-actions">
+        <!-- 同步到飞书按钮已移除，同步操作已集成到自动保存和收起功能中 -->
+    </div>
+    
+    <div id="sync-status" class="sync-status not-synced">
+        <span class="not-synced">✗ 未同步到飞书</span>
     </div>
 </div>
 
 <div class="main-layout">
-    <div class="section">
+    <div class="section" style="grid-column: 1 / -1;">
         <div class="current-activity" id="currentActivity" contenteditable="false">请选择活动</div>
         
-        <!-- 突出显示的计时器区域 -->
-        <div class="focus-timer-section">
+        <!-- 合并计时器和开始按钮 -->
+        <div class="focus-timer-section" id="focusTimerSection">
             <div class="focus-label">当前持续专注时长</div>
             <div class="timer-display" id="timerDisplay">00:00:00</div>
         </div>
         
-        <div class="control-buttons">
-            <button class="control-btn toggle-btn" id="toggleBtn">开始专注吧！</button>
+        <!-- 快速情绪记录区域 -->
+        <div class="quick-emotion-section" id="quickEmotionSection" style="display: none;">
+            <div class="quick-emotion-label">快速记录情绪：</div>
+            <div class="quick-emotion-buttons">
+                <!-- 正向+专注：惊奇、兴奋、高兴、愉悦 -->
+                <button class="emotion-btn" data-emotion="惊奇" style="background-color: #9C27B0;" title="惊奇">
+                    <span class="emotion-icon">✨</span>
+                    <span class="emotion-text">惊奇</span>
+                </button>
+                <button class="emotion-btn" data-emotion="兴奋" style="background-color: #E91E63;" title="兴奋">
+                    <span class="emotion-icon">🤩</span>
+                    <span class="emotion-text">兴奋</span>
+                </button>
+                <button class="emotion-btn" data-emotion="高兴" style="background-color: #4CAF50;" title="高兴">
+                    <span class="emotion-icon">😊</span>
+                    <span class="emotion-text">高兴</span>
+                </button>
+                <button class="emotion-btn" data-emotion="愉悦" style="background-color: #8BC34A;" title="愉悦">
+                    <span class="emotion-icon">😄</span>
+                    <span class="emotion-text">愉悦</span>
+                </button>
+                
+                <!-- 正向+松弛：安逸、安心、满足、宁静、放松 -->
+                <button class="emotion-btn" data-emotion="安逸" style="background-color: #00BCD4;" title="安逸">
+                    <span class="emotion-icon">🪂</span>
+                    <span class="emotion-text">安逸</span>
+                </button>
+                <button class="emotion-btn" data-emotion="安心" style="background-color: #2196F3;" title="安心">
+                    <span class="emotion-icon">😌</span>
+                    <span class="emotion-text">安心</span>
+                </button>
+                <button class="emotion-btn" data-emotion="满足" style="background-color: #8BC34A;" title="满足">
+                    <span class="emotion-icon">😋</span>
+                    <span class="emotion-text">满足</span>
+                </button>
+                <button class="emotion-btn" data-emotion="宁静" style="background-color: #009688;" title="宁静">
+                    <span class="emotion-icon">🧘</span>
+                    <span class="emotion-text">宁静</span>
+                </button>
+                <button class="emotion-btn" data-emotion="放松" style="background-color: #CDDC39;" title="放松">
+                    <span class="emotion-icon">🌿</span>
+                    <span class="emotion-text">放松</span>
+                </button>
+                
+                <!-- 负面+松弛：悲伤、伤心、沮丧、疲惫 -->
+                <button class="emotion-btn" data-emotion="悲伤" style="background-color: #546E7A;" title="悲伤">
+                    <span class="emotion-icon">😢</span>
+                    <span class="emotion-text">悲伤</span>
+                </button>
+                <button class="emotion-btn" data-emotion="伤心" style="background-color: #78909C;" title="伤心">
+                    <span class="emotion-icon">💔</span>
+                    <span class="emotion-text">伤心</span>
+                </button>
+                <button class="emotion-btn" data-emotion="沮丧" style="background-color: #5D4037;" title="沮丧">
+                    <span class="emotion-icon">😞</span>
+                    <span class="emotion-text">沮丧</span>
+                </button>
+                <button class="emotion-btn" data-emotion="疲惫" style="background-color: #4E342E;" title="疲惫">
+                    <span class="emotion-icon">😴</span>
+                    <span class="emotion-text">疲惫</span>
+                </button>
+                
+                <!-- 负面+专注：惊恐、紧张、愤怒、苦恼 -->
+                <button class="emotion-btn" data-emotion="惊恐" style="background-color: #424242;" title="惊恐">
+                    <span class="emotion-icon">😱</span>
+                    <span class="emotion-text">惊恐</span>
+                </button>
+                <button class="emotion-btn" data-emotion="紧张" style="background-color: #616161;" title="紧张">
+                    <span class="emotion-icon">😰</span>
+                    <span class="emotion-text">紧张</span>
+                </button>
+                <button class="emotion-btn" data-emotion="愤怒" style="background-color: #BF360C;" title="愤怒">
+                    <span class="emotion-icon">😡</span>
+                    <span class="emotion-text">愤怒</span>
+                </button>
+                <button class="emotion-btn" data-emotion="苦恼" style="background-color: #FF6F00;" title="苦恼">
+                    <span class="emotion-icon">😫</span>
+                    <span class="emotion-text">苦恼</span>
+                </button>
+            </div>
         </div>
-    </div>
-    
-    <div class="section">
-        <h2>选择活动</h2>
-        <!-- 活动按钮将通过JavaScript动态生成 -->
         
+        <!-- 移除原来的控制按钮 -->
+        <!-- <div class="control-buttons">
+            <button class="control-btn toggle-btn" id="toggleBtn">开始专注吧！</button>
+        </div> -->
     </div>
     
-    <div class="section">
+    <div class="section" style="grid-column: 1 / -1;">
         <h2>今日记录详情（<span id="currentDate"></span>）</h2>
         <table class="records-table">
             <thead>
@@ -52,20 +282,25 @@
             </tbody>
         </table>
     </div>
-    <div class="section">
-        <h2>今日累计时长</h2>
-        <div class="stats" id="stats">
-            <div class="stat-card">
-                <h3>今日总计</h3>
-                <p id="totalTime">0小时0分</p>
+</div>
+
+<!-- 飞书配置模态框 -->
+<div id="feishuConfigModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="window.closeFeishuConfig()">&times;</span>
+        <h2>飞书配置</h2>
+        <div class="detail-form">
+            <div class="highlight-field">
+                <label for="feishuAppId">App ID:</label>
+                <input type="text" id="feishuAppId" placeholder="请输入飞书应用的App ID">
             </div>
-            <div class="stat-card">
-                <h3>今日创作总计</h3>
-                <p id="toyTotalTime">0小时0分</p>
+            <div class="highlight-field">
+                <label for="feishuAppSecret">App Secret:</label>
+                <input type="password" id="feishuAppSecret" placeholder="请输入飞书应用的App Secret">
             </div>
-            <div class="stat-card">
-                <h3>活动次数</h3>
-                <p id="activityCount">0次</p>
+            <div class="detail-actions">
+                <button type="button" class="save-btn" onclick="window.saveFeishuConfig()">保存</button>
+                <button type="button" class="cancel-btn" onclick="window.closeFeishuConfig()">取消</button>
             </div>
         </div>
     </div>

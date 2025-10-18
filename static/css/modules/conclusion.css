@@ -1,0 +1,184 @@
+/* 结论文档样式 */
+.conclusion-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.conclusion-container h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    padding-bottom: 15px;
+    border-bottom: 3px solid #3498db;
+}
+
+.conclusion-container h2 {
+    color: #34495e;
+    margin: 30px 0 20px 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.conclusion-container h3 {
+    color: #555;
+    margin: 25px 0 15px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.conclusion-container h4 {
+    color: #666;
+    margin: 20px 0 10px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.conclusion-container p {
+    margin-bottom: 15px;
+    font-size: 1.05rem;
+    color: #444;
+    text-align: justify;
+}
+
+.conclusion-container ul, 
+.conclusion-container ol {
+    margin: 15px 0;
+    padding-left: 30px;
+}
+
+.conclusion-container li {
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+    color: #444;
+}
+
+.conclusion-container code {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: #e74c3c;
+}
+
+.conclusion-container pre {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid #eee;
+}
+
+.conclusion-container pre code {
+    background-color: transparent;
+    padding: 0;
+    color: #333;
+}
+
+.conclusion-container blockquote {
+    border-left: 4px solid #3498db;
+    padding: 10px 20px;
+    margin: 20px 0;
+    background-color: #f8f9fa;
+    border-radius: 0 4px 4px 0;
+}
+
+.conclusion-container blockquote p {
+    margin: 0;
+    color: #555;
+    font-style: italic;
+}
+
+.conclusion-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.conclusion-container th,
+.conclusion-container td {
+    border: 1px solid #e0e0e0;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.conclusion-container th {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+    font-weight: bold;
+    color: #333;
+}
+
+.conclusion-container tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.conclusion-container tr:hover {
+    background-color: #f0f7ff;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .conclusion-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .conclusion-container h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .conclusion-container h2 {
+        font-size: 1.5rem;
+        margin: 25px 0 15px 0;
+    }
+    
+    .conclusion-container h3 {
+        font-size: 1.2rem;
+        margin: 20px 0 10px 0;
+    }
+    
+    .conclusion-container p,
+    .conclusion-container li {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .conclusion-container {
+        padding: 10px;
+    }
+    
+    .conclusion-container h1 {
+        font-size: 1.8rem;
+    }
+    
+    .conclusion-container h2 {
+        font-size: 1.3rem;
+    }
+    
+    .conclusion-container h3 {
+        font-size: 1.1rem;
+    }
+    
+    .conclusion-container p,
+    .conclusion-container li {
+        font-size: 0.95rem;
+    }
+}

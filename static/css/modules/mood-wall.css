@@ -235,7 +235,7 @@
     transform: translateX(3px);
 }
 
-.legend-color-box {
+.legend-color {
     width: 18px;
     height: 18px;
     border-radius: 3px;
@@ -294,18 +294,18 @@
 .mood-wall-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     padding: 15px;
 }
 
-.mood-day-row {
+.wall-day {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 15px;
 }
 
-.mood-date-label {
-    width: 80px;
+.day-header {
+    width: 100px;
     padding: 8px 5px;
     font-weight: bold;
     color: #333;
@@ -314,116 +314,91 @@
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 4px;
+    border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     transition: all 0.2s ease;
-    font-size: 12px;
-    align-self: center; /* 垂直居中对齐 */
+    font-size: 14px;
+    align-self: flex-start;
 }
 
-.mood-date-label:hover {
+.day-header:hover {
     transform: scale(1.01);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.moods-container {
+.emotions-container {
     flex: 1;
-    min-height: 30px; /* 从80px减小到30px，与方块大小匹配 */
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 5px; /* 减小内边距 */
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     background: #ffffff;
     border: 1px solid #eee;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     transition: all 0.2s ease;
-    align-items: center; /* 垂直居中对齐内容 */
+    min-height: 50px;
 }
 
-.moods-container:hover {
+.emotions-container:hover {
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
-.mood-box {
-    width: 25px;
-    height: 25px;
+.emotion-box {
+    width: 35px;
+    height: 35px;
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    overflow: hidden;
     position: relative;
     animation: fadeIn 0.3s ease-out;
-}
-
-.mood-box:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-.mood-text {
-    font-size: 8px;
-    text-align: center;
-    padding: 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-    font-weight: 500;
+    overflow: hidden;
+}
+
+.emotion-box:hover {
+    transform: scale(1.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+
+.emotion-text {
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    text-align: center;
+    padding: 0 3px;
+    z-index: 2;
 }
 
 /* 活动类型墙样式 */
 .activity-wall-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     padding: 15px;
-}
-
-.activity-day-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.activity-date-label {
-    width: 80px;
-    padding: 8px 5px;
-    font-weight: bold;
-    color: #333;
-    text-align: right;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    transition: all 0.2s ease;
-    font-size: 12px;
-    align-self: center; /* 垂直居中对齐 */
-}
-
-.activity-date-label:hover {
-    transform: scale(1.01);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .activities-container {
     flex: 1;
-    min-height: 30px; /* 从80px减小到30px，与方块大小匹配 */
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 5px; /* 减小内边距 */
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     background: #ffffff;
     border: 1px solid #eee;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     transition: all 0.2s ease;
-    align-items: center; /* 垂直居中对齐内容 */
+    min-height: 50px;
 }
 
 .activities-container:hover {
@@ -431,33 +406,38 @@
 }
 
 .activity-box {
-    width: 25px;
-    height: 25px;
+    width: 35px;
+    height: 35px;
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    overflow: hidden;
     position: relative;
     animation: fadeIn 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    overflow: hidden;
 }
 
 .activity-box:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 10;
 }
 
 .activity-text {
-    font-size: 8px;
-    text-align: center;
-    padding: 0 2px;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-    font-weight: 500;
+    text-align: center;
+    padding: 0 3px;
+    z-index: 2;
 }
 
 /* 活动详情浮窗样式 */
@@ -873,5 +853,19 @@
         margin-bottom: 12px; /* 增加间距 */
         padding-bottom: 8px; /* 增加内边距 */
         font-size: 0.95rem; /* 调整字体大小 */
+    }
+    
+    .wall-day {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .day-header {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .emotions-container, .activities-container {
+        padding: 8px;
     }
 }

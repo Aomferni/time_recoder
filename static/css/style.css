@@ -27,6 +27,9 @@
     }
 }
 
+/* 导入结论文档样式 */
+@import url('./modules/conclusion.css');
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);

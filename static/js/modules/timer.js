@@ -24,11 +24,95 @@ import {
  */
 export const TimeRecorderTimer = {
     /**
+     * 保存计时器状态到localStorage
+     */
+    saveTimerState: function() {
+        // 只有在计时器运行时才保存状态
+        if (timerInterval) {
+            const timerState = {
+                currentActivity: currentActivity,
+                startTime: startTime,
+                elapsedTime: elapsedTime,
+                currentRecordId: currentRecordId,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('timeRecorderTimerState', JSON.stringify(timerState));
+        } else {
+            // 如果计时器没有运行，清除保存的状态
+            localStorage.removeItem('timeRecorderTimerState');
+        }
+    },
+    
+    /**
+     * 从localStorage恢复计时器状态
+     */
+    restoreTimerState: function() {
+        const savedState = localStorage.getItem('timeRecorderTimerState');
+        if (savedState) {
+            try {
+                const timerState = JSON.parse(savedState);
+                
+                // 检查状态是否过期（超过1小时则认为过期）
+                const now = Date.now();
+                if (now - timerState.timestamp > 3600000) { // 1小时
+                    console.log('计时器状态已过期，清除保存的状态');
+                    localStorage.removeItem('timeRecorderTimerState');
+                    return false;
+                }
+                
+                // 恢复计时器状态
+                setCurrentActivity(timerState.currentActivity);
+                setStartTime(timerState.startTime);
+                setElapsedTime(timerState.elapsedTime);
+                setCurrentRecordId(timerState.currentRecordId);
+                
+                // 更新UI显示
+                const currentActivityElement = document.getElementById('currentActivity');
+                if (currentActivityElement) {
+                    currentActivityElement.textContent = timerState.currentActivity;
+                    currentActivityElement.contentEditable = "false"; // 计时器运行时禁用编辑
+                }
+                
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (timerDisplay) {
+                    // 更新计时器显示
+                    const totalSeconds = Math.floor(timerState.elapsedTime / 1000);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    timerDisplay.textContent = 
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                // 更新计时器区域样式
+                const focusTimerSection = document.getElementById('focusTimerSection');
+                if (focusTimerSection) {
+                    focusTimerSection.classList.add('running');
+                }
+                
+                // 显示快速情绪记录区域
+                const quickEmotionSection = document.getElementById('quickEmotionSection');
+                if (quickEmotionSection) {
+                    quickEmotionSection.style.display = 'block';
+                }
+                
+                console.log('计时器状态已恢复');
+                return true;
+            } catch (error) {
+                console.error('恢复计时器状态失败:', error);
+                localStorage.removeItem('timeRecorderTimerState');
+                return false;
+            }
+        }
+        return false;
+    },
+    
+    /**
      * 切换计时器（开始/停止）
      */
     toggleTimer: function() {
-        console.log('开始按钮被点击');
-        const toggleBtn = document.getElementById('toggleBtn');
+        console.log('计时器区域被点击');
+        const focusTimerSection = document.getElementById('focusTimerSection');
         const currentActivityElement = document.getElementById('currentActivity');
         
         if (!currentActivityElement) {
@@ -49,7 +133,12 @@ export const TimeRecorderTimer = {
         
         // 检查是否选择了活动
         if (!currentActivityValue || currentActivityValue === '请选择活动') {
-            alert('请先选择活动！');
+            // 显示更友好的提醒消息
+            alert('请先选择或输入活动名称！');
+            // 显示活动选择弹窗
+            if (window.showActivitySelectionModal) {
+                window.showActivitySelectionModal();
+            }
             return;
         }
         
@@ -139,9 +228,9 @@ export const TimeRecorderTimer = {
                 }
             }
             
-            // 更新按钮文本
-            if (toggleBtn) {
-                toggleBtn.textContent = '开始';
+            // 更新计时器区域样式
+            if (focusTimerSection) {
+                focusTimerSection.classList.remove('running');
             }
             // 停止后重新启用编辑
             currentActivityElement.contentEditable = "true";
@@ -153,11 +242,19 @@ export const TimeRecorderTimer = {
             if (elapsedTime === 0 && !currentRecordId) {
                 setElapsedTime(0);
             }
-            if (toggleBtn) {
-                toggleBtn.textContent = '停止';
-            }
             // 开始计时后禁用编辑
             currentActivityElement.contentEditable = "false";
+            
+            // 更新计时器区域样式
+            if (focusTimerSection) {
+                focusTimerSection.classList.add('running');
+            }
+            
+            // 显示快速情绪记录区域
+            const quickEmotionSection = document.getElementById('quickEmotionSection');
+            if (quickEmotionSection) {
+                quickEmotionSection.style.display = 'block';
+            }
             
             // 创建新记录或更新现有记录
             // 使用UTC时间创建Date对象
@@ -219,6 +316,9 @@ export const TimeRecorderTimer = {
             
             setTimerInterval(setInterval(TimeRecorderTimer.updateTimer, 1000));
         }
+        
+        // 保存计时器状态
+        TimeRecorderTimer.saveTimerState();
     },
     
     /**
@@ -242,6 +342,11 @@ export const TimeRecorderTimer = {
         // 同步更新表格中的计时时长
         // 直接更新表格显示，因为计算逻辑已在工具类中处理
         TimeRecorderUI.updateRecordsTable();
+        
+        // 定期保存计时器状态（每10秒保存一次）
+        if (Math.floor(totalSeconds) % 10 === 0) {
+            TimeRecorderTimer.saveTimerState();
+        }
     },
     
     /**
@@ -263,10 +368,10 @@ export const TimeRecorderTimer = {
             timerDisplay.textContent = '00:00:00';
         }
         
-        const toggleBtn = document.getElementById('toggleBtn');
-        if (toggleBtn) {
-            toggleBtn.textContent = '开始';
-            toggleBtn.disabled = false;
+        // 更新计时器区域样式
+        const focusTimerSection = document.getElementById('focusTimerSection');
+        if (focusTimerSection) {
+            focusTimerSection.classList.remove('running');
         }
         
         // 启用编辑
@@ -274,6 +379,9 @@ export const TimeRecorderTimer = {
         if (currentActivityElement) {
             currentActivityElement.contentEditable = "true";
         }
+        
+        // 清除保存的计时器状态
+        localStorage.removeItem('timeRecorderTimerState');
     },
     
     /**
@@ -291,10 +399,16 @@ export const TimeRecorderTimer = {
         // 重置计时器状态
         TimeRecorderTimer.resetTimer();
         
-        // 更新按钮文本
-        const toggleBtn = document.getElementById('toggleBtn');
-        if (toggleBtn) {
-            toggleBtn.textContent = '开始';
+        // 更新计时器区域样式
+        const focusTimerSection = document.getElementById('focusTimerSection');
+        if (focusTimerSection) {
+            focusTimerSection.classList.remove('running');
+        }
+        
+        // 隐藏快速情绪记录区域
+        const quickEmotionSection = document.getElementById('quickEmotionSection');
+        if (quickEmotionSection) {
+            quickEmotionSection.style.display = 'none';
         }
         
         // 重新启用活动名称编辑

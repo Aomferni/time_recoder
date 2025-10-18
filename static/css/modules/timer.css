@@ -1,12 +1,3 @@
-.timer-display {
-    text-align: center;
-    font-size: 48px;
-    font-weight: bold;
-    color: #333;
-    margin: 20px 0;
-    font-family: 'Courier New', monospace;
-}
-
 /* 新增的专注计时器样式 */
 .focus-timer-section {
     text-align: center;
@@ -21,6 +12,39 @@
     transition: all 0.3s ease;
     /* 确保计时器区域不会遮盖其他元素 */
     z-index: 1;
+    /* 使计时器区域可点击 */
+    cursor: pointer;
+    user-select: none;
+}
+
+/* 工作输出类 - 蓝色系 */
+.focus-timer-section.btn-work-output {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+/* 大脑&身体充电类 - 绿色系 */
+.focus-timer-section.btn-charge {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+}
+
+/* 修养生息类 - 紫色系 */
+.focus-timer-section.btn-rest {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+/* 输出创作类 - 橙色系 */
+.focus-timer-section.btn-create {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+/* 暂停一下类 - 青色系 */
+.focus-timer-section.btn-gap {
+    background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+}
+
+/* 纯属娱乐类 - 灰色系 */
+.focus-timer-section.btn-entertainment {
+    background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
 }
 
 /* 移动端优化 */
@@ -72,6 +96,14 @@
     animation: timerPulse 2s infinite;
 }
 
+.focus-category {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 5px;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
 /* 移动端优化 */
 @media (max-width: 480px) {
     .focus-timer-section .timer-display {
@@ -86,9 +118,143 @@
     100% { opacity: 1; }
 }
 
+/* 计时器运行时的样式 */
+.focus-timer-section.running {
+    background: linear-gradient(135deg, #ff9800 0%, #EF6C00 100%);
+    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.focus-timer-section.running .focus-label::after {
+    content: " (点击停止)";
+    font-size: 14px;
+}
+
+.focus-timer-section:not(.running) .focus-label::after {
+    content: " (点击开始)";
+    font-size: 14px;
+}
+
+/* 快速情绪记录区域 */
+.quick-emotion-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.quick-emotion-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.quick-emotion-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.emotion-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.emotion-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.emotion-btn:active {
+    transform: scale(0.95);
+}
+
+/* 选中的情绪按钮样式 */
+.emotion-btn.selected {
+    box-shadow: 0 0 0 3px white, 0 0 0 6px currentColor;
+    transform: scale(1.1);
+}
+
+/* 情绪按钮中的图标和文字样式 */
+.emotion-btn .emotion-icon {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emotion-btn .emotion-text {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.emotion-btn:hover .emotion-text {
+    opacity: 1;
+}
+
+/* 情绪选中标记 */
+.emotion-checkmark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .current-activity {
+        font-size: 30px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .quick-emotion-buttons {
+        gap: 6px;
+    }
+    
+    .emotion-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
+
 .current-activity {
     text-align: center;
-    font-size: 20px;
+    font-size: 30px;
     color: #444;
     margin-bottom: 20px;
     font-weight: 500;
@@ -101,18 +267,24 @@
     /* 确保当前活动区域不会遮盖其他元素 */
     z-index: 1;
     position: relative;
-}
-
-/* 移动端优化 */
-@media (max-width: 480px) {
-    .current-activity {
-        font-size: 18px;
-        padding: 12px;
-        margin-bottom: 15px;
-    }
+    /* 使当前活动区域可点击 */
+    cursor: pointer;
+    user-select: none;
+    /* 支持编辑状态 */
+    outline: none;
+    /* 始终居中显示 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .current-activity:hover {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     transform: translateY(-2px);
+}
+
+/* 当前活动区域编辑时的样式 */
+.current-activity.editing {
+    border-left: 4px solid #4CAF50;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
 }

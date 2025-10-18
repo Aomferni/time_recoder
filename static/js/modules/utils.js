@@ -181,6 +181,39 @@ export const TimeRecorderFrontendUtils = {
     },
     
     /**
+     * 获取情绪对应的emoji
+     */
+    getEmotionEmoji: function(emotion) {
+        const emotionEmojiMap = {
+            // 正向+专注
+            '惊奇': '✨',
+            '兴奋': '🤩',
+            '高兴': '😊',
+            '愉悦': '😄',
+            
+            // 正向+松弛
+            '安逸': '🪂',
+            '安心': '😌',
+            '满足': '😋',
+            '宁静': '🧘',
+            '放松': '🌿',
+            
+            // 负面+松弛
+            '悲伤': '😢',
+            '伤心': '💔',
+            '沮丧': '😞',
+            '疲惫': '😴',
+            
+            // 负面+专注
+            '惊恐': '😱',
+            '紧张': '😰',
+            '愤怒': '😡',
+            '苦恼': '😫'
+        };
+        return emotionEmojiMap[emotion] || '😊'; // 默认emoji
+    },
+    
+    /**
      * 计算段落总时间
      */
     calculateSegmentsTotalTime: function(segments) {
