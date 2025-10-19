@@ -583,11 +583,6 @@ class TimeRecorderUtils:
 @app.route('/')
 def index():
     """首页路由"""
-    # 检查是否已完成初始化
-    if not InitUtils.is_initialized():
-        # 未初始化，重定向到初始化页面
-        return render_template('init.html')
-    
     # 已初始化，正常显示首页
     return render_template('index.html')
 
