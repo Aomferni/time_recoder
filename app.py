@@ -1621,8 +1621,27 @@ def sync_plans_from_feishu():
             print(f"[飞书同步] 当前北京时间: {current_beijing_time.strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"[飞书同步] 当前北京时间日期: {current_beijing_time.strftime('%Y-%m-%d')}")
             
-            # 创建本地计划对象
-            local_plan = DailyPlanUtils.create_new_daily_plan(date_value)
+            # 查找是否已存在相同日期和飞书记录ID的计划
+            existing_plan = None
+            index_file = DailyPlanUtils.get_plans_index_file_path()
+            if os.path.exists(index_file):
+                try:
+                    with open(index_file, 'r', encoding='utf-8') as f:
+                        plans_index = json.load(f)
+                        for plan_id, plan in plans_index.items():
+                            if plan.get('date') == date_value and plan.get('feishuRecordId') == feishu_record.get('record_id'):
+                                existing_plan = plan
+                                break
+                except Exception as e:
+                    print(f"[飞书同步] 读取计划索引文件出错: {e}")
+            
+            # 如果存在相同日期和飞书记录ID的计划，则更新它，否则创建新的计划
+            if existing_plan:
+                local_plan = existing_plan
+                print(f"[飞书同步] 找到已存在的计划，ID: {local_plan['id']}")
+            else:
+                local_plan = DailyPlanUtils.create_new_daily_plan(date_value)
+                print(f"[飞书同步] 创建新的计划")
             
             # 设置飞书记录ID
             local_plan['feishuRecordId'] = feishu_record.get('record_id')
@@ -2442,9 +2461,19 @@ class DailyPlanUtils:
                 with open(index_file, 'r', encoding='utf-8') as f:
                     plans_index = json.load(f)
                     # 查找指定日期的计划
+                    plans_for_date = []
                     for plan_id, plan in plans_index.items():
                         if plan.get('date') == date_str:
-                            return plan
+                            plans_for_date.append(plan)
+                    
+                    # 如果找到了多个计划，优先返回包含飞书记录ID的计划
+                    if plans_for_date:
+                        # 优先选择包含feishuRecordId的计划
+                        for plan in plans_for_date:
+                            if plan.get('feishuRecordId'):
+                                return plan
+                        # 如果没有包含feishuRecordId的计划，返回第一个
+                        return plans_for_date[0]
             except Exception as e:
                 print(f"读取今日计划索引文件出错: {e}")
         
