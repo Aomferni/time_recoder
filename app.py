@@ -1554,8 +1554,12 @@ def sync_plans_from_feishu():
         
         for feishu_record in feishu_records:
             print(f"[飞书同步] 处理飞书记录: {feishu_record}")
+            print(f"[飞书同步] 飞书记录ID: {feishu_record.get('record_id', 'N/A')}")
             fields = feishu_record.get('fields', {})
             print(f"[飞书同步] 飞书记录字段: {fields}")
+            
+            # 添加字段键名的详细信息
+            print(f"[飞书同步] 飞书记录所有字段键名: {list(fields.keys())}")
             
             # 提取日期字段（假设是时间戳格式）
             date_value = ''
@@ -1568,24 +1572,54 @@ def sync_plans_from_feishu():
                         print(f"[飞书同步] 找到日期字段: {key} = {activity_date}")
                         break
             
+            print(f"[飞书同步] 原始日期字段值: {activity_date} (类型: {type(activity_date)})")
+            
             if activity_date:
                 try:
                     # 飞书日期字段是时间戳（毫秒）
                     if isinstance(activity_date, (int, float)):
-                        date_obj = datetime.fromtimestamp(activity_date / 1000)
-                        date_value = date_obj.strftime('%Y-%m-%d')
+                        # 添加详细的时间戳转换日志
+                        print(f"[飞书同步] 原始时间戳: {activity_date} (毫秒)")
+                        print(f"[飞书同步] 转换为秒: {activity_date / 1000}")
+                        
+                        # 使用UTC时区解析时间戳，然后转换为北京时间
+                        from datetime import timezone
+                        utc_date_obj = datetime.fromtimestamp(activity_date / 1000, tz=timezone.utc)
+                        print(f"[飞书同步] UTC时间对象: {utc_date_obj}")
+                        
+                        # 转换为北京时间
+                        beijing_date_obj = utc_date_obj.astimezone(BEIJING_TZ)
+                        print(f"[飞书同步] 北京时间对象: {beijing_date_obj}")
+                        
+                        # 格式化为日期字符串
+                        date_value = beijing_date_obj.strftime('%Y-%m-%d')
                         print(f"[飞书同步] 转换时间戳 {activity_date} 为日期 {date_value}")
+                        
+                        # 对比直接解析的结果
+                        direct_date_obj = datetime.fromtimestamp(activity_date / 1000)
+                        direct_date_value = direct_date_obj.strftime('%Y-%m-%d')
+                        print(f"[飞书同步] 直接解析结果: {direct_date_value}")
+                        print(f"[飞书同步] 时区转换差异: {direct_date_value} != {date_value} ? {direct_date_value != date_value}")
                     else:
                         # 如果是字符串格式，尝试解析
                         date_value = str(activity_date)
                         print(f"[飞书同步] 使用字符串日期: {date_value}")
                 except Exception as e:
                     print(f"转换日期时出错: {e}")
+                    import traceback
+                    traceback.print_exc()
                     continue  # 跳过这条记录
             
             if not date_value:
                 print(f"无法提取有效日期，跳过记录: {fields}")
                 continue  # 跳过没有有效日期的记录
+            
+            print(f"[飞书同步] 最终使用的日期值: {date_value}")
+            
+            # 添加当前系统时间信息，帮助诊断时区问题
+            current_beijing_time = datetime.now(BEIJING_TZ)
+            print(f"[飞书同步] 当前北京时间: {current_beijing_time.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"[飞书同步] 当前北京时间日期: {current_beijing_time.strftime('%Y-%m-%d')}")
             
             # 创建本地计划对象
             local_plan = DailyPlanUtils.create_new_daily_plan(date_value)
@@ -2484,9 +2518,18 @@ class DailyPlanUtils:
             # 如果索引文件存在，先读取现有内容
             if os.path.exists(index_file):
                 print(f"[更新索引] 索引文件存在，读取现有内容")
-                with open(index_file, 'r', encoding='utf-8') as f:
-                    plans_index = json.load(f)
-                print(f"[更新索引] 成功读取 {len(plans_index)} 条现有计划")
+                try:
+                    with open(index_file, 'r', encoding='utf-8') as f:
+                        content = f.read().strip()
+                        if content:  # 检查文件是否为空
+                            plans_index = json.loads(content)
+                            print(f"[更新索引] 成功读取 {len(plans_index)} 条现有计划")
+                        else:
+                            print(f"[更新索引] 索引文件为空，将创建新索引")
+                except json.JSONDecodeError as e:
+                    print(f"[更新索引] 索引文件JSON格式错误: {e}，将创建新索引")
+                except Exception as e:
+                    print(f"[更新索引] 读取索引文件出错: {e}，将创建新索引")
             else:
                 print(f"[更新索引] 索引文件不存在，将创建新文件")
             
@@ -2506,6 +2549,8 @@ class DailyPlanUtils:
                 print(f"[更新索引] 计划缺少ID或日期，无法更新索引")
         except Exception as e:
             print(f"更新计划索引文件出错: {e}")
+            import traceback
+            traceback.print_exc()
     
     @staticmethod
     def update_plan_from_records(plan):

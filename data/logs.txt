@@ -234,3 +234,9 @@
 [2025-10-19T04:15:37.685Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
 [2025-10-19T04:15:37.689Z] [INFO] [API] 加载活动类别配置
 [2025-10-19T04:15:37.718Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T05:28:30.899Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T05:28:31.499Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T05:29:13.935Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T05:29:14.518Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T05:32:42.593Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T05:32:43.184Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
