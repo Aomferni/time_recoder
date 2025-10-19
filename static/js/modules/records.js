@@ -695,7 +695,7 @@ class TimeRecorderRecords {
             this.showImportStatus('正在从飞书同步记录...', 'info');
             
             // 调用后端API从飞书同步活动记录
-            const recordsResponse = await fetch('/api/init/sync-records', {
+            const recordsResponse = await fetch('/api/feishu/sync-records', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -743,7 +743,7 @@ class TimeRecorderRecords {
         this.showImportStatus('正在从飞书导入信息...', 'info');
         
         // 调用后端API从飞书同步活动记录
-        fetch('/api/init/sync-records', {
+        fetch('/api/feishu/sync-records', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

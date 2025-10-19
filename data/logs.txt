@@ -246,3 +246,16 @@
 [2025-10-19T06:08:45.150Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
 [2025-10-19T06:16:58.724Z] [INFO] [API] 加载活动类别配置
 [2025-10-19T06:16:59.325Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T06:23:38.463Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T06:23:39.047Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T07:23:07.569Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T07:23:08.113Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T07:23:18.690Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T07:23:18.821Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T07:38:35.626Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T07:38:35.627Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"a2af0f44-0ec5-478c-ad7c-1ad6badccf4b"}
+[2025-10-19T07:38:35.638Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"a2af0f44-0ec5-478c-ad7c-1ad6badccf4b"}
+[2025-10-19T07:38:35.640Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T07:38:35.655Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T07:40:30.373Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T07:40:30.977Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}

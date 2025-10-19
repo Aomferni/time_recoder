@@ -661,12 +661,9 @@ def add_record():
     
     # 获取活动类别，确保不为空
     activity_category = data.get('activityCategory', get_activity_category(data['activity']))
-    # 如果活动类别为空，返回错误
+    # 如果活动类别为空，使用默认类别"其他"
     if not activity_category:
-        return jsonify({
-            'success': False,
-            'error': '活动类别不能为空，请选择一个有效的活动类别'
-        }), 400
+        activity_category = "其他"
     
     # 获取segments信息
     segments = data.get('segments', [])
@@ -1140,6 +1137,7 @@ def export_records():
     """导出记录"""
     # 加载所有记录
     records = TimeRecorderUtils.load_records()
+
     
     # 返回JSON格式的记录
     return jsonify({
@@ -1357,148 +1355,6 @@ def skip_init():
         })
     except Exception as e:
         print(f"跳过初始化出错: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-@app.route('/api/init/sync-records', methods=['POST'])
-def init_sync_records_from_feishu():
-    """初始化时从飞书同步活动记录"""
-    try:
-        # 检查飞书配置
-        if not feishu_api.app_id or not feishu_api.app_secret:
-            return jsonify({
-                'success': False,
-                'error': '飞书配置不完整，请先配置App ID和App Secret'
-            }), 400
-        
-        # 从飞书多维表格获取记录
-        # 使用活动记录表格的app_token和table_id
-        app_token = "BKCLblwCmajwm9sFmo4cyJxJnON"  # 飞书多维表格应用token
-        table_id = "tblfFpqZNNqGshC3"  # 活动记录表格ID
-        result = feishu_api.get_records_from_bitable(app_token, table_id)
-        
-        if not result.get('success'):
-            return jsonify({
-                'success': False,
-                'error': result.get('error', '从飞书获取记录失败')
-            }), 500
-        
-        # 转换飞书记录为本地格式
-        feishu_records = result.get('records', [])
-        local_records = []
-        
-        for feishu_record in feishu_records:
-            fields = feishu_record.get('fields', {})
-            
-            # 提取字段
-            activity = fields.get('activity(活动名称)', '')
-            activity_category = fields.get('activityCategory(活动类型)', '')
-            start_time = fields.get('startTime(开始时间)', '')
-            end_time = fields.get('endTime(结束时间)', '')
-            duration = fields.get('duration(专注时长)', 0)
-            time_span = fields.get('timeSpan(时间跨度)', 0)
-            pause_count = fields.get('pauseCount(暂停次数)', 0)
-            remark = fields.get('remark(感想&记录)', '')
-            emotion = fields.get('emotion(情绪记录)', '')
-            segments_text = fields.get('segments(专注段落)', '')  # 获取segments字段
-            
-            # 处理时间字段
-            start_time_iso = ''
-            end_time_iso = ''
-            if start_time:
-                # 假设飞书时间格式为 "YYYY-MM-DD HH:MM:SS"
-                try:
-                    dt = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-                    # 转换为UTC时间
-                    utc_dt = dt.replace(tzinfo=BEIJING_TZ).astimezone(timezone.utc)
-                    start_time_iso = utc_dt.isoformat().replace('+00:00', 'Z')
-                except Exception as e:
-                    print(f"处理开始时间出错: {e}")
-            
-            if end_time:
-                try:
-                    dt = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-                    # 转换为UTC时间
-                    utc_dt = dt.replace(tzinfo=BEIJING_TZ).astimezone(timezone.utc)
-                    end_time_iso = utc_dt.isoformat().replace('+00:00', 'Z')
-                except Exception as e:
-                    print(f"处理结束时间出错: {e}")
-            
-            # 处理情绪字段
-            emotion_str = ''
-            if isinstance(emotion, list):
-                emotion_str = ', '.join(emotion)
-            elif isinstance(emotion, str):
-                emotion_str = emotion
-            
-            # 处理segments字段
-            segments = []
-            if segments_text:
-                try:
-                    # 尝试解析JSON格式的segments文本
-                    segments = json.loads(segments_text)
-                    # 确保segments是列表格式
-                    if not isinstance(segments, list):
-                        segments = []
-                except json.JSONDecodeError:
-                    # 如果不是有效的JSON，尝试按行分割处理
-                    lines = segments_text.strip().split('\n')
-                    segments = []
-                    for line in lines:
-                        if line.strip():
-                            try:
-                                # 尝试解析每一行作为JSON
-                                segment = json.loads(line)
-                                segments.append(segment)
-                            except json.JSONDecodeError:
-                                # 如果解析失败，跳过这一行
-                                continue
-            
-            # 创建本地记录
-            local_record = {
-                'id': str(uuid.uuid4()),
-                'username': '',  # 已废弃字段
-                'date': '',  # 将在保存时根据startTime计算
-                'activity': activity,
-                'activityCategory': activity_category,
-                'startTime': start_time_iso,
-                'endTime': end_time_iso,
-                'duration': duration,
-                'timeSpan': time_span,
-                'pauseCount': pause_count,
-                'remark': remark,
-                'emotion': emotion_str,
-                'segments': segments  # 使用处理后的segments
-            }
-            
-            # 根据startTime计算date字段
-            if start_time_iso:
-                try:
-                    utc_time = datetime.fromisoformat(start_time_iso.replace('Z', '+00:00'))
-                    beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
-                    local_record['date'] = beijing_time.strftime('%Y/%m/%d')
-                except Exception as e:
-                    print(f"计算日期字段出错: {e}")
-            
-            local_records.append(local_record)
-        
-        # 保存记录到本地文件
-        if TimeRecorderUtils.save_records(local_records):
-            return jsonify({
-                'success': True,
-                'message': f'成功同步 {len(local_records)} 条活动记录',
-                'count': len(local_records)
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': '保存记录到本地文件失败'
-            }), 500
-            
-    except Exception as e:
-        print(f"从飞书同步活动记录出错: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -2299,24 +2155,32 @@ def sync_records_from_feishu():
             if start_time_field:
                 try:
                     # 将北京时间转换为UTC时间
+                    # 首先解析飞书提供的时间字符串
                     beijing_time = datetime.strptime(start_time_field, '%Y-%m-%d %H:%M:%S')
-                    # 使用replace方法设置时区
+                    # 设置时区为北京时间
                     beijing_time = beijing_time.replace(tzinfo=BEIJING_TZ)
+                    # 转换为UTC时间
                     utc_time = beijing_time.astimezone(timezone.utc)
                     start_time = utc_time.isoformat().replace('+00:00', 'Z')
                 except Exception as e:
                     print(f"转换开始时间时出错: {e}")
+                    # 如果转换失败，尝试直接使用原始时间字符串
+                    start_time = start_time_field
                 
                 if end_time_field:
                     try:
                         # 将北京时间转换为UTC时间
+                        # 首先解析飞书提供的时间字符串
                         beijing_time = datetime.strptime(end_time_field, '%Y-%m-%d %H:%M:%S')
-                        # 使用replace方法设置时区
+                        # 设置时区为北京时间
                         beijing_time = beijing_time.replace(tzinfo=BEIJING_TZ)
+                        # 转换为UTC时间
                         utc_time = beijing_time.astimezone(timezone.utc)
                         end_time = utc_time.isoformat().replace('+00:00', 'Z')
                     except Exception as e:
                         print(f"转换结束时间时出错: {e}")
+                        # 如果转换失败，尝试直接使用原始时间字符串
+                        end_time = end_time_field
             
             # 计算时长（从字符串转换为毫秒）
             duration = 0

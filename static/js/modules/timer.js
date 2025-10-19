@@ -479,6 +479,18 @@ export const TimeRecorderTimer = {
             return;
         }
         
+        // 确保记录包含活动类别
+        if (!record.activityCategory) {
+            // 从当前活动元素的data-category属性获取类别
+            const currentActivityElement = document.getElementById('currentActivity');
+            if (currentActivityElement) {
+                const categoryFromElement = currentActivityElement.getAttribute('data-category');
+                if (categoryFromElement) {
+                    record.activityCategory = categoryFromElement;
+                }
+            }
+        }
+        
         // 如果已经有currentRecordId，说明是在继续一个现有记录，不需要创建新记录
         // 但在toggleTimer函数中，如果是创建新记录，currentRecordId应该是null
         if (currentRecordId && Array.isArray(records) && records.some(r => r && r.id === currentRecordId)) {

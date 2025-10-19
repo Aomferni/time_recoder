@@ -123,9 +123,9 @@
 ```
 用户点击【从飞书导入】按钮
     ↓
-调用 [/api/init/sync-records](file:///Users/amy/Documents/codes/time_recoder/app.py#L1372-L1511) 接口同步活动记录
+调用 [/api/feishu/sync-records](file:///Users/amy/Documents/codes/time_recoder/app.py#L2253-L2286) 接口同步活动记录
     ↓
-调用 [/api/feishu/sync-plans](file:///Users/amy/Documents/codes/time_recoder/app.py#L1500-L1568) 接口同步今日计划
+调用 [/api/feishu/sync-plans](file:///Users/amy/Documents/codes/time_recoder/app.py#L1514-L1582) 接口同步今日计划
     ↓
 保存到本地JSON文件（records.json和plans.json）
     ↓
