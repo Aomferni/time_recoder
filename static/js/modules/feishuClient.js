@@ -78,7 +78,7 @@ class FeishuBitableClient {
                 
                 // 计算时长
                 let durationStr = '';
-                if (record.duration) {
+                if (record.duration !== undefined && record.duration !== null && record.duration >= 0) {
                     const totalSeconds = Math.floor(record.duration / 1000);
                     const hours = Math.floor(totalSeconds / 3600);
                     const minutes = Math.floor((totalSeconds % 3600) / 60);

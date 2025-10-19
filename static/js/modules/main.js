@@ -458,6 +458,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * 更新计时器类别显示函数
+ */
+function updateTimerCategoryDisplay(categoryName) {
+    const focusTimerSection = document.getElementById('focusTimerSection');
+    if (focusTimerSection) {
+        // 查找或创建类别显示元素
+        let categoryElement = focusTimerSection.querySelector('.focus-category');
+        if (!categoryElement) {
+            categoryElement = document.createElement('div');
+            categoryElement.className = 'focus-category';
+            // 插入到timer-display之后
+            const timerDisplay = focusTimerSection.querySelector('.timer-display');
+            if (timerDisplay) {
+                timerDisplay.parentNode.insertBefore(categoryElement, timerDisplay.nextSibling);
+            }
+        }
+        categoryElement.textContent = categoryName;
+    }
+}
+
+/**
  * 显示活动选择弹窗
  */
 function showActivitySelectionModal() {
@@ -490,37 +511,101 @@ function showActivitySelectionModal() {
     title.textContent = '选择活动';
     title.style.textAlign = 'center';
     title.style.marginBottom = '20px';
+    title.style.color = '#333';
+    title.style.fontSize = '24px';
+    title.style.fontWeight = '600';
     
     // 创建活动按钮容器
     const activitiesContainer = document.createElement('div');
     activitiesContainer.className = 'activities-selection-container';
     
-    // 添加活动按钮
+    // 按类别分组添加活动按钮，按列排列
     if (Array.isArray(activityCategories)) {
+        // 首先收集所有类别和活动信息
+        const categoryMap = {};
+        const allCategories = [];
+        
         activityCategories.forEach(category => {
-            if (Array.isArray(category.activities)) {
-                category.activities.forEach(activity => {
-                    const button = document.createElement('button');
-                    button.className = `activity-btn ${TimeRecorderFrontendUtils.getActivityCategoryClass(category.name)}`;
-                    button.textContent = activity;
-                    
-                    button.addEventListener('click', function() {
-                        // 设置选中的活动
-                        setCurrentActivity(activity);
-                        // 清除当前记录ID，确保创建新记录而不是修改现有记录
-                        setCurrentRecordId(null);
-                        const currentActivityElement = document.getElementById('currentActivity');
-                        if (currentActivityElement) {
-                            currentActivityElement.textContent = activity;
-                        }
-                        
-                        // 关闭模态框
-                        document.body.removeChild(modal);
-                    });
-                    
-                    activitiesContainer.appendChild(button);
-                });
+            if (Array.isArray(category.activities) && category.activities.length > 0) {
+                if (!categoryMap[category.name]) {
+                    categoryMap[category.name] = {
+                        name: category.name,
+                        activities: []
+                    };
+                    allCategories.push(category.name);
+                }
+                categoryMap[category.name].activities.push(...category.activities);
             }
+        });
+        
+        // 创建列容器
+        const columnContainers = [];
+        
+        // 为每个类别创建列
+        allCategories.forEach((categoryName, categoryIndex) => {
+            const category = categoryMap[categoryName];
+            
+            // 为每个类别创建列容器
+            const columnContainer = document.createElement('div');
+            columnContainer.className = 'activity-category-column';
+            
+            // 创建类别标题
+            const categoryTitle = document.createElement('div');
+            categoryTitle.className = 'activity-category-title';
+            categoryTitle.textContent = category.name;
+            categoryTitle.style.marginBottom = '10px';
+            categoryTitle.style.textAlign = 'center';
+            columnContainer.appendChild(categoryTitle);
+            
+            // 为该类别下的每个活动创建按钮
+            category.activities.forEach(activity => {
+                const button = document.createElement('button');
+                button.className = `activity-btn ${TimeRecorderFrontendUtils.getActivityCategoryClass(category.name)}`;
+                button.textContent = activity;
+                button.style.marginBottom = '8px';
+                
+                button.addEventListener('click', function() {
+                    // 设置选中的活动和活动类别
+                    setCurrentActivity(activity);
+                    // 清除当前记录ID，确保创建新记录而不是修改现有记录
+                    setCurrentRecordId(null);
+                    const currentActivityElement = document.getElementById('currentActivity');
+                    if (currentActivityElement) {
+                        currentActivityElement.textContent = activity;
+                        // 保存活动类别信息到data属性
+                        currentActivityElement.setAttribute('data-category', category.name);
+                    }
+                    
+                    // 更新计时器按钮的颜色
+                    const focusTimerSection = document.getElementById('focusTimerSection');
+                    if (focusTimerSection) {
+                        // 移除所有类别颜色类
+                        const colorClasses = ['btn-work-output', 'btn-charge', 'btn-rest', 'btn-create', 'btn-gap', 'btn-entertainment'];
+                        colorClasses.forEach(cls => {
+                            focusTimerSection.classList.remove(cls);
+                        });
+                        
+                        // 添加新的类别颜色类
+                        const categoryClass = TimeRecorderFrontendUtils.getActivityCategoryClass(category.name);
+                        focusTimerSection.classList.add(categoryClass);
+                        
+                        // 更新计时器中的类别显示
+                        updateTimerCategoryDisplay(category.name);
+                    }
+                    
+                    // 关闭模态框
+                    document.body.removeChild(modal);
+                });
+                
+                columnContainer.appendChild(button);
+            });
+            
+            columnContainers.push(columnContainer);
+        });
+        
+        // 将所有列容器添加到活动容器中
+        columnContainers.forEach(column => {
+            activitiesContainer.appendChild(column);
         });
     }
     
