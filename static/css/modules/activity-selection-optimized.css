@@ -15,64 +15,87 @@
 /* 活动选择容器 */
 .activities-selection-container {
     display: grid;
-    grid-template-columns: repeat(8, 1fr); /* 每行最多显示8个按钮 */
-    gap: 8px; /* 减少间距使布局更紧凑 */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* 自适应列数 */
+    gap: 15px; /* 增加间距使布局更清晰 */
     margin-top: 15px;
 }
 
-/* 活动类别容器 */
-.activity-category-box {
-    grid-column: 1 / -1; /* 占据整行 */
-    margin-bottom: 15px; /* 减少外边距使布局更紧凑 */
-    padding: 12px; /* 减少内边距使布局更紧凑 */
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(5px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+/* 活动类别列容器 */
+.activity-category-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 /* 活动类别标题 */
 .activity-category-title {
     margin: 0 0 12px 0; /* 减少外边距使布局更紧凑 */
-    padding: 0 0 10px 0; /* 减少内边距使布局更紧凑 */
+    padding: 8px 0; /* 增加内边距使标题更明显 */
     color: #333;
-    font-size: 18px; /* 稍微减小字体大小 */
+    font-size: 16px; /* 稍微减小字体大小 */
     font-weight: 600;
     border-bottom: 2px solid rgba(0,0,0,0.1);
     text-align: center;
-}
-
-/* 活动类别按钮容器 */
-.activity-category-buttons {
-    display: contents; /* 使用父级网格布局 */
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
 }
 
 /* 活动按钮样式 */
 #activitySelectionModal .activity-btn {
     margin: 0;
-    padding: 10px 6px; /* 减少内边距使布局更紧凑 */
+    padding: 12px 8px; /* 增加内边距使按钮更易点击 */
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    font-size: 13px; /* 稍微减小字体大小 */
+    font-size: 14px; /* 稍微增大字体大小 */
     font-weight: 500;
     transition: all 0.3s ease;
     text-align: center;
-    min-height: 40px; /* 减少最小高度使布局更紧凑 */
+    min-height: 45px; /* 增加最小高度使按钮更易点击 */
     display: flex;
     align-items: center;
     justify-content: center;
     word-break: break-word;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    color: white;
     position: relative;
     overflow: hidden;
     transform: scale(1);
+    width: 100%; /* 按钮占满容器宽度 */
+}
+
+/* 为不同类别的按钮设置合适的背景颜色和文字颜色 */
+button.activity-btn.btn-work-output {
+    background: var(--byte-primary-color) !important; /* 蓝色背景 */
+    color: white !important; /* 蓝色背景上使用白色文字 */
+}
+
+button.activity-btn.btn-charge {
+    background: var(--byte-success-color) !important; /* 绿色背景 */
+    color: white !important; /* 绿色背景上使用白色文字 */
+}
+
+button.activity-btn.btn-rest {
+    background: #7C3AED !important; /* 紫色背景 */
+    color: white !important; /* 紫色背景上使用白色文字 */
+}
+
+button.activity-btn.btn-create {
+    background: var(--byte-warning-color) !important; /* 橙色背景 */
+    color: white !important; /* 橙色背景上使用白色文字 */
+}
+
+button.activity-btn.btn-gap {
+    background: #06B6D4 !important; /* 青色背景 */
+    color: white !important; /* 青色背景上使用白色文字 */
+}
+
+button.activity-btn.btn-entertainment {
+    background: var(--byte-gray-6) !important; /* 灰色背景 */
+    color: #333 !important; /* 灰色背景上使用深色文字 */
 }
 
 #activitySelectionModal .activity-btn:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
@@ -89,7 +112,7 @@
     width: 0;
     height: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.3); /* 调整透明度使效果更明显 */
     transform: translate(-50%, -50%);
     transition: width 0.6s, height 0.6s;
 }
@@ -124,25 +147,19 @@
     }
     
     .activities-selection-container {
-        grid-template-columns: repeat(4, 1fr); /* 移动端每行显示4个按钮 */
-        gap: 6px;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* 自适应列数 */
+        gap: 10px;
     }
     
     #activitySelectionModal .activity-btn {
-        padding: 8px 4px;
-        font-size: 12px;
-        min-height: 35px;
+        padding: 10px 6px;
+        font-size: 13px;
+        min-height: 40px;
     }
     
     .activity-category-title {
-        font-size: 16px;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
-    }
-    
-    .activity-category-box {
-        padding: 10px;
-        margin-bottom: 12px;
+        font-size: 15px;
+        padding: 6px 0;
     }
 }
 
@@ -154,24 +171,18 @@
     }
     
     .activities-selection-container {
-        grid-template-columns: repeat(3, 1fr); /* 小屏设备每行显示3个按钮 */
-        gap: 5px;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); /* 自适应列数 */
+        gap: 8px;
     }
     
     #activitySelectionModal .activity-btn {
-        padding: 6px 3px;
-        font-size: 11px;
-        min-height: 32px;
+        padding: 8px 4px;
+        font-size: 12px;
+        min-height: 35px;
     }
     
     .activity-category-title {
-        font-size: 15px;
-        margin-bottom: 8px;
-        padding-bottom: 6px;
-    }
-    
-    .activity-category-box {
-        padding: 8px;
-        margin-bottom: 10px;
+        font-size: 14px;
+        padding: 5px 0;
     }
 }

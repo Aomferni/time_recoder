@@ -1,0 +1,87 @@
+/* 活动选择弹窗按钮样式 */
+
+/* 活动按钮样式 - 高优先级 */
+#activitySelectionModal button.activity-btn {
+    margin: 0;
+    padding: 12px 8px; /* 增加内边距使按钮更易点击 */
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px; /* 稍微增大字体大小 */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-height: 45px; /* 增加最小高度使按钮更易点击 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transform: scale(1);
+    width: 100%; /* 按钮占满容器宽度 */
+    /* 为按钮设置默认背景和文字颜色，确保优先级高于其他样式 */
+    background: #f0f0f0; /* 默认浅灰色背景 */
+    color: #333; /* 深色文字，确保在浅色背景上有足够对比度 */
+}
+
+/* 为不同类别的按钮设置合适的背景颜色和文字颜色 - 最高优先级 */
+#activitySelectionModal button.activity-btn.btn-work-output {
+    background: #165DFF !important; /* 蓝色背景 */
+    color: white !important; /* 蓝色背景上使用白色文字 */
+}
+
+#activitySelectionModal button.activity-btn.btn-charge {
+    background: #00B42A !important; /* 绿色背景 */
+    color: white !important; /* 绿色背景上使用白色文字 */
+}
+
+#activitySelectionModal button.activity-btn.btn-rest {
+    background: #7C3AED !important; /* 紫色背景 */
+    color: white !important; /* 紫色背景上使用白色文字 */
+}
+
+#activitySelectionModal button.activity-btn.btn-create {
+    background: #FF7D00 !important; /* 橙色背景 */
+    color: white !important; /* 橙色背景上使用白色文字 */
+}
+
+#activitySelectionModal button.activity-btn.btn-gap {
+    background: #06B6D4 !important; /* 青色背景 */
+    color: white !important; /* 青色背景上使用白色文字 */
+}
+
+#activitySelectionModal button.activity-btn.btn-entertainment {
+    background: #86909c !important; /* 灰色背景 */
+    color: #333 !important; /* 灰色背景上使用深色文字 */
+}
+
+/* 悬停效果 */
+#activitySelectionModal button.activity-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#activitySelectionModal button.activity-btn:active {
+    transform: scale(0.98);
+}
+
+/* 活动按钮波纹效果 */
+#activitySelectionModal button.activity-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3); /* 调整透明度使效果更明显 */
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+#activitySelectionModal button.activity-btn:active::before {
+    width: 300px;
+    height: 300px;
+}

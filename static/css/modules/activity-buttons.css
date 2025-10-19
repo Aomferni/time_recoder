@@ -9,7 +9,7 @@
 
 @media (max-width: 480px) {
     .button-grid {
-        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
         gap: var(--byte-spacing-1);
     }
 }
@@ -19,7 +19,6 @@
     padding: var(--byte-spacing-2) var(--byte-spacing-1);
     border: none;
     border-radius: var(--byte-border-radius-medium);
-    color: white;
     cursor: pointer;
     font-size: var(--byte-font-size-xs);
     transition: all 0.2s ease;

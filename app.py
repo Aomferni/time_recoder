@@ -818,40 +818,38 @@ def update_record(record_id):
                 segments.sort(key=lambda x: x['start'] if 'start' in x else '')
                 
                 # startTime是第一个segments的start时间且唯一不可修改
-                # 注意：只有在记录中还没有startTime时才设置
-                if 'startTime' not in record or not record['startTime']:
-                    first_start = TimeRecorderUtils.get_first_segment_start(segments)
-                    if first_start:
-                        record['startTime'] = first_start
-                        # 同时更新date字段，使用北京时间的日期
-                        if 'date' not in data:
-                            # 将UTC时间转换为北京时间后提取日期
-                            utc_time = datetime.fromisoformat(first_start.replace('Z', '+00:00'))
-                            beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
-                            record['date'] = beijing_time.strftime('%Y/%m/%d')
-                    
-                    # endTime为最后一个segments的end时间
-                    last_end = TimeRecorderUtils.get_last_segment_end(segments)
-                    if last_end:
-                        record['endTime'] = last_end
-                    
-                    # duration记录所有segments累计的时间
-                    record['duration'] = TimeRecorderUtils.calculate_segments_total_time(segments)
-                    
-                    # pauseCount记录segments的个数
-                    record['pauseCount'] = TimeRecorderUtils.get_segments_count(segments)
-                    
-                    # timeSpan记录从第一个段落的start到最后一个段落的end的时间跨度
-                    first_start = TimeRecorderUtils.get_first_segment_start(segments)
-                    last_end = TimeRecorderUtils.get_last_segment_end(segments)
-                    if first_start and last_end:
-                        try:
-                            # 确保使用UTC时间处理
-                            first_start_time = datetime.fromisoformat(first_start.replace('Z', '+00:00'))
-                            last_end_time = datetime.fromisoformat(last_end.replace('Z', '+00:00'))
-                            record['timeSpan'] = (last_end_time - first_start_time).total_seconds() * 1000
-                        except Exception as e:
-                            print(f"计算时间跨度出错: {e}")
+                first_start = TimeRecorderUtils.get_first_segment_start(segments)
+                if first_start:
+                    record['startTime'] = first_start
+                    # 同时更新date字段，使用北京时间的日期
+                    if 'date' not in data:
+                        # 将UTC时间转换为北京时间后提取日期
+                        utc_time = datetime.fromisoformat(first_start.replace('Z', '+00:00'))
+                        beijing_time = utc_time.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ)
+                        record['date'] = beijing_time.strftime('%Y/%m/%d')
+                
+                # endTime为最后一个segments的end时间
+                last_end = TimeRecorderUtils.get_last_segment_end(segments)
+                if last_end:
+                    record['endTime'] = last_end
+                
+                # duration记录所有segments累计的时间
+                record['duration'] = TimeRecorderUtils.calculate_segments_total_time(segments)
+                
+                # pauseCount记录segments的个数
+                record['pauseCount'] = TimeRecorderUtils.get_segments_count(segments)
+                
+                # timeSpan记录从第一个段落的start到最后一个段落的end的时间跨度
+                first_start = TimeRecorderUtils.get_first_segment_start(segments)
+                last_end = TimeRecorderUtils.get_last_segment_end(segments)
+                if first_start and last_end:
+                    try:
+                        # 确保使用UTC时间处理
+                        first_start_time = datetime.fromisoformat(first_start.replace('Z', '+00:00'))
+                        last_end_time = datetime.fromisoformat(last_end.replace('Z', '+00:00'))
+                        record['timeSpan'] = (last_end_time - first_start_time).total_seconds() * 1000
+                    except Exception as e:
+                        print(f"计算时间跨度出错: {e}")
             
             updated = True
             break
@@ -1879,7 +1877,7 @@ class FeishuBitableAPI:
                 
                 # 计算时长
                 duration_str = ""
-                if record.get('duration'):
+                if record.get('duration') is not None and record.get('duration') >= 0:
                     total_seconds = int(record['duration'] / 1000)
                     hours = total_seconds // 3600
                     minutes = (total_seconds % 3600) // 60

@@ -485,8 +485,8 @@ export const DailyPlanModule = {
                     if (!isHidden) {
                         console.log('收起计划，自动保存并同步到飞书...');
                         this.savePlan();
-                        // 检查并同步到飞书
-                        this.checkAndSyncToFeishu();
+                        // 收起时的同步不受自动同步开关影响
+                        this.syncToFeishuOnCollapse();
                     }
                     this.setCollapsedState(!isHidden);
                 }
@@ -580,9 +580,9 @@ export const DailyPlanModule = {
                     if (showMessage) {
                         alert('保存成功!');
                     }
-                    console.log('今日计划已自动保存');
-                    
-                    // 检查是否配置了飞书，如果已配置则自动同步
+                    console.log('保存今日计划到本地成功');
+                    console.log('准备同步今日计划到飞书');
+                    // 检查并同步到飞书
                     this.checkAndSyncToFeishu();
                 }
             })
@@ -595,21 +595,58 @@ export const DailyPlanModule = {
     },
     
     /**
-     * 检查飞书配置并同步
+     * 检查飞书配置并同步（用于定期自动保存）
      */
     checkAndSyncToFeishu: function() {
         // 检查是否配置了飞书（通过检查配置文件是否存在且有app_id）
+        Promise.all([
+            fetch('/api/feishu/config').then(response => response.json()),
+            fetch('/api/app-config').then(response => response.json())
+        ])
+        .then(([feishuData, appConfigData]) => {
+            // 检查飞书是否已配置
+            const isFeishuConfigured = feishuData && feishuData.config && feishuData.config.app_id;
+            
+            // 检查自动同步是否启用
+            const isAutoSyncEnabled = appConfigData && appConfigData.config && 
+                appConfigData.config.feishu && appConfigData.config.feishu.auto_sync_enabled;
+            
+            // 只有在飞书已配置且自动同步启用的情况下才执行同步（用于定期自动保存）
+            if (isFeishuConfigured && isAutoSyncEnabled) {
+                // 如果已配置飞书且自动同步已启用，则执行同步
+                this.syncToFeishuSilently();
+            } else {
+                console.log('飞书未配置或自动同步未启用，跳过同步');
+            }
+        })
+        .catch(error => {
+            // 配置不存在或无法获取，不执行同步
+            console.log('获取配置失败，跳过同步:', error);
+        });
+    },
+    
+    /**
+     * 收起时同步到飞书（不受自动同步开关影响）
+     */
+    syncToFeishuOnCollapse: function() {
+        // 检查是否配置了飞书（通过检查配置文件是否存在且有app_id）
         fetch('/api/feishu/config')
             .then(response => response.json())
-            .then(data => {
-                if (data && data.config && data.config.app_id) {
+            .then(feishuData => {
+                // 检查飞书是否已配置
+                const isFeishuConfigured = feishuData && feishuData.config && feishuData.config.app_id;
+                
+                // 收起时的同步不受自动同步开关影响，只要配置了飞书就执行同步
+                if (isFeishuConfigured) {
                     // 如果已配置飞书，则执行同步
                     this.syncToFeishuSilently();
+                } else {
+                    console.log('飞书未配置，跳过同步');
                 }
             })
             .catch(error => {
                 // 配置不存在或无法获取，不执行同步
-                console.log('飞书未配置，跳过同步');
+                console.log('获取飞书配置失败，跳过同步:', error);
             });
     },
     
@@ -623,7 +660,7 @@ export const DailyPlanModule = {
         
         // 延迟一下确保保存完成
         setTimeout(() => {
-            // 先同步今日计划到飞书
+            // 同步今日计划到飞书
             console.log('[飞书同步] 调用同步今日计划到飞书API');
             TimeRecorderAPI.syncDailyPlanToFeishu(currentDate)
                 .then(result => {
@@ -632,9 +669,6 @@ export const DailyPlanModule = {
                         console.log('同步今日计划到飞书成功!');
                         // 重新加载当前编辑的计划以更新同步状态
                         this.loadDailyPlan(currentDate);
-                        
-                        // 然后同步计时记录到飞书
-                        this.syncRecordsToFeishu();
                     } else {
                         console.error('同步失败 - 返回结果:', result);
                     }
@@ -652,42 +686,8 @@ export const DailyPlanModule = {
      * 同步计时记录到飞书
      */
     syncRecordsToFeishu: function() {
-        console.log('[飞书同步] 开始同步计时记录到飞书');
-        // 获取今天的记录并同步到飞书
-        TimeRecorderAPI.loadRecords()
-            .then(records => {
-                console.log('[飞书同步] 获取到记录数量:', records ? records.length : 0);
-                // 如果有记录，则导出到飞书
-                if (records && records.length > 0) {
-                    // 发送到飞书多维表格
-                    console.log('[飞书同步] 发送记录到飞书多维表格');
-                    return fetch('/api/feishu/import-records', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ records: records })
-                    });
-                } else {
-                    console.log('[飞书同步] 没有记录需要同步');
-                }
-            })
-            .then(response => {
-                if (response) {
-                    console.log('[飞书同步] 飞书导入记录API响应状态:', response.status);
-                    return response.json();
-                }
-            })
-            .then(data => {
-                if (data && data.success) {
-                    console.log('计时记录同步到飞书成功!');
-                } else if (data) {
-                    console.error('计时记录同步到飞书失败:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('同步计时记录到飞书失败:', error);
-            });
+        // 移除此函数的实现，因为不再需要同步所有记录到飞书
+        console.log('[飞书同步] 已移除同步所有记录到飞书的功能');
     },
     
     /**

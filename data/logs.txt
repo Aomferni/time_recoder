@@ -1,6 +1,3 @@
-[2025-10-19T05:39:16.597789] [INFO] [test_module] 这是一条测试日志 {"test_data": "test_value"}
-[2025-10-19T05:39:16.597946] [WARN] [test_module] 这是一条警告日志 {"warning": "test"}
-[2025-10-19T05:39:16.598049] [ERROR] [test_module] 这是一条错误日志 {"error": "test"}
 [2025-10-18T21:39:25.793Z] [INFO] [API] 加载活动类别配置
 [2025-10-18T21:39:26.569Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
 [2025-10-18T21:39:35.116Z] [INFO] [API] 加载活动类别配置
@@ -139,3 +136,101 @@
 [2025-10-18T21:57:56.464Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
 [2025-10-18T22:02:14.583Z] [INFO] [API] 加载活动类别配置
 [2025-10-18T22:02:15.140Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:45:38.956Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:45:39.728Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:51:52.925Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:51:53.092Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:52:03.802Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:52:04.038Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:52:58.533Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:52:58.700Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:56:03.800Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:56:03.967Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:56:22.144Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:56:22.358Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:57:45.568Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:57:45.715Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T02:59:33.932Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T02:59:34.133Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:08:17.716Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:08:18.326Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:09:36.247Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:09:36.248Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:09:36.259Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:09:36.264Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:09:36.291Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:09:38.921Z] [INFO] [RecordDetail] 选择或取消选择情绪 {"emotion":"满足"}
+[2025-10-19T03:09:38.921Z] [DEBUG] [RecordDetail] 当前情绪选中状态 {"emotion":"满足","isSelected":false}
+[2025-10-19T03:09:38.925Z] [DEBUG] [RecordDetail] 选中情绪 {"emotion":"满足"}
+[2025-10-19T03:17:36.632Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:17:36.630Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:17:36.646Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:17:36.649Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:17:36.660Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:18:41.184Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:18:41.183Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:18:41.341Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:18:41.346Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:18:41.411Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:18:56.527Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:18:56.527Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:18:56.542Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:18:56.544Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:18:56.562Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:19:02.375Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:19:02.983Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:19:13.594Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:19:13.610Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:19:17.554Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:19:18.210Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:23:10.477Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:23:11.145Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:24:11.062Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:24:11.063Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:24:11.081Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:24:11.084Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:24:11.088Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:24:24.520Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:24:24.521Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:24:24.536Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:24:24.539Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:24:24.548Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:24:27.875Z] [INFO] [RecordDetail] 选择或取消选择情绪 {"emotion":"高兴"}
+[2025-10-19T03:24:27.875Z] [DEBUG] [RecordDetail] 当前情绪选中状态 {"emotion":"高兴","isSelected":false}
+[2025-10-19T03:24:27.879Z] [DEBUG] [RecordDetail] 选中情绪 {"emotion":"高兴"}
+[2025-10-19T03:26:04.380Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:26:05.026Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:31:35.522Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:31:36.168Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:35:07.589Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:35:08.240Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:36:49.054Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:36:49.700Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:38:46.123Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:38:46.788Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:39:51.005Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:39:51.676Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:40:36.635Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:40:37.280Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:46:25.103Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:46:25.104Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:46:25.121Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:46:25.128Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:46:25.144Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:54:09.549Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:54:10.267Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:54:43.201Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:54:43.201Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:54:43.211Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:54:43.215Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:54:43.234Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T03:57:00.958Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T03:57:00.960Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:57:00.985Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T03:57:00.987Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T03:57:00.993Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}
+[2025-10-19T04:15:37.676Z] [INFO] [RecordDetail] 显示记录详情浮窗 {"useSimpleDetail":false}
+[2025-10-19T04:15:37.677Z] [DEBUG] [RecordDetail] 通过API获取记录详情 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T04:15:37.685Z] [INFO] [RecordDetail] 记录详情获取成功 {"recordId":"e62ddbef-050e-4fab-abb0-06faff92f596"}
+[2025-10-19T04:15:37.689Z] [INFO] [API] 加载活动类别配置
+[2025-10-19T04:15:37.718Z] [INFO] [API] 活动类别配置加载成功 {"categoriesCount":7}

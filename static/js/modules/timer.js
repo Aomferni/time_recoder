@@ -189,6 +189,9 @@ export const TimeRecorderTimer = {
                                     records[recordIndex] = {...records[recordIndex], ...data.record};
                                     TimeRecorderUI.updateRecordsTable();
                                     TimeRecorderUI.updateStats();
+                                    
+                                    // 同步当前记录到飞书
+                                    this.syncRecordToFeishu(currentRecordId);
                                 } else {
                                     alert('更新记录失败: ' + (data.error || '未知错误'));
                                 }
@@ -419,6 +422,53 @@ export const TimeRecorderTimer = {
     },
     
     /**
+     * 同步记录到飞书
+     */
+    syncRecordToFeishu: function(recordId) {
+        // 检查是否配置了飞书
+        fetch('/api/feishu/config')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.config && data.config.app_id) {
+                    // 如果已配置飞书，则同步当前记录到飞书
+                    console.log('[飞书同步] 开始同步记录到飞书，记录ID:', recordId);
+                    
+                    // 获取记录详情
+                    return TimeRecorderAPI.getRecord(recordId);
+                }
+            })
+            .then(data => {
+                if (data && data.success) {
+                    // 发送到飞书多维表格
+                    console.log('[飞书同步] 发送记录到飞书多维表格');
+                    return fetch('/api/feishu/import-records', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ records: [data.record] })
+                    });
+                }
+            })
+            .then(response => {
+                if (response) {
+                    console.log('[飞书同步] 飞书导入记录API响应状态:', response.status);
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && data.success) {
+                    console.log('[飞书同步] 记录同步到飞书成功!');
+                } else if (data) {
+                    console.error('[飞书同步] 记录同步到飞书失败:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('[飞书同步] 同步记录到飞书失败:', error);
+            });
+    },
+    
+    /**
      * 添加记录到后端
      */
     addRecord: function(record) {
@@ -467,6 +517,9 @@ export const TimeRecorderTimer = {
                         setCurrentRecordId(data.record.id); // 保存当前记录ID
                         TimeRecorderUI.updateRecordsTable();
                         TimeRecorderUI.updateStats();
+                        
+                        // 同步新创建的记录到飞书
+                        this.syncRecordToFeishu(data.record.id);
                     } else {
                         alert('保存记录失败: ' + (data.error || '未知错误'));
                     }
