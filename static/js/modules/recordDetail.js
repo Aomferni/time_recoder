@@ -1095,9 +1095,21 @@ export const TimeRecorderRecordDetail = {
                     
                     // 如果在首页且有正在运行的计时器，显示快速情绪记录区域
                     if (window.location.pathname === '/' && window.TimeRecorderConfig && window.TimeRecorderConfig.timerInterval) {
-                        const quickEmotionSection = document.getElementById('quickEmotionSection');
-                        if (quickEmotionSection) {
-                            quickEmotionSection.style.display = 'block';
+                        // 显示快速记录区域容器
+                        const quickRecordContainer = document.getElementById('quickRecordContainer');
+                        if (quickRecordContainer) {
+                            quickRecordContainer.style.display = 'flex';
+                        }
+                        
+                        // 填充该记录的收获内容
+                        const quickRemarkInput = document.getElementById('quickRemarkInput');
+                        if (quickRemarkInput && data.record) {
+                            quickRemarkInput.value = data.record.remark || '';
+                        }
+                        
+                        // 初始化快速情绪按钮状态
+                        if (window.initializeQuickEmotionButtons) {
+                            window.initializeQuickEmotionButtons();
                         }
                     }
                     

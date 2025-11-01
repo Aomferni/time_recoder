@@ -90,10 +90,15 @@ export const TimeRecorderTimer = {
                     focusTimerSection.classList.add('running');
                 }
                 
-                // 显示快速情绪记录区域
-                const quickEmotionSection = document.getElementById('quickEmotionSection');
-                if (quickEmotionSection) {
-                    quickEmotionSection.style.display = 'block';
+                // 显示快速记录区域容器
+                const quickRecordContainer = document.getElementById('quickRecordContainer');
+                if (quickRecordContainer) {
+                    quickRecordContainer.style.display = 'flex';
+                }
+                
+                // 初始化快速情绪按钮状态
+                if (window.initializeQuickEmotionButtons) {
+                    window.initializeQuickEmotionButtons();
                 }
                 
                 console.log('计时器状态已恢复');
@@ -158,6 +163,21 @@ export const TimeRecorderTimer = {
                     if (recordIndex !== -1) {
                         const record = records[recordIndex];
                         
+                        // 自动保存当前选中的情绪
+                        let emotions = [];
+                        if (record.emotion) {
+                            emotions = record.emotion.split(', ').filter(e => e.trim() !== '');
+                        }
+                        
+                        // 自动保存收获内容
+                        let remark = '';
+                        const quickRemarkInput = document.getElementById('quickRemarkInput');
+                        if (quickRemarkInput) {
+                            remark = quickRemarkInput.value.trim();
+                            // 直接使用输入框中的内容作为收获内容，与记录字段保持一致
+                            // 不再合并新内容与原有内容
+                        }
+                        
                         // 根据data_definition.md规范更新数据
                         const updateData = {
                             // endTime为最后一个segments的end时间
@@ -166,7 +186,11 @@ export const TimeRecorderTimer = {
                             segments: {
                                 index: record.segments && Array.isArray(record.segments) ? record.segments.length - 1 : 0,
                                 end: new Date(endTime).toISOString()
-                            }
+                            },
+                            // 保存情绪数据
+                            emotion: emotions.join(', '),
+                            // 保存收获数据，直接使用输入框中的内容
+                            remark: remark
                         };
                         
                         // duration记录所有segments累计的时间
@@ -190,6 +214,11 @@ export const TimeRecorderTimer = {
                                     TimeRecorderUI.updateRecordsTable();
                                     TimeRecorderUI.updateStats();
                                     
+                                    // 同步更新快速情绪按钮状态
+                                    if (window.initializeQuickEmotionButtons) {
+                                        window.initializeQuickEmotionButtons();
+                                    }
+                                    
                                     // 同步当前记录到飞书
                                     this.syncRecordToFeishu(currentRecordId);
                                 } else {
@@ -209,6 +238,23 @@ export const TimeRecorderTimer = {
                     const utcStartTime = new Date(startTime);
                     const utcEndTime = new Date(endTime);
                                         
+                    // 获取当前选中的情绪
+                    let emotions = [];
+                    const quickEmotionButtons = document.querySelectorAll('.emotion-btn.selected');
+                    quickEmotionButtons.forEach(button => {
+                        const emotion = button.getAttribute('data-emotion');
+                        if (emotion) {
+                            emotions.push(emotion);
+                        }
+                    });
+                    
+                    // 获取收获内容
+                    let remark = '';
+                    const quickRemarkInput = document.getElementById('quickRemarkInput');
+                    if (quickRemarkInput) {
+                        remark = quickRemarkInput.value.trim();
+                    }
+                    
                     const record = {
                         activity: currentActivityValue,
                         startTime: utcStartTime.toISOString(), // startTime是第一个segments的start时间
@@ -217,8 +263,8 @@ export const TimeRecorderTimer = {
                         duration: elapsedTime,
                         // timeSpan记录从第一个段落的start到最后一个段落的end的时间跨度
                         timeSpan: utcEndTime - utcStartTime,
-                        remark: '',
-                        emotion: '',
+                        remark: remark,
+                        emotion: emotions.join(', '),
                         // pauseCount记录segments的个数
                         pauseCount: 1,
                         segments: [{
@@ -237,6 +283,17 @@ export const TimeRecorderTimer = {
             }
             // 停止后重新启用编辑
             currentActivityElement.contentEditable = "true";
+            
+            // 隐藏快速记录区域容器
+            const quickRecordContainer = document.getElementById('quickRecordContainer');
+            if (quickRecordContainer) {
+                quickRecordContainer.style.display = 'none';
+            }
+            
+            // 清除快速情绪按钮的选中状态
+            if (window.clearQuickEmotionButtons) {
+                window.clearQuickEmotionButtons();
+            }
         } else {
             // 开始计时
             // 使用UTC时间存储
@@ -253,10 +310,20 @@ export const TimeRecorderTimer = {
                 focusTimerSection.classList.add('running');
             }
             
-            // 显示快速情绪记录区域
-            const quickEmotionSection = document.getElementById('quickEmotionSection');
-            if (quickEmotionSection) {
-                quickEmotionSection.style.display = 'block';
+            // 显示快速记录区域容器
+            const quickRecordContainer = document.getElementById('quickRecordContainer');
+            if (quickRecordContainer) {
+                quickRecordContainer.style.display = 'flex';
+            }
+            
+            // 清除快速情绪按钮的选中状态，确保每次显示时都从干净状态开始
+            if (window.clearQuickEmotionButtons) {
+                window.clearQuickEmotionButtons();
+            }
+            
+            // 如果有当前记录，初始化快速情绪按钮状态
+            if (window.initializeQuickEmotionButtons) {
+                window.initializeQuickEmotionButtons();
             }
             
             // 创建新记录或更新现有记录
@@ -270,7 +337,7 @@ export const TimeRecorderTimer = {
                 duration: 0, // 初始duration为0，会在停止时更新
                 timeSpan: 0, // 初始timeSpan为0，会在停止时更新
                 remark: '',
-                emotion: '',
+                emotion: '', // 确保新记录的情绪字段为空
                 // pauseCount记录segments的个数
                 pauseCount: currentRecordId ? (records.find(r => r && r.id === currentRecordId)?.segments?.length || 0) + 1 : 1
             };
@@ -294,6 +361,16 @@ export const TimeRecorderTimer = {
                     end: utcStartTime.toISOString()
                 };
                 
+                // 如果是继续现有记录，保留原有情绪数据
+                if (currentRecordId) {
+                    const recordIndex = records.findIndex(r => r && r.id === currentRecordId);
+                    if (recordIndex !== -1) {
+                        const existingRecord = records[recordIndex];
+                        record.emotion = existingRecord.emotion || '';
+                        record.remark = existingRecord.remark || '';
+                    }
+                }
+                
                 // 更新现有记录
                 TimeRecorderAPI.updateRecord(currentRecordId, record)
                     .then(data => {
@@ -302,6 +379,10 @@ export const TimeRecorderTimer = {
                             const index = records.findIndex(r => r && r.id === currentRecordId);
                             if (index !== -1) {
                                 records[index] = {...records[index], ...data.record};
+                                // 同步更新快速情绪按钮状态
+                                if (window.initializeQuickEmotionButtons) {
+                                    window.initializeQuickEmotionButtons();
+                                }
                             }
                             TimeRecorderUI.updateRecordsTable();
                         } else {
@@ -408,10 +489,10 @@ export const TimeRecorderTimer = {
             focusTimerSection.classList.remove('running');
         }
         
-        // 隐藏快速情绪记录区域
-        const quickEmotionSection = document.getElementById('quickEmotionSection');
-        if (quickEmotionSection) {
-            quickEmotionSection.style.display = 'none';
+        // 隐藏快速记录区域容器
+        const quickRecordContainer = document.getElementById('quickRecordContainer');
+        if (quickRecordContainer) {
+            quickRecordContainer.style.display = 'none';
         }
         
         // 重新启用活动名称编辑
@@ -529,6 +610,11 @@ export const TimeRecorderTimer = {
                         setCurrentRecordId(data.record.id); // 保存当前记录ID
                         TimeRecorderUI.updateRecordsTable();
                         TimeRecorderUI.updateStats();
+                        
+                        // 同步更新快速情绪按钮状态
+                        if (window.initializeQuickEmotionButtons) {
+                            window.initializeQuickEmotionButtons();
+                        }
                         
                         // 同步新创建的记录到飞书
                         this.syncRecordToFeishu(data.record.id);

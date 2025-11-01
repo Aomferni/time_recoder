@@ -92,18 +92,17 @@ function updateTimerCategoryDisplay(categoryName) {
     }
 }
 
-// 快速记录情绪函数
+// 快速记录情绪函数 - 现在只更新本地状态，不立即保存到服务器
 function recordQuickEmotion(emotion) {
     // 检查是否有正在运行的计时器
     if (!timerInterval || !currentRecordId) {
-        alert('请先开始计时再记录情绪');
+        // 不再显示提醒，因为用户可能在开始计时前就想选择情绪
         return;
     }
     
     // 获取当前记录
     const recordIndex = records.findIndex(r => r && r.id === currentRecordId);
     if (recordIndex === -1) {
-        alert('未找到当前活动记录');
         return;
     }
     
@@ -127,40 +126,17 @@ function recordQuickEmotion(emotion) {
         emotions.push(emotion);
     }
     
-    // 更新记录
-    const updateData = {
-        emotion: emotions.join(', ')
-    };
+    // 只更新本地记录的情绪状态，不发送到服务器
+    record.emotion = emotions.join(', ');
     
-    // 发送到后端更新
-    TimeRecorderAPI.updateRecord(currentRecordId, updateData)
-        .then(data => {
-            if (data && data.success) {
-                // 更新本地记录
-                records[recordIndex] = {...records[recordIndex], ...data.record};
-                TimeRecorderUI.updateRecordsTable();
-                TimeRecorderUI.updateStats();
-                
-                // 更新快速情绪按钮的选中状态
-                updateQuickEmotionButtons(emotions);
-                
-                // 不再显示提示信息
-                // alert(`已记录情绪: ${emotion}`);
-            } else {
-                alert('记录情绪失败: ' + (data.error || '未知错误'));
-            }
-        })
-        .catch(error => {
-            console.error('记录情绪失败:', error);
-            alert('记录情绪失败，请查看控制台了解详情');
-        });
+    // 更新快速情绪按钮的选中状态
+    updateQuickEmotionButtons(emotions);
 }
 
 // 更新快速情绪按钮的选中状态
 function updateQuickEmotionButtons(selectedEmotions) {
     // 获取所有快速情绪按钮
     const quickEmotionButtons = document.querySelectorAll('.emotion-btn');
-    
     quickEmotionButtons.forEach(button => {
         const emotion = button.getAttribute('data-emotion');
         
@@ -185,10 +161,30 @@ function updateQuickEmotionButtons(selectedEmotions) {
     });
 }
 
+// 清除所有快速情绪按钮的选中状态
+function clearQuickEmotionButtons() {
+    // 获取所有快速情绪按钮
+    const quickEmotionButtons = document.querySelectorAll('.emotion-btn');
+    
+    quickEmotionButtons.forEach(button => {
+        // 移除之前可能添加的选中标记
+        const existingCheckmark = button.querySelector('.emotion-checkmark');
+        if (existingCheckmark) {
+            existingCheckmark.remove();
+        }
+        
+        // 移除选中类
+        button.classList.remove('selected');
+    });
+}
+
 // 初始化快速情绪按钮状态
-function initializeQuickEmotionButtons() {
-    // 如果有当前记录且计时器正在运行，初始化按钮状态
-    if (currentRecordId && timerInterval) {
+function initializeQuickEmotionButtons() {    
+    // 先清除所有按钮的选中状态
+    clearQuickEmotionButtons();
+    
+    // 如果有当前记录，初始化按钮状态（无论计时器是否正在运行）
+    if (currentRecordId) {
         const recordIndex = records.findIndex(r => r && r.id === currentRecordId);
         if (recordIndex !== -1) {
             const record = records[recordIndex];
@@ -199,6 +195,62 @@ function initializeQuickEmotionButtons() {
             updateQuickEmotionButtons(emotions);
         }
     }
+}
+
+// 快速记录收获
+function quickRecordRemark() {
+    if (!currentRecordId) {
+        alert('没有正在进行的活动记录');
+        return;
+    }
+    
+    const remarkInput = document.getElementById('quickRemarkInput');
+    const remark = remarkInput.value.trim();
+    
+    if (!remark) {
+        alert('请输入收获内容');
+        return;
+    }
+    
+    // 获取当前记录
+    const recordIndex = records.findIndex(r => r && r.id === currentRecordId);
+    if (recordIndex === -1) {
+        alert('未找到当前活动记录');
+        return;
+    }
+    
+    // 直接使用输入框中的内容作为收获内容，与记录字段保持一致
+    const updateData = {
+        remark: remark
+    };
+    
+    // 发送到后端更新
+    TimeRecorderAPI.updateRecord(currentRecordId, updateData)
+        .then(data => {
+            if (data && data.success) {
+                // 更新本地记录
+                records[recordIndex] = {...records[recordIndex], ...data.record};
+                TimeRecorderUI.updateRecordsTable();
+                TimeRecorderUI.updateStats();
+                
+                // 同步更新快速情绪按钮状态
+                if (window.initializeQuickEmotionButtons) {
+                    window.initializeQuickEmotionButtons();
+                }
+                
+                // 不清空输入框，保持与记录字段一致
+                // remarkInput.value = '';
+                
+                // 显示成功消息
+                // alert('收获记录已保存');
+            } else {
+                alert('记录收获失败: ' + (data.error || '未知错误'));
+            }
+        })
+        .catch(error => {
+            console.error('记录收获失败:', error);
+            alert('记录收获失败，请查看控制台了解详情');
+        });
 }
 
 // 将活动选择弹窗函数暴露到全局作用域
@@ -313,6 +365,9 @@ window.showActivitySelectionModal = function() {
                         // 更新计时器中的类别显示
                         updateTimerCategoryDisplay(category.name);
                     }
+                    
+                    // // 清除快速情绪按钮的选中状态（启动新活动时）
+                    // clearQuickEmotionButtons();
                     
                     // 关闭模态框
                     document.body.removeChild(modal);
@@ -471,7 +526,7 @@ window.saveFeishuConfig = async function() {
     }
 };
 
-// 页面加载完成后初始化
+// 页面加载完成后初始化事件监听器
 document.addEventListener('DOMContentLoaded', function() {
     // 设置当前日期显示
     const today = new Date();
@@ -559,6 +614,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 添加快速情绪按钮点击事件监听器
     const quickEmotionButtons = document.querySelectorAll('.emotion-btn');
+    // 先清除所有按钮的选中状态
+    clearQuickEmotionButtons();
     quickEmotionButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -667,6 +724,18 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('找不到当前活动区域元素');
     }
     
+    // 添加快速记录收获输入框的回车事件监听器
+    const quickRemarkInput = document.getElementById('quickRemarkInput');
+    if (quickRemarkInput) {
+        quickRemarkInput.addEventListener('keydown', function(e) {
+            // 如果按下Ctrl+Enter，保存收获
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                quickRecordRemark();
+            }
+        });
+    }
+    
     // 点击表格外区域关闭浮窗
     document.addEventListener('click', function(event) {
         const recordModal = document.getElementById('recordDetailModal');
@@ -710,6 +779,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 TimeRecorderUI.updateRecordsTable();
                                 TimeRecorderUI.updateStats();
                                 
+                                // 同步更新快速情绪按钮状态
+                                if (window.initializeQuickEmotionButtons) {
+                                    window.initializeQuickEmotionButtons();
+                                }
+                                
                                 // 刷新今日计划的统计数据
                                 if (window.DailyPlanModule && DailyPlanModule.refreshStats) {
                                     DailyPlanModule.refreshStats();
@@ -743,6 +817,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // 页面重新可见时，检查是否有保存的计时器状态需要恢复
             if (TimeRecorderTimer && typeof TimeRecorderTimer.restoreTimerState === 'function') {
                 TimeRecorderTimer.restoreTimerState();
+            }
+            
+            // 同步更新快速情绪按钮状态
+            if (window.initializeQuickEmotionButtons) {
+                window.initializeQuickEmotionButtons();
             }
         }
     });

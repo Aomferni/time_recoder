@@ -432,89 +432,58 @@ export const TimeRecorderUI = {
     },
     
     /**
-     * 保存记录详情
+     * 更新记录详情
      */
-    saveRecordDetail: function(recordId) {
-        // 安全地获取表单元素的值
+    updateRecordDetail: function(recordId) {
+        // 获取表单数据
         const activityElement = document.getElementById('detail-activity');
         const activityCategoryElement = document.getElementById('detail-activity-category');
         const startTimeElement = document.getElementById('detail-start-time');
         const endTimeElement = document.getElementById('detail-end-time');
         const remarkElement = document.getElementById('detail-remark');
-        const pauseCountElement = document.getElementById('detail-pause-count');
+        const emotionElements = document.querySelectorAll('#detail-emotion input[type="checkbox"]:checked');
         
-        // 检查所有必需的元素是否存在，并提供具体的错误信息
-        if (!activityElement) {
-            console.error('保存记录详情失败：找不到活动名称元素 (detail-activity)');
-            alert('保存记录详情失败：活动名称元素缺失');
+        if (!activityElement || !startTimeElement || !endTimeElement) {
+            console.error('更新记录失败：缺少必要的表单元素');
+            alert('更新记录失败：表单元素缺失');
             return;
         }
         
-        if (!activityCategoryElement) {
-            console.error('保存记录详情失败：找不到活动类别元素 (detail-activity-category)');
-            alert('保存记录详情失败：活动类别元素缺失');
-            return;
-        }
-        
-        if (!startTimeElement) {
-            console.error('保存记录详情失败：找不到开始时间元素 (detail-start-time)');
-            alert('保存记录详情失败：开始时间元素缺失');
-            return;
-        }
-        
-        if (!endTimeElement) {
-            console.error('保存记录详情失败：找不到结束时间元素 (detail-end-time)');
-            alert('保存记录详情失败：结束时间元素缺失');
-            return;
-        }
-        
-        if (!remarkElement) {
-            console.error('保存记录详情失败：找不到备注信息元素 (detail-remark)');
-            alert('保存记录详情失败：备注信息元素缺失');
-            return;
-        }
-        
-        if (!pauseCountElement) {
-            console.error('保存记录详情失败：找不到暂停次数元素 (detail-pause-count)');
-            alert('保存记录详情失败：暂停次数元素缺失');
-            return;
-        }
-        
-        const activity = activityElement.value;
-        const activityCategory = activityCategoryElement.value;
+        const activity = activityElement.value.trim();
+        const activityCategory = activityCategoryElement ? activityCategoryElement.value : '';
         const startTimeStr = startTimeElement.value;
         const endTimeStr = endTimeElement.value;
-        const remark = remarkElement.value;
-        const pauseCount = pauseCountElement.value;
+        const remark = remarkElement ? remarkElement.value : '';
         
         // 获取选中的情绪
-        const emotionCheckboxes = document.querySelectorAll('#detail-emotion input[type="checkbox"]:checked');
-        const emotions = Array.from(emotionCheckboxes).map(cb => cb.value).join(', ');
+        const emotions = Array.from(emotionElements).map(el => el.value);
         
-        // 获取段落信息
+        // 获取段落数据
         const segmentRows = document.querySelectorAll('.segment-row[data-segment-index]');
-        let segments = [];
+        const segments = [];
+        
         segmentRows.forEach(row => {
+            const index = parseInt(row.getAttribute('data-segment-index'));
             const startInput = row.querySelector('.segment-start');
             const endInput = row.querySelector('.segment-end');
             
             if (startInput && endInput) {
-                const startIndex = startInput.value;
-                const endIndex = endInput.value;
+                const startValue = startInput.value;
+                const endValue = endInput.value;
                 
-                if (startIndex && endIndex) {
+                if (startValue && endValue) {
+                    // 输入框中的时间已经是北京时间格式，需要转换为UTC时间存储
                     try {
-                        // 输入框中的时间已经是北京时间格式，需要转换为UTC时间存储
-                        const beijingStart = new Date(startIndex);
-                        const beijingEnd = new Date(endIndex);
+                        const beijingStartDate = new Date(startValue);
+                        const beijingEndDate = new Date(endValue);
                         // 转换为UTC时间存储（减去8小时偏移）
-                        const utcStart = new Date(beijingStart.getTime());
-                        const utcEnd = new Date(beijingEnd.getTime());
+                        const utcStartDate = new Date(beijingStartDate.getTime());
+                        const utcEndDate = new Date(beijingEndDate.getTime());
                         
-                        if (!isNaN(utcStart.getTime()) && !isNaN(utcEnd.getTime())) {
+                        if (!isNaN(utcStartDate.getTime()) && !isNaN(utcEndDate.getTime())) {
                             segments.push({
-                                start: utcStart.toISOString(),
-                                end: utcEnd.toISOString()
+                                start: utcStartDate.toISOString(),
+                                end: utcEndDate.toISOString()
                             });
                         }
                     } catch (e) {
@@ -524,20 +493,12 @@ export const TimeRecorderUI = {
             }
         });
         
-        // 按开始时间排序段落
-        segments.sort((a, b) => {
-            const startA = new Date(a.start).getTime();
-            const startB = new Date(b.start).getTime();
-            return startA - startB;
-        });
-        
-        // 构造更新数据
+        // 构建更新数据
         const updateData = {
             activity: activity,
             activityCategory: activityCategory,
             remark: remark,
-            emotion: emotions,
-            pauseCount: parseInt(pauseCount) || 0,
+            emotion: emotions.join(', '),
             segments: segments
         };
         
@@ -601,10 +562,21 @@ export const TimeRecorderUI = {
                     }
                     setTimerInterval(setInterval(TimeRecorderTimer.updateTimer, 1000));
                     
-                    // 显示快速情绪记录区域
-                    const quickEmotionSection = document.getElementById('quickEmotionSection');
-                    if (quickEmotionSection) {
-                        quickEmotionSection.style.display = 'block';
+                    // 显示快速记录区域容器
+                    const quickRecordContainer = document.getElementById('quickRecordContainer');
+                    if (quickRecordContainer) {
+                        quickRecordContainer.style.display = 'flex';
+                    }
+                    
+                    // 填充该记录的收获内容
+                    const quickRemarkInput = document.getElementById('quickRemarkInput');
+                    if (quickRemarkInput && data.record) {
+                        quickRemarkInput.value = data.record.remark || '';
+                    }
+                    
+                    // 初始化快速情绪按钮状态
+                    if (window.initializeQuickEmotionButtons) {
+                        window.initializeQuickEmotionButtons();
                     }
                 } else {
                     alert('更新记录失败: ' + (data.error || '未知错误'));
@@ -647,6 +619,11 @@ export const TimeRecorderUI = {
         
         // 保存当前记录ID，以便继续更新这个记录
         setCurrentRecordId(recordId);
+        
+        // 立即初始化快速情绪按钮状态（在API调用之前）
+        if (window.initializeQuickEmotionButtons) {
+            window.initializeQuickEmotionButtons();
+        }
         
         // 重置计时器状态
         TimeRecorderTimer.resetTimer();
@@ -729,10 +706,21 @@ export const TimeRecorderUI = {
                     }
                     setTimerInterval(setInterval(TimeRecorderTimer.updateTimer, 1000));
                     
-                    // 显示快速情绪记录区域
-                    const quickEmotionSection = document.getElementById('quickEmotionSection');
-                    if (quickEmotionSection) {
-                        quickEmotionSection.style.display = 'block';
+                    // 显示快速记录区域容器
+                    const quickRecordContainer = document.getElementById('quickRecordContainer');
+                    if (quickRecordContainer) {
+                        quickRecordContainer.style.display = 'flex';
+                    }
+                    
+                    // 填充该记录的收获内容
+                    const quickRemarkInput = document.getElementById('quickRemarkInput');
+                    if (quickRemarkInput) {
+                        quickRemarkInput.value = record.remark || '';
+                    }
+                    
+                    // 再次初始化快速情绪按钮状态（确保与后端返回的数据一致）
+                    if (window.initializeQuickEmotionButtons) {
+                        window.initializeQuickEmotionButtons();
                     }
                 } else {
                     alert('更新记录失败: ' + (data.error || '未知错误'));
@@ -865,6 +853,19 @@ export const TimeRecorderUI = {
                 // 如果有记录ID，保存它
                 if (data.recordId) {
                     setCurrentRecordId(data.recordId);
+                    // 初始化快速情绪按钮状态
+                    if (window.initializeQuickEmotionButtons) {
+                        window.initializeQuickEmotionButtons();
+                    }
+                }
+                
+                // 如果有情绪信息，初始化快速情绪按钮状态
+                if (data.emotion) {
+                    // 直接更新快速情绪按钮状态
+                    const emotions = data.emotion.split(', ').filter(e => e.trim() !== '');
+                    if (window.updateQuickEmotionButtons) {
+                        window.updateQuickEmotionButtons(emotions);
+                    }
                 }
                 
                 // 清除localStorage中的数据

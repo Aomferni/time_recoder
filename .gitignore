@@ -8,3 +8,4 @@ test/
 debug*.py
 test*.py
 test*.html
+.trae/*

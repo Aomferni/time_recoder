@@ -188,7 +188,7 @@ function checkContinueActivity() {
                 setCurrentActivity(data.activity);
                 const currentActivityElement = document.getElementById('currentActivity');
                 if (currentActivityElement) {
-                    currentActivityElement.textContent = `当前活动：${data.activity}`;
+                    currentActivityElement.textContent = data.activity;
                     currentActivityElement.contentEditable = "true";
                 }
             }
@@ -196,6 +196,19 @@ function checkContinueActivity() {
             // 如果有记录ID，保存它
             if (data.recordId) {
                 setCurrentRecordId(data.recordId);
+                // 初始化快速情绪按钮状态
+                if (window.initializeQuickEmotionButtons) {
+                    window.initializeQuickEmotionButtons();
+                }
+            }
+            
+            // 如果有情绪信息，初始化快速情绪按钮状态
+            if (data.emotion) {
+                // 直接更新快速情绪按钮状态
+                const emotions = data.emotion.split(', ').filter(e => e.trim() !== '');
+                if (window.updateQuickEmotionButtons) {
+                    window.updateQuickEmotionButtons(emotions);
+                }
             }
             
             // 清除localStorage中的数据
